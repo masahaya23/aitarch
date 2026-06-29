@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ★ タイトルを変更する ★ -->
+    <title>アプリ名 - OIH_AIエージェント研究会</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="/common/theme.css">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+        .launch-btn {
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .launch-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(124, 58, 237, 0.45);
+        }
+        .tag {
+            background-color: #ede9fe;
+            color: #5b21b6;
+            font-size: 0.75rem;
+            padding: 2px 10px;
+            border-radius: 9999px;
+        }
+        .info-row { border-bottom: 1px solid rgba(124,58,237,0.15); }
+    </style>
+</head>
+<body class="bg-[var(--bg-color)] overflow-x-hidden">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- 左サイドバー（JSで自動生成） -->
+        <aside id="sidebar-container"
+               class="w-full md:w-1/3 lg:w-1/4 p-6 bg-white/60 backdrop-blur-sm border-r border-black/10"
+               data-aos="fade-right" data-aos-duration="900">
+        </aside>
+
+        <!-- メインコンテンツ -->
+        <main class="w-full md:w-2/3 lg:w-3/4 p-8 md:p-12"
+              data-aos="fade-left" data-aos-duration="900" data-aos-delay="200">
+            <div class="max-w-3xl text-[var(--text-color)]">
+
+                <!-- ★ タグを変更する（type: game→🎮  app→⚙️） ★ -->
+                <!-- ★ 教科タグを変更する（📐数学 / ⚛️物理 / 🔤英語） ★ -->
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="tag">⚙️ アプリ</span>
+                    <span class="tag">📐 数学</span>
+                    <span class="tag">★トピックタグ★</span>
+                </div>
+
+                <!-- ★ タイトルを変更する ★ -->
+                <h1 class="text-3xl md:text-4xl font-bold pb-4 mt-4 mb-6 border-b border-[var(--theme-color)]/30">
+                    アプリ名
+                </h1>
+
+                <!-- 起動ボタン -->
+                <div class="mb-10" data-aos="zoom-in" data-aos-duration="600">
+                    <!-- ★ window.open の第1引数（ファイルパス）を変更する ★ -->
+                    <!-- ★ 第3引数でウィンドウサイズを調整する（width / height） ★ -->
+                    <button onclick="window.open('/ai-agent/app/★ファイル名★.html', '_blank', 'width=860,height=700')"
+                            class="launch-btn inline-flex items-center gap-3 text-white font-bold text-lg px-8 py-4 rounded-2xl shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <!-- ★ ボタンラベルを変更する（例：ゲームを起動 / クイズを起動） ★ -->
+                        アプリを起動（別窓）
+                    </button>
+                    <p class="mt-2 text-sm opacity-60">新しいウィンドウで開きます</p>
+                </div>
+
+                <!-- 概要 -->
+                <section class="prose prose-lg max-w-none mb-8" data-aos="fade-up">
+                    <h2 class="text-xl font-bold mb-3" style="color:var(--text-color)">アプリ概要</h2>
+                    <!-- ★ 概要を記述する ★ -->
+                    <p style="color:var(--text-color)">アプリの説明をここに書いてください。</p>
+                </section>
+
+                <!-- 情報テーブル -->
+                <section class="mb-8 bg-white/70 rounded-xl overflow-hidden border border-[var(--theme-color)]/20" data-aos="fade-up" data-aos-delay="100">
+                    <!-- ★ 各行の右側テキストを変更する ★ -->
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">対象</span>
+                        <span>★対象学年・レベル★</span>
+                    </div>
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">問題数</span>
+                        <span>★問題数★</span>
+                    </div>
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">形式</span>
+                        <span>★出題形式★</span>
+                    </div>
+                    <div class="flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">作成</span>
+                        <span>HTML / CSS / JavaScript</span>
+                    </div>
+                </section>
+
+                <!-- 詳細説明（任意） -->
+                <section class="mb-8" data-aos="fade-up" data-aos-delay="150">
+                    <h2 class="text-xl font-bold mb-3" style="color:var(--text-color)">★見出し（例：遊び方 / 使い方）★</h2>
+                    <!-- ★ 詳細説明を追加する（不要なら section ごと削除） ★ -->
+                    <p class="text-sm opacity-80">説明を記述...</p>
+                </section>
+
+            </div>
+            <footer class="text-left text-slate-400 mt-12">
+                <p>&copy; 2025 Aitarch. All Rights Reserved.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ once: true });
+
+        const script = document.createElement('script');
+        script.src = `../../sidebar.js?v=${new Date().getTime()}`;
+        script.onload = function() {
+            // ★ このファイルのURLを変更する（例：'/ai-agent/article/3.html'） ★
+            generateSidebar('ai-agent', '/ai-agent/article/N.html');
+        };
+        document.body.appendChild(script);
+    </script>
+</body>
+</html>

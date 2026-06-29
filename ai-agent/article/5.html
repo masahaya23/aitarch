@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>席替えアプリ - OIH_AIエージェント研究会</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="/common/theme.css">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+        .launch-btn {
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .launch-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(124, 58, 237, 0.45);
+        }
+        .tag {
+            background-color: #ede9fe;
+            color: #5b21b6;
+            font-size: 0.75rem;
+            padding: 2px 10px;
+            border-radius: 9999px;
+        }
+        .step-num {
+            background: #7c3aed;
+            color: white;
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        #sidebar-container,
+        #sidebar-container h2,
+        #sidebar-container p,
+        #sidebar-container a { color: #1e0a40 !important; }
+        #sidebar-container .article-list a:hover,
+        #sidebar-container .article-list a.active { color: white !important; }
+    </style>
+</head>
+<body class="theme-ai-agent overflow-x-hidden">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <aside id="sidebar-container"
+               class="w-full md:w-1/3 lg:w-1/4 p-6 backdrop-blur-sm border-r border-white/10"
+               data-aos="fade-right" data-aos-duration="900">
+        </aside>
+
+        <main class="w-full md:w-2/3 lg:w-3/4 p-8 md:p-12"
+              data-aos="fade-left" data-aos-duration="900" data-aos-delay="200">
+
+            <div class="max-w-2xl mx-auto">
+
+                <!-- ヘッダー -->
+                <div class="mb-8" data-aos="fade-up">
+                    <div class="flex flex-wrap gap-2 mb-3">
+                        <span class="tag">⚙️ アプリ</span>
+                        <span class="tag">業務効率化</span>
+                        <span class="tag">クラス運営</span>
+                    </div>
+                    <h1 class="text-3xl font-black text-white mb-2">
+                        席替えアプリ
+                    </h1>
+                    <p class="text-purple-300 leading-relaxed">
+                        クラスやレッスンの生徒の座席を素早く決める席替えサポートツールです。<br>
+                        <span class="text-purple-400 text-sm">開発：鍵村先生</span>
+                    </p>
+                </div>
+
+                <!-- 起動ボタン -->
+                <div class="mb-8" data-aos="fade-up" data-aos-delay="100">
+                    <button onclick="openApp()" class="launch-btn text-white font-bold px-8 py-4 rounded-2xl text-lg w-full">
+                        🪑 席替えアプリを開く
+                    </button>
+                </div>
+
+                <!-- 説明カード -->
+                <div class="space-y-4" data-aos="fade-up" data-aos-delay="150">
+
+                    <!-- 概要 -->
+                    <div class="bg-white/10 rounded-2xl p-6 border border-purple-400/30">
+                        <h2 class="text-lg font-bold text-white mb-3">📋 アプリ概要</h2>
+                        <p class="text-purple-200 text-sm leading-relaxed">
+                            CSVファイルで生徒名簿を読み込むだけで、座席表を自動生成します。
+                            行・列数の変更、男女分け、生徒向け／先生向けの出力切り替えなど、
+                            きめ細かな設定が可能です。ぜひご活用ください。
+                        </p>
+                    </div>
+
+                    <!-- CSV形式 -->
+                    <div class="bg-white/10 rounded-2xl p-6 border border-purple-400/30">
+                        <h2 class="text-lg font-bold text-white mb-4">📄 CSV ファイルの形式</h2>
+                        <p class="text-purple-300 text-sm mb-3">
+                            Excelなどで以下の形式で作成し、CSV形式で保存してください。
+                        </p>
+                        <div class="bg-black/30 rounded-xl p-4 font-mono text-sm text-green-300 mb-3">
+                            <div class="text-gray-400 text-xs mb-2">例: students.csv</div>
+                            <div>出席番号,氏名</div>
+                            <div>A07,安部 智詞</div>
+                            <div>A10,岩井　美樹</div>
+                            <div>A15,太田 清子</div>
+                            <div>B01,河原　美月</div>
+                            <div class="text-gray-500">…（以下続く）</div>
+                        </div>
+                        <ul class="text-purple-200 text-xs space-y-1">
+                            <li>・ A列：出席番号（組の識別に使用）</li>
+                            <li>・ B列：生徒氏名</li>
+                            <li>・ 1行目はヘッダー行（「出席番号」「氏名」など）</li>
+                        </ul>
+                    </div>
+
+                    <!-- 使い方 -->
+                    <div class="bg-white/10 rounded-2xl p-6 border border-purple-400/30">
+                        <h2 class="text-lg font-bold text-white mb-4">💡 使い方</h2>
+                        <ol class="space-y-3 text-purple-200 text-sm">
+                            <li class="flex items-start gap-3">
+                                <span class="step-num">1</span>
+                                <span>「席替えアプリを開く」ボタンをクリック</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="step-num">2</span>
+                                <span>設定画面のドラッグ＆ドロップ枠に CSV ファイルを読み込む</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="step-num">3</span>
+                                <span>座席の行・列数、男女分けなどの設定を行う</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="step-num">4</span>
+                                <span>右上の「席替え」ボタンを押して座席表を生成</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="step-num">5</span>
+                                <span>生徒向け／先生向けを切り替えて必要な形式で出力</span>
+                            </li>
+                        </ol>
+                    </div>
+
+                </div>
+            </div>
+
+            <footer class="text-left text-slate-500 mt-16">
+                <p>&copy; 2025 Aitarch. All Rights Reserved.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ once: true });
+
+        function openApp() {
+            window.open('/ai-agent/app/sekigae_pro.html', '_blank', 'width=1100,height=750');
+        }
+
+        const script = document.createElement('script');
+        script.src = `../../sidebar.js?v=${new Date().getTime()}`;
+        script.onload = function() {
+            generateSidebar('ai-agent', '/ai-agent/article/5.html');
+        };
+        document.body.appendChild(script);
+    </script>
+</body>
+</html>

@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三角関数シューティング</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:100%;height:100%;background:#08081a;overflow:hidden}
+  body{display:flex;justify-content:center;align-items:center}
+  canvas{display:block;cursor:none}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+// ══════════════════════════════════════════════
+//  Canvas
+// ══════════════════════════════════════════════
+const W=720,H=700;
+const cvs=document.getElementById('c');
+const ctx=cvs.getContext('2d');
+cvs.width=W; cvs.height=H;
+
+function resize(){
+  const s=Math.min(window.innerWidth/W,window.innerHeight/H);
+  cvs.style.width=W*s+'px'; cvs.style.height=H*s+'px';
+}
+window.addEventListener('resize',resize); resize();
+
+// ══════════════════════════════════════════════
+//  三角関数データ  -2π～2π  弧度法
+// ══════════════════════════════════════════════
+// a=角度表示, s=sinの値, c=cosの値, t=tanの値(null=未定義)
+const TRIG=[
+  {a:'0',       s:'0',    c:'1',     t:'0'    },
+  {a:'π/6',     s:'1/2',  c:'√3/2',  t:'√3/3' },
+  {a:'π/4',     s:'√2/2', c:'√2/2',  t:'1'    },
+  {a:'π/3',     s:'√3/2', c:'1/2',   t:'√3'   },
+  {a:'π/2',     s:'1',    c:'0',     t:null   },
+  {a:'2π/3',    s:'√3/2', c:'-1/2',  t:'-√3'  },
+  {a:'3π/4',    s:'√2/2', c:'-√2/2', t:'-1'   },
+  {a:'5π/6',    s:'1/2',  c:'-√3/2', t:'-√3/3'},
+  {a:'π',       s:'0',    c:'-1',    t:'0'    },
+  {a:'7π/6',    s:'-1/2', c:'-√3/2', t:'√3/3' },
+  {a:'5π/4',    s:'-√2/2',c:'-√2/2', t:'1'    },
+  {a:'4π/3',    s:'-√3/2',c:'-1/2',  t:'√3'   },
+  {a:'3π/2',    s:'-1',   c:'0',     t:null   },
+  {a:'5π/3',    s:'-√3/2',c:'1/2',   t:'-√3'  },
+  {a:'7π/4',    s:'-√2/2',c:'√2/2',  t:'-1'   },
+  {a:'11π/6',   s:'-1/2', c:'√3/2',  t:'-√3/3'},
+  {a:'2π',      s:'0',    c:'1',     t:'0'    },
+  {a:'-π/6',    s:'-1/2', c:'√3/2',  t:'-√3/3'},
+  {a:'-π/4',    s:'-√2/2',c:'√2/2',  t:'-1'   },
+  {a:'-π/3',    s:'-√3/2',c:'1/2',   t:'-√3'  },
+  {a:'-π/2',    s:'-1',   c:'0',     t:null   },
+  {a:'-2π/3',   s:'-√3/2',c:'-1/2',  t:'√3'   },
+  {a:'-3π/4',   s:'-√2/2',c:'-√2/2', t:'1'    },
+  {a:'-5π/6',   s:'-1/2', c:'-√3/2', t:'√3/3' },
+  {a:'-π',      s:'0',    c:'-1',    t:'0'    },
+  {a:'-7π/6',   s:'1/2',  c:'-√3/2', t:'-√3/3'},
+  {a:'-5π/4',   s:'√2/2', c:'-√2/2', t:'-1'   },
+  {a:'-4π/3',   s:'√3/2', c:'-1/2',  t:'-√3'  },
+  {a:'-3π/2',   s:'1',    c:'0',     t:null   },
+  {a:'-5π/3',   s:'√3/2', c:'1/2',   t:'√3'   },
+  {a:'-7π/4',   s:'√2/2', c:'√2/2',  t:'1'    },
+  {a:'-11π/6',  s:'1/2',  c:'√3/2',  t:'√3/3' },
+  {a:'-2π',     s:'0',    c:'1',     t:'0'    },
+];
+const SIN_POOL=['0','1','-1','1/2','-1/2','√3/2','-√3/2','√2/2','-√2/2'];
+const TAN_POOL=['0','1','-1','√3','-√3','√3/3','-√3/3'];
+
+// 段階的な出題範囲（5問ごとに切り替わる）
+// null = 全角度からランダム
+const STAGES=[
+  ['0','π/6','π/4','π/3','π/2'],            // 0〜π/2
+  ['π/2','2π/3','3π/4','5π/6','π'],          // π/2〜π
+  ['π','7π/6','5π/4','4π/3','3π/2'],         // π〜3π/2
+  ['3π/2','5π/3','7π/4','11π/6','2π'],       // 3π/2〜2π
+  ['0','-π/6','-π/4','-π/3','-π/2'],         // 0〜-π/2
+  ['-π/2','-2π/3','-3π/4','-5π/6','-π'],    // -π/2〜-π
+  ['-π','-7π/6','-5π/4','-4π/3','-3π/2'],   // -π〜-3π/2
+  ['-3π/2','-5π/3','-7π/4','-11π/6','-2π'], // -3π/2〜-2π
+  null,                                        // 全範囲ランダム（9段階目以降）
+];
+const STAGE_LABELS=[
+  '0 〜 π/2','π/2 〜 π','π 〜 3π/2','3π/2 〜 2π',
+  '0 〜 -π/2','-π/2 〜 -π','-π 〜 -3π/2','-3π/2 〜 -2π',
+  '-2π 〜 2π (全範囲)',
+];
+
+// ══════════════════════════════════════════════
+//  定数
+// ══════════════════════════════════════════════
+const BW=120,BH=52;
+const BXS=[20,160,300,440,580]; // 5ブロックの左端X座標
+const CANNON_Y=H-60;
+const DANGER_Y=H-104;
+
+// ══════════════════════════════════════════════
+//  ゲーム状態
+// ══════════════════════════════════════════════
+let state='title';   // title | playing | gameover
+let score=0,lives=5,totalQ=0,phaseQ=0;
+let dropSpeed=1.3;
+let blocks=[],missiles=[];
+let cannon={x:W/2};
+let locked=false;
+let fb={msg:'',color:'',timer:0};
+let currentQ=null;
+let used=new Set();
+let lastStage=-1;
+
+// 背景の星
+const STARS=Array.from({length:90},()=>({
+  x:Math.random()*W, y:Math.random()*H,
+  r:Math.random()*1.6+0.3, a:Math.random()*0.5+0.25
+}));
+
+// ══════════════════════════════════════════════
+//  ヘルパー
+// ══════════════════════════════════════════════
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function getFunc(){
+  const p=phaseQ%15;
+  return p<5?'sin':p<10?'cos':'tan';
+}
+
+function rrect(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y,r);
+  ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+}
+
+// ══════════════════════════════════════════════
+//  問題生成
+// ══════════════════════════════════════════════
+function genQ(){
+  const fn=getFunc();
+  const vPool=fn==='tan'?TAN_POOL:SIN_POOL;
+
+  // 現在のステージを決定（5問ごと）
+  const stageIdx=Math.min(8,Math.floor(totalQ/5));
+  if(stageIdx!==lastStage){ used.clear(); lastStage=stageIdx; }
+
+  // ステージに応じた角度プールを取得
+  const stageAngles=STAGES[stageIdx]; // null = 全角度
+  let pool;
+  if(stageAngles===null){
+    pool=fn==='tan'?TRIG.filter(d=>d.t!==null):TRIG;
+  } else {
+    pool=TRIG.filter(d=>stageAngles.includes(d.a)&&(fn!=='tan'||d.t!==null));
+    // tanで未定義角度が多くプールが空になった場合のフォールバック
+    if(pool.length===0) pool=fn==='tan'?TRIG.filter(d=>d.t!==null):TRIG;
+  }
+
+  if(used.size>=pool.length) used.clear();
+  let e,tries=0;
+  do{ e=pool[Math.floor(Math.random()*pool.length)]; tries++; }
+  while(used.has(fn+e.a)&&tries<50);
+  used.add(fn+e.a);
+
+  const correct=fn==='sin'?e.s:fn==='cos'?e.c:e.t;
+  const wrongs=shuffle(vPool.filter(v=>v!==correct)).slice(0,4);
+  const choices=shuffle([correct,...wrongs]);
+
+  return {fn,angleStr:e.a,correct,choices,stageIdx};
+}
+
+function startQ(){
+  locked=false;
+  currentQ=genQ();
+  blocks=BXS.map((bx,i)=>({
+    x:bx, y:-BH-Math.random()*15,
+    val:currentQ.choices[i],
+    isCorrect:currentQ.choices[i]===currentQ.correct,
+    active:true, glow:0, glowCol:''
+  }));
+}
+
+// ══════════════════════════════════════════════
+//  ゲームアクション
+// ══════════════════════════════════════════════
+function fire(){
+  if(state!=='playing'||locked) return;
+  missiles.push({x:cannon.x,y:CANNON_Y-28});
+}
+
+function loseLife(){
+  lives=Math.max(0,lives-1);
+  if(lives===0) state='gameover';
+}
+
+function onCorrect(b){
+  b.glow=35; b.glowCol='#34d399';
+  blocks.forEach(ob=>{if(ob!==b)ob.active=false;});
+  score+=10;
+  fb.msg='✓ 正解！ +10点'; fb.color='#34d399'; fb.timer=65;
+  locked=true;
+  phaseQ++; totalQ++;
+  dropSpeed=Math.min(3.22,0.63+totalQ*0.044);
+  setTimeout(()=>{ if(state==='playing'){startQ();locked=false;} },900);
+}
+
+function onWrong(b){
+  b.glow=22; b.glowCol='#ef4444'; b.active=false;
+  loseLife();
+  fb.msg='✗ 不正解 ❤ −1'; fb.color='#f87171'; fb.timer=52;
+  // ゲームが続くなら locked しない（残りブロックを撃てる）
+}
+
+function onMissed(){
+  loseLife();
+  fb.msg='取り逃がし… ❤ −1'; fb.color='#fb923c'; fb.timer=55;
+  locked=true;
+  phaseQ++; totalQ++;
+  dropSpeed=Math.min(3.22,0.63+totalQ*0.044);
+  setTimeout(()=>{ if(state==='playing'){startQ();locked=false;} },900);
+}
+
+// ══════════════════════════════════════════════
+//  更新
+// ══════════════════════════════════════════════
+const keys={};
+
+function update(){
+  if(fb.timer>0) fb.timer--;
+  if(state!=='playing'||locked) return;
+
+  // 砲台移動（キー）
+  if(keys['ArrowLeft'])  cannon.x=Math.max(30,cannon.x-7);
+  if(keys['ArrowRight']) cannon.x=Math.min(W-30,cannon.x+7);
+
+  // ブロック移動・グロー減衰
+  let missedCorrect=false;
+  blocks.forEach(b=>{
+    if(b.glow>0) b.glow--;
+    if(!b.active) return;
+    b.y+=dropSpeed;
+    if(b.y>DANGER_Y+BH){
+      b.active=false;
+      if(b.isCorrect) missedCorrect=true;
+    }
+  });
+  if(missedCorrect&&!locked){ onMissed(); return; }
+
+  // ミサイル移動
+  for(let i=missiles.length-1;i>=0;i--){
+    missiles[i].y-=16;
+    if(missiles[i].y<-10){ missiles.splice(i,1); continue; }
+    // 衝突チェック
+    const m=missiles[i];
+    let hit=false;
+    for(const b of blocks){
+      if(!b.active||b.glow>0) continue;
+      if(m.x>=b.x&&m.x<=b.x+BW&&m.y>=b.y&&m.y<=b.y+BH){
+        missiles.splice(i,1);
+        b.isCorrect?onCorrect(b):onWrong(b);
+        hit=true; break;
+      }
+    }
+    if(hit) break;
+  }
+}
+
+// ══════════════════════════════════════════════
+//  描画
+// ══════════════════════════════════════════════
+function drawBG(){
+  ctx.fillStyle='#08081a';
+  ctx.fillRect(0,0,W,H);
+  STARS.forEach(s=>{
+    ctx.fillStyle=`rgba(255,255,255,${s.a})`;
+    ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
+  });
+  // 底面グロー
+  const g=ctx.createLinearGradient(0,H-130,0,H);
+  g.addColorStop(0,'rgba(109,40,217,0)');
+  g.addColorStop(1,'rgba(109,40,217,0.14)');
+  ctx.fillStyle=g; ctx.fillRect(0,H-130,W,130);
+}
+
+function drawDangerLine(){
+  ctx.strokeStyle='rgba(239,68,68,0.4)';
+  ctx.lineWidth=1.5;
+  ctx.setLineDash([7,9]);
+  ctx.beginPath(); ctx.moveTo(0,DANGER_Y); ctx.lineTo(W,DANGER_Y); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='rgba(239,68,68,0.55)';
+  ctx.font='11px sans-serif'; ctx.textAlign='right';
+  ctx.fillText('▼ DEAD LINE',W-8,DANGER_Y-4);
+}
+
+function drawHUD(){
+  ctx.fillStyle='#c4b5fd';
+  ctx.font='bold 19px Inter,sans-serif';
+  ctx.textAlign='left';
+  ctx.fillText('Score: '+score,14,28);
+
+  ctx.textAlign='right';
+  ctx.font='19px sans-serif';
+  ctx.fillText('❤️'.repeat(lives)+'🖤'.repeat(5-lives),W-14,28);
+
+  if(!currentQ) return;
+  const FC={sin:'#a78bfa',cos:'#60a5fa',tan:'#34d399'};
+  const fn=currentQ.fn;
+  const pIn=(phaseQ%15)%5;
+  ctx.textAlign='center';
+  ctx.fillStyle=FC[fn];
+  ctx.font='bold 15px "Noto Sans JP",sans-serif';
+  ctx.fillText(fn+' フェーズ  '+( pIn+1 )+' / 5',W/2,28);
+
+  // 15問プログレスドット
+  const dx=(W-14*16)/2+8;
+  for(let i=0;i<15;i++){
+    const cp=phaseQ%15;
+    const done=i<cp, cur=i===cp;
+    let col;
+    if(i<5)  col=done?'#7c3aed':cur?'#c4b5fd':'rgba(167,139,250,0.22)';
+    else if(i<10) col=done?'#1e40af':cur?'#60a5fa':'rgba(96,165,250,0.22)';
+    else     col=done?'#065f46':cur?'#34d399':'rgba(52,211,153,0.22)';
+    ctx.fillStyle=col;
+    ctx.beginPath();
+    ctx.arc(dx+i*16,48,cur?6:4.5,0,Math.PI*2);
+    ctx.fill();
+  }
+  ctx.font='9px sans-serif';
+  ctx.fillStyle='rgba(167,139,250,0.75)'; ctx.textAlign='center';
+  ctx.fillText('sin',dx+2*16,60);
+  ctx.fillStyle='rgba(96,165,250,0.75)';
+  ctx.fillText('cos',dx+7*16,60);
+  ctx.fillStyle='rgba(52,211,153,0.75)';
+  ctx.fillText('tan',dx+12*16,60);
+
+  // ステージ表示
+  if(currentQ!=null){
+    const si=Math.min(8,Math.floor(totalQ/5));
+    const isLast=si>=8;
+    ctx.fillStyle=isLast?'rgba(251,191,36,0.85)':'rgba(196,181,253,0.7)';
+    ctx.font='11px "Noto Sans JP",sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('📍 角度範囲：'+STAGE_LABELS[si],W/2,72);
+  }
+}
+
+function drawQuestion(){
+  if(!currentQ) return;
+  const FC={sin:'#c4b5fd',cos:'#93c5fd',tan:'#6ee7b7'};
+  ctx.fillStyle='rgba(255,255,255,0.055)';
+  rrect(W/2-230,68,460,60,12); ctx.fill();
+  ctx.strokeStyle='rgba(167,139,250,0.3)'; ctx.lineWidth=1.5; ctx.stroke();
+
+  ctx.fillStyle=FC[currentQ.fn];
+  ctx.font='bold 26px Inter,"Noto Sans JP",sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText(currentQ.fn+' ( '+currentQ.angleStr+' )  =  ?',W/2,108);
+}
+
+function drawBlocks(){
+  blocks.forEach(b=>{
+    if(!b.active&&b.glow<=0) return;
+    const by=Math.round(b.y);
+    if(b.glow>0){
+      ctx.shadowColor=b.glowCol; ctx.shadowBlur=22;
+      ctx.fillStyle=b.glowCol==='#34d399'?'rgba(4,120,87,0.9)':'rgba(153,27,27,0.9)';
+      rrect(b.x,by,BW,BH,10); ctx.fill();
+      ctx.strokeStyle=b.glowCol; ctx.lineWidth=2.5; ctx.stroke();
+      ctx.shadowBlur=0;
+    } else {
+      ctx.fillStyle='rgba(88,28,135,0.88)';
+      rrect(b.x,by,BW,BH,10); ctx.fill();
+      ctx.strokeStyle='#a78bfa'; ctx.lineWidth=1.8; ctx.stroke();
+    }
+    ctx.fillStyle='#fff';
+    ctx.font='bold 18px Inter,sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText(b.val,b.x+BW/2,by+BH/2+7);
+  });
+}
+
+function drawMissiles(){
+  missiles.forEach(m=>{
+    ctx.fillStyle='#fef08a';
+    ctx.beginPath(); ctx.arc(m.x,m.y,5,0,Math.PI*2); ctx.fill();
+    // 軌跡
+    [10,19,27].forEach((dy,i)=>{
+      ctx.fillStyle=`rgba(254,240,138,${0.5-i*0.15})`;
+      ctx.beginPath(); ctx.arc(m.x,m.y+dy,4-i*0.8,0,Math.PI*2); ctx.fill();
+    });
+  });
+}
+
+function drawCannon(){
+  const cx=cannon.x,cy=CANNON_Y;
+  // 照準ライン
+  ctx.strokeStyle='rgba(196,181,253,0.1)';
+  ctx.lineWidth=1; ctx.setLineDash([4,7]);
+  ctx.beginPath(); ctx.moveTo(cx,cy-32); ctx.lineTo(cx,0); ctx.stroke();
+  ctx.setLineDash([]);
+  // 砲身
+  ctx.fillStyle='#c4b5fd';
+  rrect(cx-7,cy-34,14,34,4); ctx.fill();
+  // 車体
+  ctx.fillStyle='#7c3aed';
+  rrect(cx-28,cy,56,18,7); ctx.fill();
+  // 車輪
+  [[cx-17,cy+22],[cx+17,cy+22]].forEach(([wx,wy])=>{
+    ctx.fillStyle='#5b21b6';
+    ctx.beginPath(); ctx.arc(wx,wy,11,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#7c3aed';
+    ctx.beginPath(); ctx.arc(wx,wy,5,0,Math.PI*2); ctx.fill();
+  });
+}
+
+function drawFeedback(){
+  if(fb.timer<=0) return;
+  const alpha=Math.min(1,fb.timer/22);
+  ctx.globalAlpha=alpha;
+  ctx.fillStyle=fb.color;
+  ctx.font='bold 32px "Noto Sans JP",sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText(fb.msg,W/2,H/2-20);
+  ctx.globalAlpha=1;
+}
+
+// ══════════════════════════════════════════════
+//  単位円 + 動径
+// ══════════════════════════════════════════════
+function parseAngle(s){
+  if(s==='0') return 0;
+  const m=s.match(/^(-?)(\d*)π(?:\/(\d+))?$/);
+  if(!m) return 0;
+  const sign=m[1]==='-'?-1:1;
+  const num=m[2]===''?1:parseInt(m[2]);
+  const den=m[3]?parseInt(m[3]):1;
+  return sign*num*Math.PI/den;
+}
+
+function drawUnitCircle(){
+  if(!currentQ) return;
+  const theta=parseAngle(currentQ.angleStr);
+
+  const cx=W/2, cy=370, R=130; // 円の中心と半径(px)
+  const px=cx+R*Math.cos(theta);
+  const py=cy-R*Math.sin(theta); // canvas はY反転
+
+  ctx.save();
+
+  // ── 外円
+  ctx.globalAlpha=0.14;
+  ctx.strokeStyle='#a78bfa';
+  ctx.lineWidth=1.8;
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.stroke();
+
+  // ── X・Y 軸
+  ctx.globalAlpha=0.18;
+  ctx.strokeStyle='#c4b5fd';
+  ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(cx-R-16,cy); ctx.lineTo(cx+R+16,cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx,cy-R-16); ctx.lineTo(cx,cy+R+16); ctx.stroke();
+
+  // 軸ラベル
+  ctx.globalAlpha=0.25;
+  ctx.fillStyle='#c4b5fd';
+  ctx.font='bold 11px Inter,sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('1', cx+R+13, cy+4);
+  ctx.fillText('-1',cx-R-15, cy+4);
+  ctx.fillText('1', cx+3,    cy-R-7);
+  ctx.fillText('-1',cx+4,    cy+R+13);
+
+  // ── 角度アーク（0 から theta まで）
+  if(theta!==0){
+    ctx.globalAlpha=0.42;
+    ctx.strokeStyle='#fbbf24';
+    ctx.lineWidth=1.8;
+    ctx.beginPath();
+    ctx.arc(cx,cy,40,0,-theta,theta>0); // canvas角度は -theta（Y反転）
+    ctx.stroke();
+  }
+
+  // ── sin 補助線（円周点から x軸への垂線・緑）
+  ctx.globalAlpha=0.32;
+  ctx.strokeStyle='#34d399';
+  ctx.lineWidth=1.3;
+  ctx.setLineDash([5,5]);
+  ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px,cy); ctx.stroke();
+
+  // ── cos 補助線（円周点から y軸への水平線・青）
+  ctx.strokeStyle='#60a5fa';
+  ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(cx,py); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // ── 動径（半径腕・黄色）
+  ctx.globalAlpha=0.6;
+  ctx.strokeStyle='#fde68a';
+  ctx.lineWidth=2.2;
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,py); ctx.stroke();
+
+  // ── 円周上の点
+  ctx.globalAlpha=0.85;
+  ctx.fillStyle='#fbbf24';
+  ctx.beginPath(); ctx.arc(px,py,6,0,Math.PI*2); ctx.fill();
+
+  // ── 中心点
+  ctx.globalAlpha=0.45;
+  ctx.fillStyle='#c4b5fd';
+  ctx.beginPath(); ctx.arc(cx,cy,3.5,0,Math.PI*2); ctx.fill();
+
+  // ── 凡例（右下）
+  ctx.globalAlpha=0.5;
+  ctx.font='10px Inter,sans-serif'; ctx.textAlign='left';
+  ctx.fillStyle='#fde68a'; ctx.fillRect(cx+R-30,cy+R+8,12,3);
+  ctx.fillStyle='#e2e8f0'; ctx.fillText('動径',cx+R-14,cy+R+12);
+  ctx.fillStyle='#34d399'; ctx.fillRect(cx+R-30,cy+R+18,12,3);
+  ctx.fillStyle='#e2e8f0'; ctx.fillText('sin',cx+R-14,cy+R+22);
+  ctx.fillStyle='#60a5fa'; ctx.fillRect(cx+R-30,cy+R+28,12,3);
+  ctx.fillStyle='#e2e8f0'; ctx.fillText('cos',cx+R-14,cy+R+32);
+
+  ctx.restore();
+}
+
+function drawTitle(){
+  drawBG();
+  ctx.textAlign='center';
+  ctx.shadowColor='#7c3aed'; ctx.shadowBlur=30;
+  ctx.fillStyle='#c4b5fd';
+  ctx.font='bold 48px "Noto Sans JP",Inter,sans-serif';
+  ctx.fillText('三角関数',W/2,165);
+  ctx.fillStyle='#93c5fd';
+  ctx.font='bold 33px "Noto Sans JP",Inter,sans-serif';
+  ctx.fillText('シューティング',W/2,214);
+  ctx.shadowBlur=0;
+
+  ctx.fillStyle='rgba(148,163,184,0.85)';
+  ctx.font='15px "Noto Sans JP",sans-serif';
+  const rules=[
+    '正しい答えのブロックを砲台から撃ち落とせ！',
+    '',
+    '← → キー  /  マウス移動：砲台を左右に移動',
+    'スペースキー  /  クリック：発射',
+    '',
+    '正解 → +10点     誤答・取り逃がし → ❤ 1減',
+    '',
+    '角度範囲：−2π ～ 2π（弧度法）',
+    'sin → cos → tan の順に5問ずつ  無限ループ',
+    '問題が進むにつれ、ブロックの落下速度が上昇！',
+  ];
+  rules.forEach((r,i)=>{ ctx.fillText(r,W/2,298+i*30); });
+
+  const t=Date.now()/600;
+  ctx.fillStyle=`rgba(196,181,253,${0.65+0.35*Math.sin(t)})`;
+  ctx.font='bold 20px "Noto Sans JP",sans-serif';
+  ctx.fillText('▶  スペースキー または クリックでスタート',W/2,590);
+}
+
+function drawGameOver(){
+  ctx.fillStyle='rgba(0,0,0,0.82)';
+  ctx.fillRect(0,0,W,H);
+  ctx.textAlign='center';
+  ctx.shadowColor='#ef4444'; ctx.shadowBlur=24;
+  ctx.fillStyle='#fca5a5';
+  ctx.font='bold 56px "Noto Sans JP",sans-serif';
+  ctx.fillText('GAME OVER',W/2,H/2-72);
+  ctx.shadowBlur=0;
+  ctx.fillStyle='#e2e8f0';
+  ctx.font='bold 28px "Noto Sans JP",sans-serif';
+  ctx.fillText('最終スコア：'+score+' 点',W/2,H/2-10);
+  ctx.fillStyle='#94a3b8';
+  ctx.font='16px "Noto Sans JP",sans-serif';
+  ctx.fillText('解答問題数：'+totalQ+' 問',W/2,H/2+30);
+  const t=Date.now()/600;
+  ctx.fillStyle=`rgba(196,181,253,${0.6+0.4*Math.sin(t)})`;
+  ctx.font='bold 19px "Noto Sans JP",sans-serif';
+  ctx.fillText('▶  スペースキー / クリックでリスタート',W/2,H/2+100);
+}
+
+// ══════════════════════════════════════════════
+//  入力
+// ══════════════════════════════════════════════
+window.addEventListener('keydown',e=>{
+  keys[e.code]=true;
+  if(e.code==='Space'){
+    e.preventDefault();
+    if(state==='title'||state==='gameover') startGame();
+    else fire();
+  }
+});
+window.addEventListener('keyup',e=>{ keys[e.code]=false; });
+
+cvs.addEventListener('mousemove',e=>{
+  const rect=cvs.getBoundingClientRect();
+  cannon.x=Math.max(30,Math.min(W-30,(e.clientX-rect.left)*(W/rect.width)));
+});
+cvs.addEventListener('click',()=>{
+  if(state==='title'||state==='gameover') startGame();
+  else fire();
+});
+
+// ══════════════════════════════════════════════
+//  スタート
+// ══════════════════════════════════════════════
+function startGame(){
+  score=0; lives=5; totalQ=0; phaseQ=0;
+  dropSpeed=0.63; missiles=[]; blocks=[];
+  used.clear(); lastStage=-1; cannon.x=W/2;
+  fb={msg:'',color:'',timer:0};
+  locked=false;
+  state='playing';
+  startQ();
+}
+
+// ══════════════════════════════════════════════
+//  メインループ
+// ══════════════════════════════════════════════
+function loop(){
+  requestAnimationFrame(loop);
+  if(state==='title'){ drawTitle(); return; }
+  update();
+  drawBG();
+  drawUnitCircle();
+  drawDangerLine();
+  drawBlocks();
+  drawMissiles();
+  drawCannon();
+  drawHUD();
+  drawQuestion();
+  drawFeedback();
+  if(state==='gameover') drawGameOver();
+}
+
+loop();
+</script>
+</body>
+</html>

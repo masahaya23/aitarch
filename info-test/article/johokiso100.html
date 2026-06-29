@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>情報Ⅰ 情報社会の成り立ち 100問ドリル</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', 'Inter', sans-serif;
+        }
+        .quiz-container {
+            max-width: 800px;
+            margin: 2rem auto;
+        }
+        .option-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .correct {
+            background-color: #d1fae5 !important;
+            border-color: #10b981 !important;
+        }
+        .incorrect {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+        }
+        .explanation {
+            border-left: 4px solid #60a5fa;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="quiz-container p-4 sm:p-6 md:p-8">
+        <div id="start-screen" class="text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold text-blue-600 mb-4">情報Ⅰ 情報社会の成り立ち</h1>
+            <h2 class="text-xl sm:text-2xl font-semibold mb-8">共通テスト対策 100問ドリル</h2>
+            <p class="mb-8 text-gray-600">提供された資料に基づいて作成された100問のクイズです。<br>準備ができたら下のボタンを押して開始してください。</p>
+            <button id="start-btn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105">
+                クイズを開始
+            </button>
+        </div>
+
+        <div id="quiz-screen" class="hidden">
+            <div class="bg-white p-6 rounded-xl shadow-md mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-blue-700">問題 <span id="question-number"></span>/100</h2>
+                    <div id="progress-bar-container" class="w-1/2 bg-gray-200 rounded-full h-2.5">
+                        <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+                <p id="question-text" class="text-lg leading-relaxed"></p>
+            </div>
+
+            <div id="options-container" class="grid grid-cols-1 gap-4">
+                <!-- Option buttons will be generated here by JS -->
+            </div>
+
+            <div id="feedback-container" class="hidden mt-6">
+                <div id="feedback-result" class="text-2xl font-bold mb-4"></div>
+                <div id="explanation" class="bg-blue-50 p-4 rounded-lg explanation">
+                    <h3 class="font-bold text-lg mb-2 text-blue-800">解説</h3>
+                    <p id="explanation-text" class="text-gray-700"></p>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <button id="next-btn" class="bg-gray-800 text-white font-bold py-3 px-12 rounded-lg shadow-lg hover:bg-gray-900 transition-transform transform hover:scale-105 hidden">
+                    次の問題へ
+                </button>
+            </div>
+        </div>
+
+        <div id="result-screen" class="hidden text-center bg-white p-8 rounded-xl shadow-lg">
+            <h2 class="text-3xl font-bold text-blue-600 mb-4">結果発表</h2>
+            <p class="text-xl mb-6">お疲れ様でした！あなたのスコアは...</p>
+            <p class="text-6xl font-extrabold text-gray-800 mb-8"><span id="score"></span> / 100</p>
+            <p id="result-message" class="text-lg font-medium mb-8"></p>
+            <button id="restart-btn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105">
+                もう一度挑戦する
+            </button>
+        </div>
+    </div>
+
+<script>
+    // --- Quiz Data ---
+    const quizData = [
+        {
+            question: "事実や事柄などを数字や文字、記号で表現したものを何というか。",
+            options: ["情報", "知識", "知恵", "データ", "メディア"],
+            answer: 3,
+            explanation: "データは、意味付けや解釈がされる前の客観的な事実や数値を指します。これを整理・加工することで情報になります。"
+        },
+        {
+            question: "データを整理し、意味や価値を付加したものを何というか。",
+            options: ["知識", "知恵", "データ", "情報", "メディア"],
+            answer: 3,
+            explanation: "情報は、データに文脈や意味を与えることで、人間が判断や行動に利用できる形にしたものです。"
+        },
+        {
+            question: "情報を分析し、問題解決に役立つように蓄積したものを何というか。",
+            options: ["知恵", "データ", "情報", "知識", "技術"],
+            answer: 3,
+            explanation: "知識は、情報を体系的に整理し、一般化・法則化したものです。様々な場面で応用することができます。"
+        },
+        {
+            question: "情報には形がなく、他者に与えてもなくならないという特性を何というか。",
+            options: ["複製性", "伝播性", "残存性", "加工性", "揮発性"],
+            answer: 2,
+            explanation: "残存性があるため、一度インターネット上に公開された情報は、完全に削除することが非常に困難になります。"
+        },
+        {
+            question: "デジタル情報は、劣化させずに短時間で大量に複製できる。この特性を何というか。",
+            options: ["残存性", "伝播性", "複製性", "加工性", "普遍性"],
+            answer: 2,
+            explanation: "複製性が高いことで、情報の共有が容易になる一方、著作権侵害などの問題も発生しやすくなります。"
+        },
+        {
+            question: "情報は、「もの」に比べて短時間に広く伝わっていく。この特性を何というか。",
+            options: ["残存性", "伝播性", "複製性", "即時性", "永続性"],
+            answer: 1,
+            explanation: "伝播性は、特にインターネットの普及により飛躍的に高まり、情報の拡散スピードが社会に大きな影響を与えるようになりました。"
+        },
+        {
+            question: "生物それぞれにとって個別の意味をもつ、最も広義の情報を何というか。",
+            options: ["社会情報", "機械情報", "生命情報", "客観情報", "主観情報"],
+            answer: 2,
+            explanation: "生命情報は、生物が生きるために行う選択や判断の根拠となる情報で、主観的な性質を持ちます。"
+        },
+        {
+            question: "言葉やジェスチャーなど、人間社会のコミュニケーションで用いられる情報を何というか。",
+            options: ["生命情報", "社会情報", "機械情報", "文化情報", "伝達情報"],
+            answer: 1,
+            explanation: "社会情報は、共通のルールや文脈の中で意味が理解される情報であり、円滑な社会活動の基盤となります。"
+        },
+        {
+            question: "意味する内容が切り離され、0と1の記号の羅列として伝達・記録される情報を何というか。",
+            options: ["生命情報", "社会情報", "機械情報", "デジタル情報", "アナログ情報"],
+            answer: 2,
+            explanation: "機械情報は、コンピュータが処理する際の基本的な情報の形です。日本語がわからない人にとっての日本語の文字列は、機械情報にあたります。"
+        },
+        {
+            question: "情報のやり取りを媒介するものを総称して何というか。",
+            options: ["デバイス", "ネットワーク", "メディア", "コンテンツ", "プラットフォーム"],
+            answer: 2,
+            explanation: "メディアには、文字や音声のような「表現のためのメディア」、電波や紙のような「伝達・記録のためのメディア」などがあります。"
+        },
+        {
+            question: "文字や音声、静止画、動画などは、メディアの分類のうちどれに当てはまるか。",
+            options: ["伝達のためのメディア", "記録のためのメディア", "表現のためのメディア", "伝播メディア", "成果メディア"],
+            answer: 2,
+            explanation: "これらは情報を具体的な形として表現するためのメディアです。"
+        },
+        {
+            question: "紙、光学ディスク、フラッシュメモリなどは、メディアの分類のうちどれに当てはまるか。",
+            options: ["伝達のためのメディア", "記録のためのメディア", "表現のためのメディア", "伝播メディア", "成果メディア"],
+            answer: 1,
+            explanation: "これらは情報を時間的に保存し、後で利用できるようにするためのメディアです。"
+        },
+        {
+            question: "情報の流通範囲を拡大する役割を持つメディアを特に何と呼ぶか。",
+            options: ["成果メディア", "伝播メディア", "マスメディア", "ソーシャルメディア", "パーソナルメディア"],
+            answer: 1,
+            explanation: "一般的に「メディア」という場合、この伝播メディアを指すことが多いです。機械情報を物理的に媒介する役割を担います。"
+        },
+        {
+            question: "狩猟社会、農耕社会、工業社会、情報社会に続く、新たな社会の姿として提唱されているものは何か。",
+            options: ["Society 4.0", "Society 5.0", "グローバル社会", "知識基盤社会", "持続可能社会"],
+            answer: 1,
+            explanation: "Society 5.0（超スマート社会）は、IoTやAIなどの技術を活用して、社会の様々な課題を解決することを目指す社会です。"
+        },
+        {
+            question: "身の回りのあらゆるものがインターネットにつながる仕組みを何というか。",
+            options: ["AI", "ビッグデータ", "IoT", "5G", "クラウドコンピューティング"],
+            answer: 2,
+            explanation: "IoT (Internet of Things) により、モノから収集されたデータが分析・活用され、新たなサービスが生まれることが期待されています。"
+        },
+        {
+            question: "店舗での商品販売情報を管理するシステムで、バーコードリーダーで読み取った商品情報と販売実績を記録するものを何というか。",
+            options: ["EDI", "SCM", "POS", "CRM", "EOS"],
+            answer: 2,
+            explanation: "POS (Point Of Sales) システムは、「いつ、何が、いくつ売れたか」をリアルタイムで把握し、在庫管理やマーケティングに活用されます。"
+        },
+        {
+            question: "現在の状態と、目標とする「あるべき状態」との差を何というか。",
+            options: ["課題", "問題", "仮説", "目的", "目標"],
+            answer: 1,
+            explanation: "問題を正しく認識することが、問題解決の第一歩となります。"
+        },
+        {
+            question: "問題解決のプロセスを計画(Plan)→実行(Do)→評価(Check)→改善(Action)と循環させる管理手法を何というか。",
+            options: ["OODAループ", "フィードバック", "PDCAサイクル", "トレードオフ", "システム思考"],
+            answer: 2,
+            explanation: "PDCAサイクルは、継続的な業務改善を行うための基本的なフレームワークです。"
+        },
+        {
+            question: "一方を達成するために他方を犠牲にしなければならないような、二つの要素間の関係を何というか。",
+            options: ["ジレンマ", "フィードバック", "トレードオフ", "シナジー", "ボトルネック"],
+            answer: 2,
+            explanation: "問題解決においては、コストと品質のように、トレードオフの関係にある要素のバランスを考慮することが重要です。"
+        },
+        {
+            question: "個々の具体的な事実から、一般的な原理・原則を導き出そうとする推論の方法を何というか。",
+            options: ["演繹的推論", "帰納的推論", "三段論法", "類推", "仮説検証"],
+            answer: 1,
+            explanation: "帰納的推論は、多くの観察事例に基づいて、確からしい結論を導き出します。科学的な発見などで用いられます。"
+        },
+        {
+            question: "一般的に正しいとされている原理・原則から、個々の具体的な事柄が正しいという結論を得ようとする推論の方法を何というか。",
+            options: ["演繹的推論", "帰納的推論", "統計的推論", "アブダクション", "アナロジー"],
+            answer: 0,
+            explanation: "演繹的推論の代表例がアリストテレスによって定式化された三段論法です。「AはBである。CはAである。ゆえにCはBである。」"
+        },
+        {
+            question: "情報の盗聴、改竄、破壊などに対して、技術的・組織的な安全対策を講じることを何というか。",
+            options: ["情報倫理", "情報セキュリティ", "プライバシー保護", "リスク管理", "コンプライアンス"],
+            answer: 1,
+            explanation: "情報セキュリティは、「機密性」「完全性」「可用性」の3つの要素を維持することを目的とします。"
+        },
+        {
+            question: "アクセス権限のないコンピュータへのアクセスを禁止する法律は何か。",
+            options: ["個人情報保護法", "著作権法", "不正アクセス禁止法", "サイバーセキュリティ基本法", "プロバイダ責任制限法"],
+            answer: 2,
+            explanation: "不正アクセス禁止法は、他人のID・パスワードの不正利用や、セキュリティホールを攻撃する行為などを規制しています。"
+        },
+        {
+            question: "個人情報の適切な取り扱いについて定め、個人の権利利益を保護することを目的とする法律は何か。",
+            options: ["不正アクセス禁止法", "著作権法", "特定商取引法", "個人情報保護法", "マイナンバー法"],
+            answer: 3,
+            explanation: "個人情報保護法は、事業者が個人情報を扱う際のルール（利用目的の特定、第三者提供の制限など）を定めています。"
+        },
+        {
+            question: "正規のメールやWebページを装い、暗証番号やクレジットカード番号などを盗み取る詐欺を何というか。",
+            options: ["スパムメール", "チェーンメール", "スパイウェア", "フィッシング", "ソーシャルエンジニアリング"],
+            answer: 3,
+            explanation: "フィッシング詐欺のメールに記載されたURLをクリックすると、本物そっくりの偽サイトに誘導され、情報を入力させられます。"
+        },
+        {
+            question: "コンピュータに感染し、データを破壊したり外部に流出させたりする悪質なプログラムを総称して何というか。",
+            options: ["スパイウェア", "アドウェア", "コンピュータウイルス", "マルウェア", "ワーム"],
+            answer: 2,
+            explanation: "コンピュータウイルスは、自己増殖機能や潜伏機能、発病機能を持つプログラムです。現在では、ウイルスを含む悪意のあるソフトウェア全般を指すマルウェアという言葉がよく使われます。"
+        },
+        {
+            question: "パスワードを盗み見る、ゴミ箱をあさるなど、技術的な手段を使わずに人為的に機密情報を入手する行為を何というか。",
+            options: ["フィッシング", "スパイウェア", "ソーシャルエンジニアリング", "なりすまし", "盗聴"],
+            answer: 2,
+            explanation: "ソーシャルエンジニアリングは、人の心理的な隙や行動のミスを突く攻撃手法です。パスワードの管理を厳重にすることが対策の基本です。"
+        },
+        {
+            question: "外部からの不正なアクセスを検知・遮断するために、ネットワークの出入り口に設置される仕組みを何というか。",
+            options: ["ウイルス対策ソフト", "暗号化", "ファイアウォール", "IDS/IPS", "VPN"],
+            answer: 2,
+            explanation: "ファイアウォールは「防火壁」を意味し、あらかじめ設定されたルールに基づいて、許可されていない通信をブロックします。"
+        },
+        {
+            question: "氏名、生年月日、住所など、特定の個人を識別できる情報のことを何というか。",
+            options: ["プライバシー", "個人情報", "要配慮個人情報", "機密情報", "匿名加工情報"],
+            answer: 1,
+            explanation: "個人情報には、それ単体で個人を識別できるもののほか、他の情報と容易に照合でき、それにより個人を識別できるものも含まれます。"
+        },
+        {
+            question: "むやみに他人に知られたくない、私生活上の個人的な情報を何というか。",
+            options: ["個人情報", "プライバシー", "肖像権", "パブリシティ権", "秘密情報"],
+            answer: 1,
+            explanation: "プライバシーの権利は、自己の情報をコントロールする権利として、現代社会において非常に重要視されています。"
+        },
+        {
+            question: "人種、信条、病歴、犯罪歴など、不当な差別や偏見が生じないよう、特に配慮が必要な個人情報を何というか。",
+            options: ["機微情報", "特定個人情報", "要配慮個人情報", "重要情報", "秘密情報"],
+            answer: 2,
+            explanation: "要配慮個人情報を取得する際には、原則として本人の同意を得ることが法律で義務付けられています。"
+        },
+        {
+            question: "Webサイトの閲覧履歴などの情報から、個人の関心や好みを類推し、その人に合った広告を表示する仕組みを何というか。",
+            options: ["アクセスログ分析", "パーソナライズ", "マスマーケティング", "SEO", "レコメンデーション"],
+            answer: 1,
+            explanation: "パーソナライズは、利用者一人ひとりに最適化された情報を提供することで利便性を高めますが、プライバシーとのバランスが課題となります。"
+        },
+        {
+            question: "広告メールなどの受け取りについて、あらかじめ本人の承諾を得る方式を何というか。",
+            options: ["オプトアウト", "オプトイン", "同意", "許諾", "承認"],
+            answer: 1,
+            explanation: "オプトイン方式では、利用者が「受け取る」という意思表示をしない限り、情報は送られてきません。日本の特定電子メール法では、原則としてこの方式が採用されています。"
+        },
+        {
+            question: "特定の個人を識別できないように個人情報を加工した情報を何というか。",
+            options: ["統計情報", "ビッグデータ", "匿名加工情報", "暗号化情報", "オープンデータ"],
+            answer: 2,
+            explanation: "匿名加工情報は、本人の同意なしに事業者間でデータを活用（第三者提供）することを可能にし、新たなサービス創出などを促進するために制度化されました。"
+        },
+        {
+            question: "Webサーバに記録される、誰がいつどのファイルにアクセスしたかなどの履歴情報を何というか。",
+            options: ["Cookie", "キャッシュ", "アクセスログ", "システムログ", "エラーログ"],
+            answer: 2,
+            explanation: "アクセスログには、IPアドレス、日時、閲覧したページ（URL）などが記録されており、Webサイトの利用状況分析や不正アクセスの調査などに使われます。"
+        },
+        {
+            question: "知的創作活動から生まれた財産を保護する権利を総称して何というか。",
+            options: ["所有権", "著作権", "産業財産権", "知的財産権", "特許権"],
+            answer: 3,
+            explanation: "知的財産権は、創作者の努力に報い、新たな創作活動を奨励することで、文化や産業の発展に寄与することを目的としています。"
+        },
+        {
+            question: "産業財産権に含まれないものはどれか。",
+            options: ["特許権", "実用新案権", "意匠権", "商標権", "著作権"],
+            answer: 4,
+            explanation: "著作権は、文芸、学術、美術、音楽などの創作物を保護する権利であり、産業財産権とは別の権利体系です。"
+        },
+        {
+            question: "産業財産権の出願・登録を行う行政機関はどこか。",
+            options: ["文化庁", "総務省", "経済産業省", "特許庁", "法務省"],
+            answer: 3,
+            explanation: "産業財産権は、特許庁に出願し、審査を経て登録されることで権利が発生する「方式主義」をとっています。"
+        },
+        {
+            question: "自然法則を利用した技術的思想の創作のうち、高度なもの（発明）を保護する権利は何か。",
+            options: ["特許権", "実用新案権", "意匠権", "商標権", "著作権"],
+            answer: 0,
+            explanation: "特許権は、新規性や進歩性などの要件を満たす発明に対して与えられ、保護期間は出願から20年です。"
+        },
+        {
+            question: "物品の形状、構造などに関する考案を保護する権利は何か。発明ほど高度な技術は不要とされる。",
+            options: ["特許権", "実用新案権", "意匠権", "商標権", "著作権"],
+            answer: 1,
+            explanation: "実用新案権は、物品の形状に関する小発明を保護するもので、審査なしで登録される（無審査登録主義）点が特許と異なります。"
+        },
+        {
+            question: "物品の形状や模様、色彩などのデザインを保護する権利は何か。",
+            options: ["特許権", "実用新案権", "意匠権", "商標権", "著作権"],
+            answer: 2,
+            explanation: "意匠権は、製品の見た目の美しさや斬新さを保護する権利です。保護期間は出願から25年です。"
+        },
+        {
+            question: "自社の商品やサービスを他社のものと区別するためのマーク（ロゴやネーミングなど）を保護する権利は何か。",
+            options: ["特許権", "実用新案権", "意匠権", "商標権", "著作権"],
+            answer: 3,
+            explanation: "商標権は、事業者の信用の維持を図ることを目的としており、更新することで半永久的に権利を維持できます。"
+        },
+        {
+            question: "著作権は、いつ発生するか。",
+            options: ["文化庁に登録した時", "作品を公表した時", "創作した時", "販売した時", "契約を結んだ時"],
+            answer: 2,
+            explanation: "著作権は、創作と同時に自動的に発生します。これを「無方式主義」といい、登録などの手続きは不要です。"
+        },
+        {
+            question: "思想または感情を創作的に表現したものであって、文芸、学術、美術、音楽の範囲に属するものを、著作権法では何と定義しているか。",
+            options: ["コンテンツ", "作品", "知的財産", "著作物", "創作物"],
+            answer: 3,
+            explanation: "単なるデータやアイデアそのものは著作物ではなく、創作的な「表現」であることが要件です。"
+        },
+        {
+            question: "著作者の人格的な利益を保護するための権利を総称して何というか。",
+            options: ["著作権（財産権）", "著作隣接権", "著作者人格権", "所有権", "肖像権"],
+            answer: 2,
+            explanation: "著作者人格権には、公表権、氏名表示権、同一性保持権があり、他人に譲渡することはできません。"
+        },
+        {
+            question: "著作者の意に反して、著作物の内容や題号を改変されない権利を何というか。",
+            options: ["公表権", "氏名表示権", "同一性保持権", "翻案権", "複製権"],
+            answer: 2,
+            explanation: "同一性保持権は、著作者の名誉や感情を守るための重要な権利です。"
+        },
+        {
+            question: "著作物の経済的な利益を保護するための権利を総称して何というか。",
+            options: ["著作権（財産権）", "著作隣接権", "著作者人格権", "産業財産権", "利用権"],
+            answer: 0,
+            explanation: "著作権（財産権）には、複製権、上演権、公衆送信権など様々な権利が含まれ、これらは譲渡や相続が可能です。"
+        },
+        {
+            question: "著作物を印刷、写真、録音、録画などの方法で有形的に再製する権利は何か。",
+            options: ["複製権", "譲渡権", "頒布権", "公衆送信権", "貸与権"],
+            answer: 0,
+            explanation: "複製権は、著作権の最も基本的な権利の一つです。私的使用のための複製など、例外的に許される場合があります。"
+        },
+        {
+            question: "著作物をインターネットなどを通じて公衆に送信する権利は何か。",
+            options: ["放送権", "上映権", "伝達権", "公衆送信権", "複製権"],
+            answer: 3,
+            explanation: "Webサイトに音楽や映像をアップロードする行為は、公衆送信権の侵害にあたる可能性があります。"
+        },
+        {
+            question: "実演家や放送事業者など、著作物を公衆に伝達する役割を果たす者に与えられる権利を何というか。",
+            options: ["著作権（財産権）", "著作者人格権", "著作隣接権", "出版権", "伝達権"],
+            answer: 2,
+            explanation: "例えば、CDに収録された演奏には、作詞家・作曲家の著作権とは別に、歌手や演奏家の著作隣接権が発生します。"
+        },
+        {
+            question: "著作権法で、権利者の許諾なしに著作物を利用できる場合の規定として、適切でないものはどれか。",
+            options: ["私的使用のための複製", "図書館での複製", "営利目的での上演", "教育機関での複製", "引用"],
+            answer: 2,
+            explanation: "営利を目的とせず、観客から料金をとらないなどの条件を満たせば無許諾での上演が認められますが、営利目的の場合は許諾が必要です。"
+        },
+        {
+            question: "自分の著作物の中に、公表された他人の著作物を掲載する行為を何というか。",
+            options: ["転載", "参照", "引用", "盗用", "剽窃"],
+            answer: 2,
+            explanation: "引用は、正当な範囲内で行い、出所の明示など、公正な慣行に従う必要があります。"
+        },
+        {
+            question: "著作権の保護期間は、原則として著作者の死後何年までか。",
+            options: ["20年", "50年", "70年", "100年", "永久"],
+            answer: 2,
+            explanation: "保護期間が満了した著作物は、パブリックドメイン（社会の公共財産）となり、誰でも自由に利用できます。"
+        },
+        {
+            question: "著作者が、自分の著作物を他人が利用する際の条件を意思表示するための仕組みで、「CCライセンス」を提供している組織はどこか。",
+            options: ["W3C", "JASRAC", "クリエイティブ・コモンズ", "文化庁", "国連"],
+            answer: 2,
+            explanation: "CCライセンスは、「表示」「非営利」「改変禁止」「継承」の4つの条件を組み合わせることで、著作者が利用のルールを柔軟に設定できます。"
+        },
+        {
+            question: "ベートーベンの交響曲そのものはパブリックドメインだが、その曲を最近のオーケストラが演奏してCDにした場合、そのCDを無断でコピーすると何の権利の侵害になるか。",
+            options: ["著作権（財産権）", "著作者人格権", "著作隣接権", "肖像権", "権利侵害にはならない"],
+            answer: 2,
+            explanation: "楽曲自体の著作権は切れていても、演奏家やレコード製作者の著作隣接権は保護されているため、無断複製は権利侵害となります。"
+        },
+        {
+            question: "自分の顔や姿を無断で撮影されたり、公表されたりしないように主張できる人格的な権利を何というか。",
+            options: ["プライバシー権", "肖像権", "パブリシティ権", "名誉権", "自己情報コントロール権"],
+            answer: 1,
+            explanation: "肖像権は、すべての人が持つ基本的な権利です。撮影や公開には本人の同意が必要です。"
+        },
+        {
+            question: "有名人の氏名や肖像が持つ、顧客を惹きつける経済的な価値を財産として保護する権利を何というか。",
+            options: ["プライバシー権", "肖像権", "パブリシティ権", "名誉権", "商標権"],
+            answer: 2,
+            explanation: "パブリシティ権は、有名人が持つ財産的な権利であり、無断で商品広告などに利用することはできません。"
+        },
+        {
+            question: "「10年以下の懲役または1000万円以下の罰金」という罰則が科される可能性がある行為はどれか。",
+            options: ["著作者人格権の侵害", "著作権（財産権）の侵害", "不正アクセス行為", "個人情報の漏洩", "フィッシング詐欺"],
+            answer: 1,
+            explanation: "著作権（財産権）の侵害は、非常に重い罰則が定められている犯罪です。"
+        },
+        {
+            question: "デジタル化された情報の特徴として、誤っているものはどれか。",
+            options: ["完全に同じものを大量に複製できる", "加工や編集が容易である", "情報の伝達に時間がかかる", "データ圧縮により容量を小さくできる", "様々なメディアで利用できる"],
+            answer: 2,
+            explanation: "デジタル情報は、インターネットなどを通じて、瞬時に世界中に伝達することが可能です。"
+        },
+        {
+            question: "情報社会の進展によるデメリットとして、適切でないものはどれか。",
+            options: ["プライバシー侵害のリスク増大", "情報格差（デジタルデバイド）の発生", "フェイクニュースの拡散", "コミュニケーション手段の多様化", "サイバー犯罪の増加"],
+            answer: 3,
+            explanation: "コミュニケーション手段の多様化は、時間や場所の制約を超えた交流を可能にするなど、情報社会の大きなメリットです。"
+        },
+        {
+            question: "あるべき姿と現状とのギャップを埋めるための具体的な行動計画を何というか。",
+            options: ["問題分析", "原因究明", "解決策", "目標設定", "評価"],
+            answer: 2,
+            explanation: "良い解決策は、具体的で、実行可能であり、効果が測定できるものであることが望ましいです。"
+        },
+        {
+            question: "インターネットを利用する上で、守るべき道徳や規範を何というか。",
+            options: ["情報セキュリティ", "ネチケット", "プライバシーポリシー", "利用規約", "法律"],
+            answer: 1,
+            explanation: "ネチケット（ネットワーク・エチケット）は、他人を誹謗中傷しない、著作権を尊重するなど、オンライン空間で快適に過ごすためのマナーです。"
+        },
+        {
+            question: "個人のコンピュータに侵入し、キーボード入力を記録してパスワードなどを盗み出すタイプのスパイウェアを何というか。",
+            options: ["アドウェア", "ランサムウェア", "トロイの木馬", "キーロガー", "ボット"],
+            answer: 3,
+            explanation: "キーロガーによって盗まれた認証情報が、不正アクセスなどに悪用される危険性があります。"
+        },
+        {
+            question: "自分のコンピュータに保存されたファイルなどを暗号化して読めなくし、元に戻すことと引き換えに金銭を要求するマルウェアを何というか。",
+            options: ["スパイウェア", "ランサムウェア", "ワーム", "アドウェア", "ルートキット"],
+            answer: 1,
+            explanation: "ランサムウェアは「身代金要求型不正プログラム」とも呼ばれ、近年被害が拡大しています。定期的なバックアップが重要な対策となります。"
+        },
+        {
+            question: "著作権法第35条で認められている「教育機関における複製」の範囲として、近年の法改正で可能になったことは何か。",
+            options: ["教科書を全ページコピーして配布すること", "市販の問題集を複製して試験に使うこと", "オンライン授業で、必要な著作物を生徒の端末に送信すること", "映画館の映画を録画して授業で見せること", "音楽CDをコピーして文化祭で販売すること"],
+            answer: 2,
+            explanation: "法改正により、遠隔合同授業や、授業の復習のために、教員が著作物を公衆送信することが、補償金を支払うことで可能になりました。（SARTRAS）"
+        },
+        {
+            question: "知的財産権のうち、保護期間が最も長いものはどれか。ただし商標権は更新しないものとする。",
+            options: ["特許権（出願から20年）", "実用新案権（出願から10年）", "意匠権（出願から25年）", "著作権（著作者の死後70年）", "商標権（登録から10年）"],
+            answer: 3,
+            explanation: "著作権は、著作者の死後も長期間保護されることで、文化的な創作物が尊重され、継承されていくことを目的としています。"
+        },
+        {
+            question: "情報の3つの特性「残存性」「複製性」「伝播性」が、最も顕著に現れるメディアはどれか。",
+            options: ["書籍・雑誌", "テレビ・ラジオ", "手紙", "インターネット", "映画"],
+            answer: 3,
+            explanation: "インターネットは、これらの特性を極めて高いレベルで併せ持っており、それが大きな利便性と同時に、デジタルタトゥーなどの問題も生み出しています。"
+        },
+        {
+            question: "問題解決のプロセスにおいて、「仮説の設定」はどの段階で行われるか。",
+            options: ["問題の把握", "問題解決の遂行", "表現と伝達", "評価", "改善"],
+            answer: 1,
+            explanation: "課題が設定された後、その原因や解決策について「こうではないか」という仮説を立て、それを検証する計画を立案します。"
+        },
+        {
+            question: "個人情報保護法において、事業者が個人情報を取得する際に、本人に通知または公表しなければならないと定められているものは何か。",
+            options: ["事業者の資本金", "個人情報の価格", "利用目的", "データの保存期間", "セキュリティ対策の詳細"],
+            answer: 2,
+            explanation: "事業者は、どのような目的で個人情報を利用するのかを明確にしなければならず、目的外の利用は原則として禁止されています。"
+        },
+        {
+            question: "産業財産権の「特許権」と「実用新案権」の最も大きな違いは何か。",
+            options: ["保護対象が発明か考案か", "保護期間の長さ", "出願先が国内か国外か", "権利者が個人か法人か", "技術分野が物理か化学か"],
+            answer: 0,
+            explanation: "特許権が高度な「発明」を対象とするのに対し、実用新案権は物品の形状などに関する「考案」（小発明）を対象とします。"
+        },
+        {
+            question: "著作権法における「引用」のルールとして、誤っているものはどれか。",
+            options: ["引用部分が主で、自分の文章が従であること", "引用部分と自分の文章が明確に区別されていること", "引用する必然性があること", "出所を明示すること", "公表された著作物であること"],
+            answer: 0,
+            explanation: "引用は、自分の文章が「主」で、引用部分が「従」の関係でなければなりません。主従が逆転すると、無断転載と見なされる可能性があります。"
+        },
+        {
+            question: "フィルタリングとは、どのような技術か。",
+            options: ["コンピュータウイルスを検知・駆除する技術", "通信を暗号化して盗聴を防ぐ技術", "青少年などに有害な情報へのアクセスを制限する技術", "迷惑メールを自動的に振り分ける技術", "データのバックアップを自動的に行う技術"],
+            answer: 2,
+            explanation: "フィルタリングは、特定のキーワードやURLリストに基づいて、Webサイトの閲覧を制限するサービスです。"
+        },
+        {
+            question: "自分自身の判断や行動の基準となる、倫理的な規範を何というか。",
+            options: ["法律", "ルール", "マナー", "モラル", "慣習"],
+            answer: 3,
+            explanation: "情報社会においては、法律で規制されていない範囲でも、個人のモラルに基づいた適切な行動が求められます。"
+        },
+        {
+            question: "個人が特定できないように処理された、携帯電話の位置情報データから、イベント会場周辺の人出の増減を分析する。これは何の活用事例か。",
+            options: ["個人情報の活用", "匿名加工情報の活用", "オープンデータの活用", "要配慮個人情報の活用", "プライバシーの活用"],
+            answer: 1,
+            explanation: "このように、匿名加工情報は、プライバシーを保護しつつ、ビッグデータを社会的に有益な目的で活用するために利用されます。"
+        },
+        {
+            question: "A社が開発したスマートフォンの独自のデザインは、どの産業財産権で保護される可能性があるか。",
+            options: ["特許権", "実用新案権", "意匠権", "商標権", "著作権"],
+            answer: 2,
+            explanation: "製品の美的外観であるデザインは、意匠権の保護対象となります。"
+        },
+        {
+            question: "自分で描いた漫画のキャラクターを、他人が無断でグッズにして販売した。この場合、侵害されているのは主に何の権利か。",
+            options: ["特許権", "商標権", "意匠権", "著作権", "実用新案権"],
+            answer: 3,
+            explanation: "漫画のキャラクターは「美術の著作物」にあたり、それを無断で複製（グッズ化）し、譲渡（販売）する行為は、著作権（複製権、譲渡権など）の侵害となります。"
+        },
+        {
+            question: "あるWebサービスを利用開始する際、「利用規約に同意します」のチェックボックスに最初からチェックが入っている。これはどの方式に近い考え方か。",
+            options: ["オプトイン", "オプトアウト", "サブスクリプション", "フリーミアム", "アドウェア"],
+            answer: 1,
+            explanation: "これは「同意しない場合はチェックを外す」という形式であり、何もしなければ同意したことになるため、オプトアウト方式に近いと言えます。"
+        },
+        {
+            question: "ディジタルデバイド（情報格差）がもたらす問題として、適切でないものはどれか。",
+            options: ["行政サービスを十分に受けられない人が生じる", "災害時に必要な情報を得られない人が生じる", "教育や雇用の機会に格差が生じる", "すべての人がICT機器を使いこなせるようになる", "経済的な格差がさらに拡大する可能性がある"],
+            answer: 3,
+            explanation: "ディジタルデバイドは、ICTを使いこなせる人とそうでない人との間に、様々な面で格差を生じさせる社会的な課題です。"
+        },
+        {
+            question: "情報の受け手と送り手が固定されず、誰もが情報の発信者となれるメディアを何というか。",
+            options: ["マスメディア", "ソーシャルメディア", "オールドメディア", "レガシーメディア", "４大メディア"],
+            answer: 1,
+            explanation: "ブログやSNSに代表されるソーシャルメディアの登場により、個人が社会に大きな影響力を持つことも可能になりました。"
+        },
+        {
+            question: "企業などの組織に所属する人が、内部の不正行為などを、監督官庁や報道機関などの外部に通報することを何というか。",
+            options: ["内部告発", "リーク", "密告", "インサイダー取引", "情報漏洩"],
+            answer: 0,
+            explanation: "公益のために行われる内部告発は、公益通報者保護法によって、通報者が不利益な扱いを受けないように保護されています。"
+        },
+        {
+            question: "自分の著作物でありながら、著作権を放棄し、誰でも自由に使える状態に置かれたものを何と呼ぶか。",
+            options: ["フリーウェア", "シェアウェア", "パブリックドメイン", "オープンソース", "クリエイティブ・コモンズ"],
+            answer: 2,
+            explanation: "著作権の保護期間が切れたものだけでなく、著作者が自らの意思で権利を放棄（パブリック・ドメインへの提供を宣言）することもあります。"
+        },
+        {
+            question: "学校の授業で、先生が生徒の作品をプロジェクターでスクリーンに映して紹介する行為は、著作権のうち主にどの権利に関わるか。",
+            options: ["複製権", "上映権", "公衆送信権", "譲渡権", "貸与権"],
+            answer: 1,
+            explanation: "この場合、著作権法第35条（教育機関における複製等）により、授業の過程における利用であれば、無許諾で行うことが認められています。"
+        },
+        {
+            question: "「鳥は卵を産む。ニワトリは鳥である。ゆえにニワトリは卵を産む」という推論の方法を何というか。",
+            options: ["帰納法", "演繹法", "三段論法", "弁証法", "アナロジー"],
+            answer: 2,
+            explanation: "三段論法は、2つの前提から1つの結論を導き出す演繹的推論の典型的な形式です。"
+        },
+        {
+            question: "情報社会の次の段階である「Society 5.0」で中心的な役割を果たすと期待されている技術の組み合わせはどれか。",
+            options: ["蒸気機関と電力", "コンピュータとインターネット", "AIとIoT", "活版印刷と羅針盤", "電話とテレビ"],
+            answer: 2,
+            explanation: "AI（人工知能）とIoT（モノのインターネット）が融合することで、サイバー空間とフィジカル空間が高度に連携し、新たな価値が創造されるとされています。"
+        },
+        {
+            question: "ある問題に対して、複数の人が集まり、批判をせずに自由にアイデアを出し合う会議手法を何というか。",
+            options: ["ディベート", "ディスカッション", "ブレインストーミング", "KJ法", "パネルディスカッション"],
+            answer: 2,
+            explanation: "ブレインストーミングは、質より量を重視し、奇抜なアイデアや他人の意見への便乗を歓迎することで、創造的な解決策を見出すことを目的とします。"
+        },
+        {
+            question: "正規のソフトウェアに見せかけてコンピュータに侵入し、後から悪意のある動作をするマルウェアの種類は何か。",
+            options: ["ワーム", "トロイの木馬", "スパイウェア", "ボット", "ルートキット"],
+            answer: 1,
+            explanation: "トロイの木馬は、ギリシャ神話のトロイア戦争の逸話に由来し、無害なプログラムを装ってユーザーに実行させることで感染します。"
+        },
+        {
+            question: "自分自身の複製をネットワークを通じて他のコンピュータに送り込み、自己増殖していくマルウェアの種類は何か。",
+            options: ["ワーム", "ウイルス", "トロイの木馬", "ランサムウェア", "ファイルレスマルウェア"],
+            answer: 0,
+            explanation: "ワームは、ウイルスと異なり、他のファイルに寄生することなく単独で活動し、ネットワークに大きな負荷をかけることがあります。"
+        },
+        {
+            question: "知的財産権のうち、登録の更新を続けることで半永久的に権利を保持できるものはどれか。",
+            options: ["特許権", "実用新案権", "意匠権", "商標権", "著作権"],
+            answer: 3,
+            explanation: "商標権は、事業者の信用を保護するものであり、事業が続く限り更新が認められるため、永続的な権利となり得ます。"
+        },
+        {
+            question: "著作権法で保護されている「プログラムの著作物」について、そのソースコードを解析して仕様を明らかにすることを何というか。",
+            options: ["コンパイル", "デバッグ", "リバースエンジニアリング", "ハッキング", "クラッキング"],
+            answer: 2,
+            explanation: "互換性のある製品を開発するためなど、正当な目的で行われるリバースエンジニアリングは、著作権法で認められる場合がありますが、一般的には契約等で禁止されていることが多いです。"
+        },
+        {
+            question: "情報の「機密性」「完全性」「可用性」の３要素を維持することを目的とするものは何か。",
+            options: ["情報倫理", "情報ガバナンス", "情報セキュリティ", "情報アーキテクチャ", "情報マネジメント"],
+            answer: 2,
+            explanation: "機密性(Confidentiality)、完全性(Integrity)、可用性(Availability)の頭文字をとって、情報セキュリティのCIAと呼ばれます。"
+        }
+    ];
+
+
+
+    // --- DOM Elements ---
+    const startScreen = document.getElementById('start-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const resultScreen = document.getElementById('result-screen');
+    
+    const startBtn = document.getElementById('start-btn');
+    const questionNumberEl = document.getElementById('question-number');
+    const questionTextEl = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const feedbackContainer = document.getElementById('feedback-container');
+    const feedbackResultEl = document.getElementById('feedback-result');
+    const explanationEl = document.getElementById('explanation');
+    const explanationTextEl = document.getElementById('explanation-text');
+    const nextBtn = document.getElementById('next-btn');
+    const restartBtn = document.getElementById('restart-btn');
+    const scoreEl = document.getElementById('score');
+    const resultMessageEl = document.getElementById('result-message');
+    const progressBar = document.getElementById('progress-bar');
+
+
+    // --- Variables ---
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let shuffledQuizData = [];
+
+    // --- Event Listeners ---
+    startBtn.addEventListener('click', startQuiz);
+    nextBtn.addEventListener('click', nextQuestion);
+    restartBtn.addEventListener('click', startQuiz);
+
+    // --- Functions ---
+
+    // Function to start the quiz
+    function startQuiz() {
+        startScreen.classList.add('hidden');
+        resultScreen.classList.add('hidden');
+        quizScreen.classList.remove('hidden');
+        
+        currentQuestionIndex = 0;
+        score = 0;
+        // Shuffle quiz data for a new order each time
+        shuffledQuizData = [...quizData].sort(() => Math.random() - 0.5);
+        displayQuestion();
+    }
+
+    // Function to display a question
+    function displayQuestion() {
+        resetState();
+        const currentQuestion = shuffledQuizData[currentQuestionIndex];
+        questionNumberEl.textContent = currentQuestionIndex + 1;
+        questionTextEl.innerHTML = `Q${currentQuestionIndex + 1}. ${currentQuestion.question}`;
+        
+        currentQuestion.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.innerHTML = `<span class="bg-blue-100 text-blue-800 font-bold rounded-full w-8 h-8 flex items-center justify-center mr-4">${index + 1}</span> ${option}`;
+            button.classList.add('option-btn', 'w-full', 'p-4', 'text-left', 'bg-white', 'border-2', 'border-gray-300', 'rounded-lg', 'flex', 'items-center', 'text-lg');
+            button.dataset.index = index;
+            button.addEventListener('click', selectAnswer);
+            optionsContainer.appendChild(button);
+        });
+
+        updateProgressBar();
+    }
+    
+    // Function to reset the state for the next question
+    function resetState() {
+        feedbackContainer.classList.add('hidden');
+        nextBtn.classList.add('hidden');
+        while (optionsContainer.firstChild) {
+            optionsContainer.removeChild(optionsContainer.firstChild);
+        }
+    }
+
+    // Function to handle answer selection
+    function selectAnswer(e) {
+        const selectedBtn = e.currentTarget;
+        const selectedIndex = parseInt(selectedBtn.dataset.index);
+        const correctIndex = shuffledQuizData[currentQuestionIndex].answer;
+
+        if (selectedIndex === correctIndex) {
+            feedbackResultEl.textContent = "正解！";
+            feedbackResultEl.className = "text-2xl font-bold mb-4 text-green-600";
+            score++;
+        } else {
+            feedbackResultEl.textContent = "不正解...";
+            feedbackResultEl.className = "text-2xl font-bold mb-4 text-red-600";
+        }
+        
+        explanationTextEl.textContent = shuffledQuizData[currentQuestionIndex].explanation;
+        feedbackContainer.classList.remove('hidden');
+
+        // Update styles for all buttons
+        Array.from(optionsContainer.children).forEach(button => {
+            const btnIndex = parseInt(button.dataset.index);
+            if (btnIndex === correctIndex) {
+                button.classList.add('correct');
+            } else if (btnIndex === selectedIndex) {
+                button.classList.add('incorrect');
+            }
+            button.disabled = true;
+        });
+
+        if (shuffledQuizData.length > currentQuestionIndex + 1) {
+            nextBtn.textContent = "次の問題へ";
+            nextBtn.classList.remove('hidden');
+        } else {
+            nextBtn.textContent = "結果を見る";
+            nextBtn.classList.remove('hidden');
+        }
+    }
+    
+    // Function to move to the next question or show results
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < shuffledQuizData.length) {
+            displayQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    // Function to show the final results
+    function showResult() {
+        quizScreen.classList.add('hidden');
+        resultScreen.classList.remove('hidden');
+        scoreEl.textContent = score;
+        
+        let message = "";
+        if (score >= 95) {
+            message = "素晴らしい！完璧です。情報社会のエキスパートですね！";
+        } else if (score >= 80) {
+            message = "高得点！素晴らしい理解度です。この調子で頑張りましょう。";
+        } else if (score >= 60) {
+            message = "合格ラインです。苦手な部分を解説で復習しましょう。";
+        } else if (score >= 40) {
+            message = "もう少しです。間違えた問題を中心に、もう一度挑戦してみましょう。";
+        } else {
+            message = "基礎からもう一度復習が必要です。繰り返し学習が力になります。";
+        }
+        resultMessageEl.textContent = message;
+    }
+
+    // Function to update the progress bar
+    function updateProgressBar() {
+        const progressPercentage = ((currentQuestionIndex + 1) / shuffledQuizData.length) * 100;
+        progressBar.style.width = `${progressPercentage}%`;
+    }
+
+</script>
+
+</body>
+</html>

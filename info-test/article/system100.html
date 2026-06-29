@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>情報Ⅰ ネットワーク分野 100問ドリル</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', 'Inter', sans-serif;
+        }
+        .quiz-container {
+            max-width: 800px;
+            margin: 2rem auto;
+        }
+        .option-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .correct {
+            background-color: #d1fae5 !important;
+            border-color: #10b981 !important;
+        }
+        .incorrect {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+        }
+        .explanation {
+            border-left: 4px solid #60a5fa;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="quiz-container p-4 sm:p-6 md:p-8">
+        <div id="start-screen" class="text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold text-blue-600 mb-4">情報Ⅰ ネットワーク分野</h1>
+            <h2 class="text-xl sm:text-2xl font-semibold mb-8">共通テスト対策 100問ドリル</h2>
+            <p class="mb-8 text-gray-600">提供された資料に基づいて作成された100問のクイズです。<br>準備ができたら下のボタンを押して開始してください。</p>
+            <button id="start-btn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105">
+                クイズを開始
+            </button>
+        </div>
+
+        <div id="quiz-screen" class="hidden">
+            <div class="bg-white p-6 rounded-xl shadow-md mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-blue-700">問題 <span id="question-number"></span>/100</h2>
+                    <div id="progress-bar-container" class="w-1/2 bg-gray-200 rounded-full h-2.5">
+                        <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+                <p id="question-text" class="text-lg leading-relaxed"></p>
+            </div>
+
+            <div id="options-container" class="grid grid-cols-1 gap-4">
+                <!-- 選択肢ボタンはここにJSで生成されます -->
+            </div>
+
+            <div id="feedback-container" class="hidden mt-6">
+                <div id="feedback-result" class="text-2xl font-bold mb-4"></div>
+                <div id="explanation" class="bg-blue-50 p-4 rounded-lg explanation">
+                    <h3 class="font-bold text-lg mb-2 text-blue-800">解説</h3>
+                    <p id="explanation-text" class="text-gray-700"></p>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <button id="next-btn" class="bg-gray-800 text-white font-bold py-3 px-12 rounded-lg shadow-lg hover:bg-gray-900 transition-transform transform hover:scale-105 hidden">
+                    次の問題へ
+                </button>
+            </div>
+        </div>
+
+        <div id="result-screen" class="hidden text-center bg-white p-8 rounded-xl shadow-lg">
+            <h2 class="text-3xl font-bold text-blue-600 mb-4">結果発表</h2>
+            <p class="text-xl mb-6">お疲れ様でした！あなたのスコアは...</p>
+            <p class="text-6xl font-extrabold text-gray-800 mb-8"><span id="score"></span> / 100</p>
+            <p id="result-message" class="text-lg font-medium mb-8"></p>
+            <button id="restart-btn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105">
+                もう一度挑戦する
+            </button>
+        </div>
+    </div>
+
+<script>
+    // --- クイズデータ ---
+    // PDFの内容に基づいて100問の問題を作成
+    const quizData = [
+        {
+            question: "会社や学校など、比較的狭い範囲のネットワークを指す用語はどれか。",
+            options: ["WAN", "LAN", "インターネット", "スタンドアロン", "メインフレーム"],
+            answer: 1,
+            explanation: "LAN (Local Area Network) は、限定された建物や敷地内など、比較的狭い範囲のネットワークです。WAN (Wide Area Network) は広域ネットワークを指します。"
+        },
+        {
+            question: "ネットワークに接続せず、単体で動作するコンピュータのシステム形態を何と呼ぶか。",
+            options: ["集中処理システム", "分散処理システム", "クライアントサーバシステム", "スタンドアロン", "ピアツーピア"],
+            answer: 3,
+            explanation: "スタンドアロンは、他のコンピュータに接続しないで単体で動作するシステム形態です。"
+        },
+        {
+            question: "サービスを提供するコンピュータをサーバ、サービスを要求するコンピュータをクライアントとするシステム形態はどれか。",
+            options: ["集中処理システム", "ピアツーピアシステム", "クライアントサーバシステム", "スタンドアロン", "ホストコンピュータ"],
+            answer: 2,
+            explanation: "クライアントサーバシステムは、サービスを提供する側（サーバ）と要求する側（クライアント）が明確に分かれている分散処理システムの一形態です。"
+        },
+        {
+            question: "ネットワーク上のコンピュータがすべて対等な関係で、互いにサーバにもクライアントにもなるシステム形態はどれか。",
+            options: ["クライアントサーバシステム", "集中処理システム", "ピアツーピアシステム", "WAN", "メインフレーム"],
+            answer: 2,
+            explanation: "ピアツーピア（P2P）システムでは、接続されたコンピュータが対等な関係でデータをやり取りします。"
+        },
+        {
+            question: "クライアントの代わりにWebサーバに接続し、Webページのデータを代理で取得するサーバを何と呼ぶか。",
+            options: ["ファイルサーバ", "プリントサーバ", "データベースサーバ", "プロキシサーバ", "メールサーバ"],
+            answer: 3,
+            explanation: "プロキシサーバは、クライアントの代理としてインターネット上のサーバに接続します。キャッシュ機能を持つことも特徴です。"
+        },
+        {
+            question: "異なるコンピュータ間で通信を行うための、通信に関する取り決め（約束事）を何と呼ぶか。",
+            options: ["プロトコル", "OS", "アプリケーション", "ハードウェア", "ネットワーク"],
+            answer: 0,
+            explanation: "プロトコルは、ネットワーク通信における手順や形式などを定めた規約です。"
+        },
+        {
+            question: "インターネットで標準的に利用されているプロトコル群の総称はどれか。",
+            options: ["OSI参照モデル", "HTTP", "LAN", "TCP/IP", "イーサネット"],
+            answer: 3,
+            explanation: "TCP/IPは、インターネットや多くのLANで利用される標準的なプロトコル群です。"
+        },
+        {
+            question: "TCP/IPの階層モデルにおいて、Webページの閲覧や電子メールの送受信など、具体的なサービスを提供する層はどれか。",
+            options: ["リンク層", "インターネット層", "トランスポート層", "アプリケーション層", "物理層"],
+            answer: 3,
+            explanation: "アプリケーション層は、ユーザが直接利用するアプリケーションの通信サービス（HTTP, SMTPなど）に関するプロトコルを定めています。"
+        },
+        {
+            question: "TCP/IPの階層モデルにおいて、通信相手までデータを確実に届ける役割を担う層はどれか。",
+            options: ["リンク層", "インターネット層", "トランスポート層", "アプリケーション層", "セッション層"],
+            answer: 2,
+            explanation: "トランスポート層は、データの信頼性や効率的な伝送を保証する役割を持ちます。TCPやUDPがこの層に属します。"
+        },
+        {
+            question: "Webページの閲覧に用いられるプロトコルはどれか。",
+            options: ["SMTP", "POP", "FTP", "HTTP", "SSH"],
+            answer: 3,
+            explanation: "HTTP (HyperText Transfer Protocol) は、WebサーバとWebブラウザ間でHTMLなどのコンテンツを送受信するためのプロトコルです。"
+        },
+        {
+            question: "電子メールを送信（転送）する際に用いられるプロトコルはどれか。",
+            options: ["HTTP", "IMAP", "SMTP", "POP", "TCP"],
+            answer: 2,
+            explanation: "SMTP (Simple Mail Transfer Protocol) は、メールサーバ間やクライアントからメールサーバへメールを送信するために使用されます。"
+        },
+        {
+            question: "電子メールを受信する際に用いられるプロトコルで、メールをサーバ上に残したまま管理できるものはどれか。",
+            options: ["SMTP", "POP", "HTTP", "IMAP", "SNMP"],
+            answer: 3,
+            explanation: "IMAP (Internet Message Access Protocol) は、メールをサーバ上で管理するため、複数の端末から同じメールボックスを閲覧するのに適しています。POPはダウンロードが基本です。"
+        },
+        {
+            question: "送信するデータに、各層で処理された情報が付加される。この付加情報を何と呼ぶか。",
+            options: ["データ", "トレーラ", "ペイロード", "ヘッダ情報", "パケット"],
+            answer: 3,
+            explanation: "各階層で、宛先や送信元などの制御情報がヘッダ情報としてデータに付加されます。このプロセスをカプセル化と呼びます。"
+        },
+        {
+            question: "現在広く利用されているIPv4アドレスは何ビットで構成されているか。",
+            options: ["16ビット", "32ビット", "64ビット", "128ビット", "256ビット"],
+            answer: 1,
+            explanation: "IPv4アドレスは32ビットで構成されており、約43億個のアドレスを表現できます。"
+        },
+        {
+            question: "IPアドレスの枯渇問題に対応するために作られた、128ビットのアドレスを持つ規格はどれか。",
+            options: ["IPv3", "IPv4", "IPv5", "IPv6", "IPX"],
+            answer: 3,
+            explanation: "IPv6は128ビットのアドレス空間を持ち、事実上無限に近い数のアドレスを割り当てることが可能です。"
+        },
+        {
+            question: "インターネットに直接接続する機器に割り当てられる、世界で一意のIPアドレスを何と呼ぶか。",
+            options: ["プライベートアドレス", "ローカルアドレス", "グローバルアドレス", "MACアドレス", "ホストアドレス"],
+            answer: 2,
+            explanation: "グローバルアドレスは、インターネット上で重複しないように管理され、特定の機器を識別するために使用されます。"
+        },
+        {
+            question: "LAN内部など、限定されたネットワーク内で独自に割り当てられるIPアドレスを何と呼ぶか。",
+            options: ["プライベートアドレス", "グローバルアドレス", "ブロードキャストアドレス", "パブリックアドレス", "DNSアドレス"],
+            answer: 0,
+            explanation: "プライベートアドレスは、LAN内で自由に使用できるIPアドレスの範囲で、インターネット上では直接通信できません。"
+        },
+        {
+            question: "プライベートアドレスを持つコンピュータがインターネットに接続する際に、グローバルアドレスと相互に変換する技術はどれか。",
+            options: ["DHCP", "DNS", "NAT", "VPN", "SSID"],
+            answer: 2,
+            explanation: "NAT (Network Address Translation) は、ルータなどに搭載され、プライベートアドレスとグローバルアドレスを1対1または多対1で変換する技術です。"
+        },
+        {
+            question: "コンピュータにIPアドレスなどを自動的に割り当てるプロトコルはどれか。",
+            options: ["DNS", "NAT", "HTTP", "DHCP", "SMTP"],
+            answer: 3,
+            explanation: "DHCP (Dynamic Host Configuration Protocol) は、ネットワークに接続する機器にIPアドレス、サブネットマスク、デフォルトゲートウェイなどを自動で設定します。"
+        },
+        {
+            question: "人間が覚えやすい文字列（例: www.example.com）と、コンピュータが通信に使うIPアドレスを対応付けて管理する仕組みはどれか。",
+            options: ["URL", "DHCP", "DNS", "IP", "ISP"],
+            answer: 2,
+            explanation: "DNS (Domain Name System) は、ドメイン名をIPアドレスに変換する（名前解決）役割を担っており、インターネットの住所録のようなものです。"
+        },
+        {
+            question: "URL `https://www.jma.go.jp/` において、「go」が示す組織区分は何か。",
+            options: ["一般企業", "ネットワーク組織", "教育機関", "政府関係機関", "非営利団体"],
+            answer: 3,
+            explanation: "日本のドメイン名において、「go」は政府関係機関 (government) を示します。「co」は一般企業、「ac」や「ed」は教育機関です。"
+        },
+        {
+            question: "データを小さな単位に分割し、それぞれに宛先などの情報を付けて送受信する通信方式を何と呼ぶか。",
+            options: ["回線交換方式", "パケット交換方式", "ATM方式", "フレームリレー方式", "アナログ方式"],
+            answer: 1,
+            explanation: "パケット交換方式は、データをパケットという単位に分割して送信します。回線を共有できるため効率が良く、インターネットで採用されています。"
+        },
+        {
+            question: "従来の電話網のように、通信開始から終了まで物理的な回線を占有する通信方式はどれか。",
+            options: ["パケット交換方式", "デジタル方式", "回線交換方式", "IP電話", "イーサネット"],
+            answer: 2,
+            explanation: "回線交換方式は、通信中は回線を占有するため通信品質は安定しますが、回線の利用効率はパケット交換方式に劣ります。"
+        },
+        {
+            question: "ネットワークどうしを接続し、パケットの宛先IPアドレスを見て最適な経路を選択する通信機器はどれか。",
+            options: ["ハブ", "リピータ", "ブリッジ", "ルータ", "モデム"],
+            answer: 3,
+            explanation: "ルータは、異なるネットワーク間でパケットを中継し、経路選択（ルーティング）を行う役割を持ちます。"
+        },
+        {
+            question: "家庭や企業がインターネットに接続するために契約する事業者を何と呼ぶか。",
+            options: ["DNS", "NIC", "ISP", "NPO", "LAN"],
+            answer: 2,
+            explanation: "ISP (Internet Service Provider) は、インターネットへの接続サービスを提供する事業者です。プロバイダとも呼ばれます。"
+        },
+        {
+            question: "WebブラウザでURLを入力してからWebページが表示されるまでの動作として、最初に行われることは何か。",
+            options: ["WebサーバにHTTPリクエストを送信する", "HTMLファイルを画面に描画する", "DNSサーバにドメイン名のIPアドレスを問い合わせる", "TCPコネクションを確立する", "ルータを経由してパケットを送信する"],
+            answer: 2,
+            explanation: "Webページにアクセスする際、ブラウザはまずURLからドメイン名を取得し、DNSサーバに問い合わせて対応するIPアドレスを取得します。"
+        },
+        {
+            question: "コンビニエンスストアなどで、商品のバーコードを読み取ることで販売情報を収集・管理するシステムを何と呼ぶか。",
+            options: ["ECシステム", "金融情報システム", "予約システム", "POSシステム", "EDIシステム"],
+            answer: 3,
+            explanation: "POS (Point Of Sale) システムは、販売時点での情報を収集し、在庫管理や売上分析などに活用するシステムです。"
+        },
+        {
+            question: "インターネット上で商品やサービスを売買する取引形態を総称して何と呼ぶか。",
+            options: ["B to B", "C to C", "電子商取引 (e-コマース)", "ネットバンキング", "POSシステム"],
+            answer: 2,
+            explanation: "電子商取引（e-コマース）は、ネットワークを介して契約や決済などを行う商取引全般を指します。"
+        },
+        {
+            question: "企業と消費者の間の電子商取引を表す用語はどれか。",
+            options: ["B to B", "B to C", "C to C", "G to C", "P2P"],
+            answer: 1,
+            explanation: "B to C (Business to Consumer) は、企業が一般消費者を対象に行う電子商取引です。"
+        },
+        {
+            question: "大量のデータを体系的に整理し、複数の利用者で共有・再利用できるようにしたデータの集まりを何というか。",
+            options: ["ファイルシステム", "スプレッドシート", "データベース", "オペレーティングシステム", "ビッグデータ"],
+            answer: 2,
+            explanation: "データベースは、特定の目的のために整理されたデータの集合体であり、DBMSによって管理されます。"
+        },
+        {
+            question: "データベースの管理を行い、利用者からの要求に応じてデータの操作を行うソフトウェアを何と呼ぶか。",
+            options: ["OS", "DBMS", "SQL", "API", "GUI"],
+            answer: 1,
+            explanation: "DBMS (DataBase Management System) は、データベースの定義、操作、制御を行うためのソフトウェアです。"
+        },
+        {
+            question: "データベースにおいて、複数の利用者が同時に利用してもデータの矛盾が生じないように保たれる性質を何というか。",
+            options: ["データの独立性", "データの可用性", "データの機密性", "データの一貫性", "データの完全性"],
+            answer: 3,
+            explanation: "データの一貫性（整合性）は、データベースに保存されているデータが常に正しい状態に保たれていることを指します。"
+        },
+        {
+            question: "現在最も広く利用されている、データを二次元の表（テーブル）の集まりとして管理するデータベースのモデルはどれか。",
+            options: ["階層型データベース", "ネットワーク型データベース", "リレーショナルデータベース", "オブジェクト指向データベース", "NoSQLデータベース"],
+            answer: 2,
+            explanation: "リレーショナルデータベースは、データをテーブル（表）で管理し、テーブル間の関連（リレーション）によって複雑なデータを扱うことができます。"
+        },
+        {
+            question: "リレーショナルデータベースにおいて、表（テーブル）の「行」に相当するものはどれか。",
+            options: ["フィールド", "属性", "カラム", "レコード", "キー"],
+            answer: 3,
+            explanation: "レコードは、テーブルにおける一件分のデータを表す「行」のことです。組（タプル）とも呼ばれます。"
+        },
+        {
+            question: "リレーショナルデータベースにおいて、表（テーブル）の「列」に相当するものはどれか。",
+            options: ["レコード", "タプル", "フィールド", "リレーション", "インデックス"],
+            answer: 2,
+            explanation: "フィールドは、テーブルにおける特定の項目を表す「列」のことです。属性（アトリビュート）やカラムとも呼ばれます。"
+        },
+        {
+            question: "リレーショナルデータベースの操作において、複数の表を共通の項目で結合して新しい表を作成する操作は何か。",
+            options: ["選択", "射影", "結合", "更新", "削除"],
+            answer: 2,
+            explanation: "結合（Join）は、2つ以上のテーブルを特定のキー項目で関連付けて、1つのテーブルとして扱う操作です。"
+        },
+        {
+            question: "リレーショナルデータベースの操作において、特定の条件に合う行だけを取り出す操作は何か。",
+            options: ["選択", "射影", "結合", "定義", "挿入"],
+            answer: 0,
+            explanation: "選択（Selection）は、指定した条件（例：「分類が日本文学」）に一致するレコード（行）を抽出する操作です。"
+        },
+        {
+            question: "リレーショナルデータベースの操作において、表から特定の列だけを取り出す操作は何か。",
+            options: ["選択", "射影", "結合", "ソート", "グループ化"],
+            answer: 1,
+            explanation: "射影（Projection）は、テーブルから必要なフィールド（列）だけを抜き出して新しいテーブルを作成する操作です。"
+        },
+        {
+            question: "リレーショナルデータベースを操作するための言語として、標準的に用いられるものはどれか。",
+            options: ["HTML", "Java", "Python", "C++", "SQL"],
+            answer: 4,
+            explanation: "SQL (Structured Query Language) は、リレーショナルデータベースの定義、操作、制御を行うための標準言語です。"
+        },
+        {
+            question: "SQL文 `SELECT 書籍名, 著者名 FROM 書籍マスタ WHERE 分類 = '文学';` が行う操作はどれか。",
+            options: ["書籍マスタの全データを表示する", "書籍マスタに新しい書籍を追加する", "分類が'文学'の書籍の、書籍名と著者名を表示する", "書籍マスタから分類が'文学'の書籍を削除する", "書籍マスタの構造を変更する"],
+            answer: 2,
+            explanation: "`SELECT`はデータの問い合わせ、`FROM`は対象テーブル、`WHERE`は行の選択条件を指定します。このSQL文は、選択と射影を同時に行っています。"
+        },
+        {
+            question: "インターネットの普及などによって生成・蓄積される、膨大かつ多様な形式のデータを指す用語はどれか。",
+            options: ["オープンデータ", "データベース", "ビッグデータ", "メタデータ", "キャッシュデータ"],
+            answer: 2,
+            explanation: "ビッグデータは、その量（Volume）、多様性（Variety）、発生頻度（Velocity）を特徴とし、新たな価値創出のための分析対象となります。"
+        },
+        {
+            question: "国や地方公共団体などが公開し、二次利用が可能な公共データを何と呼ぶか。",
+            options: ["ビッグデータ", "オープンデータ", "プライベートデータ", "パブリックドメイン", "コモンズデータ"],
+            answer: 1,
+            explanation: "オープンデータは、機械判読に適した形式で、二次利用が可能な利用ルールで公開される公共データを指します。"
+        },
+        {
+            question: "情報セキュリティの3要素に含まれないものはどれか。",
+            options: ["機密性", "完全性", "可用性", "利便性", "3要素は機密性・完全性・可用性である"],
+            answer: 3,
+            explanation: "情報セキュリティの3要素は、機密性（Confidentiality）、完全性（Integrity）、可用性（Availability）です。利便性は要素に含まれません。"
+        },
+        {
+            question: "認められた利用者だけが情報にアクセスできる状態を確保することを、情報セキュリティの3要素のうち何というか。",
+            options: ["機密性", "完全性", "可用性", "信頼性", "保守性"],
+            answer: 0,
+            explanation: "機密性は、アクセス権のない者に対して情報が漏洩しないようにすることを指します。"
+        },
+        {
+            question: "情報が破壊、改ざん、消去されていない正しい状態を確保することを、情報セキュリティの3要素のうち何というか。",
+            options: ["機密性", "完全性", "可用性", "正当性", "一貫性"],
+            answer: 1,
+            explanation: "完全性は、情報の内容が正確であり、不正に改ざんされていないことを保証します。"
+        },
+        {
+            question: "利用者が必要な時に情報システムを中断することなく利用できる状態を確保することを、情報セキュリティの3要素のうち何というか。",
+            options: ["機密性", "完全性", "可用性", "持続性", "継続性"],
+            answer: 2,
+            explanation: "可用性は、システムが停止することなく、いつでも利用できる状態を維持することを指します。"
+        },
+        {
+            question: "コンピュータに悪影響を及ぼす不正なプログラムの総称はどれか。",
+            options: ["OS", "アプリケーション", "パッチ", "マルウェア", "ドライバ"],
+            answer: 3,
+            explanation: "マルウェアは、悪意を持って作成されたソフトウェアやプログラムの総称で、コンピュータウイルス、ワーム、スパイウェアなどが含まれます。"
+        },
+        {
+            question: "OSやソフトウェアに存在する、情報セキュリティ上の欠陥を何と呼ぶか。",
+            options: ["バグ", "ウイルス", "セキュリティホール", "バックドア", "クラック"],
+            answer: 2,
+            explanation: "セキュリティホールは、プログラムの設計ミスなどから生じる脆弱性のことで、不正アクセスの原因となります。"
+        },
+        {
+            question: "ネットワークを監視し、外部からの不正なアクセスを検知・遮断する仕組みはどれか。",
+            options: ["プロキシサーバ", "ファイアウォール", "ウイルス対策ソフト", "VPN", "ルータ"],
+            answer: 1,
+            explanation: "ファイアウォールは、内部ネットワークと外部ネットワークの間に立ち、通過する通信をルールに基づいて制御することで、不正アクセスを防ぎます。"
+        },
+        {
+            question: "無線LANのセキュリティ対策として、通信内容を暗号化するための規格はどれか。",
+            options: ["SSID", "MACアドレスフィルタリング", "WEP", "WPA3", "HTTP"],
+            answer: 3,
+            explanation: "WPA3は、無線LANの暗号化規格であり、WEPやWPA2よりも強固なセキュリティを提供します。"
+        },
+        {
+            question: "無線LANアクセスポイントを識別するためのネットワーク名を何と呼ぶか。",
+            options: ["IPアドレス", "MACアドレス", "SSID", "パスワード", "BSSID"],
+            answer: 2,
+            explanation: "SSID (Service Set Identifier) は、接続したい無線LANアクセスポイントを識別するために使用される名前です。"
+        },
+        {
+            question: "Webサイトの閲覧時に、有害な情報を含む特定のサイトへのアクセスを制限する機能を何と呼ぶか。",
+            options: ["ファイアウォール", "コンテンツフィルタリング", "アドブロック", "ポップアップブロック", "ペアレンタルコントロール"],
+            answer: 1,
+            explanation: "コンテンツフィルタリングは、あらかじめ設定された基準（ブラックリスト方式やホワイトリスト方式など）に基づいて、不適切なコンテンツへのアクセスを制限する技術です。"
+        },
+        {
+            question: "画像などのデジタルデータに、著作権情報などを人間には知覚できないように埋め込む技術はどれか。",
+            options: ["暗号化", "デジタル署名", "電子すかし", "タイムスタンプ", "ブロックチェーン"],
+            answer: 2,
+            explanation: "電子すかし（デジタルウォーターマーク）は、データの不正コピーや改ざんを検知・抑止するために、著作権情報などを埋め込む技術です。"
+        },
+        {
+            question: "暗号資産（仮想通貨）の取引記録を管理するために利用されている、分散型台帳技術と呼ばれるものはどれか。",
+            options: ["データベース", "P2P", "ブロックチェーン", "クラウドコンピューティング", "FinTech"],
+            answer: 2,
+            explanation: "ブロックチェーンは、取引データを「ブロック」と呼ばれる単位で記録し、それらを鎖（チェーン）のようにつなげて、ネットワーク上の参加者で分散して管理する技術です。"
+        },
+        {
+            question: "公衆網であるインターネットを、あたかも自社の専用線であるかのように利用できる技術はどれか。",
+            options: ["LAN", "WAN", "VPN", "ISP", "NAT"],
+            answer: 2,
+            explanation: "VPN (Virtual Private Network) は、トンネリングや暗号化の技術を用いて、インターネット上に仮想的なプライベートネットワークを構築します。"
+        },
+        {
+            question: "データ通信の際に発生する誤りを検出するために付加される符号はどれか。",
+            options: ["暗号化キー", "パリティビット", "ハッシュ値", "チェックサム", "デジタル署名"],
+            answer: 1,
+            explanation: "パリティビットは、データ中の「1」の数が偶数か奇数かを示す情報を1ビット付加することで、1ビットの誤りを検出する方法です。"
+        },
+        {
+            question: "暗号化と復号に同じ鍵を使用する暗号方式はどれか。",
+            options: ["公開鍵暗号方式", "共通鍵暗号方式", "ハイブリッド暗号方式", "デジタル署名", "ハッシュ関数"],
+            answer: 1,
+            explanation: "共通鍵暗号方式は、一つの共通鍵を送信者と受信者で共有し、暗号化と復号の両方に使用します。処理速度が速いのが特徴です。"
+        },
+        {
+            question: "暗号化と復号に異なる鍵（公開鍵と秘密鍵）のペアを使用する暗号方式はどれか。",
+            options: ["公開鍵暗号方式", "共通鍵暗号方式", "シーザー暗号", "換字暗号", "ストリーム暗号"],
+            answer: 0,
+            explanation: "公開鍵暗号方式は、公開鍵で暗号化し、それと対になる秘密鍵でしか復号できない仕組みです。鍵の配送が安全に行える利点があります。"
+        },
+        {
+            question: "公開鍵暗号方式において、暗号化のために広く一般に公開される鍵はどれか。",
+            options: ["秘密鍵", "共通鍵", "公開鍵", "セッション鍵", "マスター鍵"],
+            answer: 2,
+            explanation: "公開鍵は、誰でも入手できるように公開される鍵で、メッセージを暗号化するために使用されます。"
+        },
+        {
+            question: "公開鍵暗号方式において、受信者だけが持ち、暗号文を復号するために使用する鍵はどれか。",
+            options: ["秘密鍵", "共通鍵", "公開鍵", "一時鍵", "配送鍵"],
+            answer: 0,
+            explanation: "秘密鍵は、本人だけが厳重に保管する鍵で、自分宛に公開鍵で暗号化されたメッセージを復号するために使用します。"
+        },
+        {
+            question: "WebブラウザとWebサーバ間の通信を暗号化するプロトコルで、URLが`https://`で始まるサイトで利用されているものはどれか。",
+            options: ["HTTP", "FTP", "SMTP", "SSL/TLS", "TCP"],
+            answer: 3,
+            explanation: "SSL/TLSは、共通鍵暗号方式と公開鍵暗号方式を組み合わせたハイブリッド方式で、通信の盗聴や改ざんを防ぎます。HTTPSはHTTP over SSL/TLSの略です。"
+        },
+        {
+            question: "送信者が本人であることと、データが改ざんされていないことを証明するために、公開鍵暗号方式を応用した技術はどれか。",
+            options: ["電子すかし", "デジタル署名", "電子認証", "タイムスタンプ", "ファイアウォール"],
+            answer: 1,
+            explanation: "デジタル署名は、送信者が自身の秘密鍵でメッセージのハッシュ値を暗号化したもので、受信者は送信者の公開鍵で復号することで本人確認と改ざん検知ができます。"
+        },
+        {
+            question: "デジタル署名において、元の文書から生成される固定長のデータで、文書の指紋のような役割を果たすものは何か。",
+            options: ["暗号文", "平文", "要約文（ハッシュ値）", "公開鍵", "秘密鍵"],
+            answer: 2,
+            explanation: "要約文（ハッシュ値）は、ハッシュ関数によって元のデータから生成されます。少しでもデータが異なると全く異なる値になるため、改ざんの検出に利用されます。"
+        },
+        {
+            question: "8人が互いに共通鍵暗号方式で通信を行う場合、必要となる鍵の総数はいくつか。",
+            options: ["8個", "16個", "28個", "56個", "64個"],
+            answer: 2,
+            explanation: "N人で互いに通信する場合、必要な鍵の数は N * (N-1) / 2 で計算できます。8 * (8-1) / 2 = 28個となります。"
+        },
+        {
+            question: "Webサイトのログイン画面で表示される、歪んだ文字の画像を読み取って入力させる認証方法は、主に何を目的としているか。",
+            options: ["ユーザIDの確認", "パスワードの強化", "コンピュータによる自動ログインの防止", "キーボード入力の練習", "視覚情報の伝達"],
+            answer: 2,
+            explanation: "これはCAPTCHA（キャプチャ）と呼ばれる技術で、人間には判読できるがプログラムには困難な課題を与えることで、ボットなどによる自動的な操作を防ぐことを目的としています。"
+        },
+        {
+            question: "TCP/IPの4階層モデルに含まれない層はどれか。",
+            options: ["アプリケーション層", "トランスポート層", "インターネット層", "セッション層", "リンク層"],
+            answer: 3,
+            explanation: "TCP/IPのモデルは、アプリケーション層、トランスポート層、インターネット層、リンク層（またはネットワークインタフェース層）の4階層です。セッション層はOSI参照モデルの第5層です。"
+        },
+        {
+            question: "OSI参照モデルは全部で何階層から構成されているか。",
+            options: ["3階層", "4階層", "5階層", "7階層", "8階層"],
+            answer: 3,
+            explanation: "OSI参照モデルは、通信機能を7つの階層（物理層、データリンク層、ネットワーク層、トランスポート層、セッション層、プレゼンテーション層、アプリケーション層）に分けて定義しています。"
+        },
+        {
+            question: "LANを構成する際に、複数のコンピュータを接続するための集線装置はどれか。",
+            options: ["ルータ", "モデム", "ハブ", "ゲートウェイ", "ブリッジ"],
+            answer: 2,
+            explanation: "ハブ（またはスイッチングハブ）は、複数のLANケーブルを接続し、コンピュータ間の通信を中継する集線装置です。"
+        },
+        {
+            question: "IPアドレスから、対応する機器の物理的なアドレス（MACアドレス）を取得するためのプロトコルは何か。",
+            options: ["DHCP", "DNS", "ARP", "RARP", "ICMP"],
+            answer: 2,
+            explanation: "ARP (Address Resolution Protocol) は、同一ネットワーク内で、IPアドレスをキーにして対応するMACアドレスを問い合わせるために使用されます。"
+        },
+        {
+            question: "コンピュータのネットワークカードなどに固有に割り当てられている、48ビットの物理アドレスを何と呼ぶか。",
+            options: ["IPアドレス", "ポート番号", "MACアドレス", "SSID", "ホスト名"],
+            answer: 2,
+            explanation: "MACアドレスは、ネットワーク機器に製造段階で割り当てられる一意の識別子で、データリンク層で利用されます。"
+        },
+        {
+            question: "トランスポート層のプロトコルで、信頼性は低いが高速なデータ転送を特徴とするものはどれか。",
+            options: ["TCP", "UDP", "IP", "HTTP", "FTP"],
+            answer: 1,
+            explanation: "UDP (User Datagram Protocol) は、TCPのようなコネクション確立や再送制御を行わないため高速ですが、データの到達保証はありません。ストリーミング配信などで利用されます。"
+        },
+        {
+            question: "トランスポート層のプロトコルで、3ウェイハンドシェイクによってコネクションを確立し、信頼性の高いデータ転送を実現するものはどれか。",
+            options: ["TCP", "UDP", "IP", "ICMP", "ARP"],
+            answer: 0,
+            explanation: "TCP (Transmission Control Protocol) は、通信相手との間でコネクションを確立し、データが正しく届いたかを確認しながら通信を行うため、高い信頼性を提供します。"
+        },
+        {
+            question: "IPアドレスとポート番号の組み合わせによって、通信先のコンピュータの特定のアプリケーションを識別する。このポート番号の役割に最も近いものはどれか。",
+            options: ["家の住所", "部屋番号", "電話番号", "郵便番号", "氏名"],
+            answer: 1,
+            explanation: "IPアドレスが建物の住所だとすると、ポート番号はその建物の中のどの部屋（どのアプリケーション）に届けるかを示す部屋番号に例えられます。"
+        },
+        {
+            question: "インターネットバンキングなど、金融と情報技術を組み合わせた革新的なサービスを指す造語はどれか。",
+            options: ["E-コマース", "EdTech", "FinTech", "AgriTech", "HealthTech"],
+            answer: 2,
+            explanation: "FinTech（フィンテック）は、Finance（金融）とTechnology（技術）を組み合わせた造語で、スマートフォン決済や資産管理アプリなどが含まれます。"
+        },
+        {
+            question: "交通系ICカードに採用されている、近距離無線通信技術はどれか。",
+            options: ["Bluetooth", "Wi-Fi", "NFC", "赤外線通信", "GPS"],
+            answer: 2,
+            explanation: "NFC (Near Field Communication) は、数センチメートルの近距離で通信を行う技術で、非接触ICカードやスマートフォン決済などに利用されています。"
+        },
+        {
+            question: "コンピュータウイルスに感染した場合の初期対応として、最も適切なものはどれか。",
+            options: ["すぐに再起動する", "重要なファイルを友人に送る", "感染したコンピュータをネットワークから切り離す", "ウイルス対策ソフトをアンインストールする", "そのまま使い続ける"],
+            answer: 2,
+            explanation: "感染拡大を防ぐため、まずはLANケーブルを抜く、Wi-Fiをオフにするなどして、感染したコンピュータをネットワークから物理的に隔離することが最優先です。"
+        },
+        {
+            question: "パスワードに関する記述として、最も不適切なものはどれか。",
+            options: ["複数のサービスで同じパスワードを使い回す", "英大文字、小文字、数字、記号を組み合わせる", "定期的に変更する", "他人に推測されにくい文字列にする", "初期パスワードはすぐに変更する"],
+            answer: 0,
+            explanation: "複数のサービスでパスワードを使い回すと、一つのサービスから情報が漏洩した場合、他のサービスにも不正ログインされる危険性が高まります（パスワードリスト攻撃）。"
+        },
+        {
+            question: "正規のWebサイトを装った偽のサイトに誘導し、個人情報などを盗み出す手口を何と呼ぶか。",
+            options: ["標的型攻撃", "DoS攻撃", "フィッシング詐欺", "マルウェア感染", "スパムメール"],
+            answer: 2,
+            explanation: "フィッシング詐欺は、金融機関などを装ったメールで偽サイトに誘導し、IDやパスワード、クレジットカード情報などを入力させて盗む詐欺行為です。"
+        },
+        {
+            question: "公開鍵の正当性を第三者機関が保証するために発行する電子的な証明書を何と呼ぶか。",
+            options: ["デジタル署名", "電子認証局", "電子証明書", "ルート証明書", "タイムスタンプ"],
+            answer: 2,
+            explanation: "電子証明書（デジタル証明書）は、認証局（CA）が発行し、公開鍵の持ち主が本人であることを証明します。これにより、なりすましを防ぎます。"
+        },
+        {
+            question: "IPアドレスの表記法で、`192.168.1.1` のように、8ビットずつ4つの部分に区切り、10進数で表現するのはどの規格か。",
+            options: ["IPv6", "MACアドレス", "IPv4", "URL", "ドメイン名"],
+            answer: 2,
+            explanation: "IPv4アドレスは32ビットを8ビットずつに区切り、それぞれを10進数で表記してドットでつなぎます。"
+        },
+        {
+            question: "IPv6アドレスは、16ビットずつに区切り、主に何進数で表記されるか。",
+            options: ["2進数", "8進数", "10進数", "16進数", "32進数"],
+            answer: 3,
+            explanation: "IPv6アドレスは128ビットを16ビットずつ8つのブロックに分け、各ブロックを16進数で表記し、コロン（:）で区切ります。"
+        },
+        {
+            question: "Webサーバがクライアントからの要求を受け付けるために、標準的に使用するポート番号はどれか。（暗号化されていない通信の場合）",
+            options: ["21", "25", "53", "80", "443"],
+            answer: 3,
+            explanation: "HTTP通信では、ウェルノウンポートである80番ポートが標準的に使用されます。"
+        },
+        {
+            question: "HTTPS（暗号化されたWeb通信）で、標準的に使用されるポート番号はどれか。",
+            options: ["22", "80", "110", "143", "443"],
+            answer: 4,
+            explanation: "HTTPS通信では、ウェルノウンポートである443番ポートが標準的に使用されます。"
+        },
+        {
+            question: "電子メールの受信プロトコルであるPOPで、標準的に使用されるポート番号はどれか。",
+            options: ["25", "53", "80", "110", "143"],
+            answer: 3,
+            explanation: "POP3では、ウェルノウンポートである110番ポートが標準的に使用されます。"
+        },
+        {
+            question: "ファイル転送を行うためのプロトコルはどれか。",
+            options: ["HTTP", "FTP", "SMTP", "SNMP", "NTP"],
+            answer: 1,
+            explanation: "FTP (File Transfer Protocol) は、ネットワークを介してサーバとクライアント間でファイルを送受信するためのプロトコルです。"
+        },
+        {
+            question: "離れた場所にあるコンピュータを、遠隔で操作するためのプロトコルで、通信が暗号化されているものはどれか。",
+            options: ["Telnet", "SSH", "RDP", "VNC", "FTP"],
+            answer: 1,
+            explanation: "SSH (Secure SHell) は、暗号化や認証技術を利用して、安全にリモートコンピュータと通信するためのプロトコルです。"
+        },
+        {
+            question: "DNSサーバが管理する、ドメイン名とIPアドレスの対応情報などを何と呼ぶか。",
+            options: ["ゾーン情報", "キャッシュ", "ルートヒント", "リソースレコード", "ディレクトリ"],
+            answer: 3,
+            explanation: "リソースレコードは、DNSで管理される情報の単位で、Aレコード（ホスト名→IPv4）、AAAAレコード（ホスト名→IPv6）、MXレコード（ドメインのメールサーバ）など様々な種類があります。"
+        },
+        {
+            question: "一度問い合わせた名前解決の結果を、一定期間コンピュータ内に保存しておく機能を何と呼ぶか。",
+            options: ["キャッシュ", "バッファ", "クッキー", "ログ", "プロキシ"],
+            answer: 0,
+            explanation: "DNSキャッシュは、一度解決した名前を保存しておくことで、次回同じ問い合わせがあった際にDNSサーバに聞くことなく素早く応答できるようにする仕組みです。"
+        },
+        {
+            question: "ネットワークの疎通確認のために、特定のIPアドレスを持つ機器に応答を要求するコマンドはどれか。",
+            options: ["ipconfig", "nslookup", "ping", "tracert", "netstat"],
+            answer: 2,
+            explanation: "pingコマンドは、ICMPプロトコルを利用して、指定したホストがネットワーク上で応答するかどうかを確認するために使用されます。"
+        },
+        {
+            question: "自分のコンピュータのIPアドレスやサブネットマスク、デフォルトゲートウェイなどの設定情報を確認するためのコマンドはどれか。（Windowsの場合）",
+            options: ["ipconfig", "ifconfig", "ping", "netstat", "arp"],
+            answer: 0,
+            explanation: "Windowsのコマンドプロンプトで`ipconfig`コマンドを実行すると、ネットワークインターフェースのIP設定情報を確認できます。（macOSやLinuxでは`ifconfig`や`ip a`）"
+        },
+        {
+            question: "ドメイン名からIPアドレスを調べる（名前解決）ために使用するコマンドはどれか。",
+            options: ["ping", "nslookup", "ipconfig", "tracert", "route"],
+            answer: 1,
+            explanation: "nslookupコマンドは、DNSサーバに問い合わせを行い、指定したドメイン名やIPアドレスに関する情報を表示します。"
+        },
+        {
+            question: "IPアドレスをネットワーク部とホスト部に分割するために使用される32ビットの数値は何か。",
+            options: ["MACアドレス", "ポート番号", "デフォルトゲートウェイ", "サブネットマスク", "DNSサーバアドレス"],
+            answer: 3,
+            explanation: "サブネットマスクは、IPアドレスのどこまでがネットワーク部で、どこからがホスト部かを示すために使用されます。"
+        },
+        {
+            question: "自分の所属するネットワークから外部のネットワークへ通信する際に出口となるルータのIPアドレスを何と呼ぶか。",
+            options: ["DNSサーバ", "DHCPサーバ", "プロキシサーバ", "デフォルトゲートウェイ", "ループバックアドレス"],
+            answer: 3,
+            explanation: "デフォルトゲートウェイは、通信したい相手が同一ネットワーク内にいない場合に、パケットを転送してもらうためのルータ（のIPアドレス）です。"
+        },
+        {
+            question: "光ファイバケーブルを利用して家庭まで高速なインターネット回線を提供するサービスをアルファベット4文字で何と呼ぶか。",
+            options: ["ADSL", "ISDN", "CATV", "FTTH", "LTE"],
+            answer: 3,
+            explanation: "FTTH (Fiber To The Home) は、光ファイバーを直接家庭まで引き込むことで、非常に高速な通信を実現するサービスです。"
+        },
+        {
+            question: "携帯電話の通信網で利用される、契約者情報を記録したICカードを何と呼ぶか。",
+            options: ["SDカード", "SIMカード", "ICカード", "スマートカード", "NFCカード"],
+            answer: 1,
+            explanation: "SIM (Subscriber Identity Module) カードには、契約者を識別するための固有のID番号などが記録されており、これを端末に挿すことで通信が可能になります。"
+        },
+        {
+            question: "スマートフォンの通信方法で、通信量に制限があることが多いが、移動中でも広範囲で利用できるのはどちらか。",
+            options: ["Wi-Fi接続", "携帯電話網接続", "Bluetooth接続", "テザリング接続", "有線LAN接続"],
+            answer: 1,
+            explanation: "携帯電話網（モバイルデータ通信）は基地局を介して広範囲をカバーしますが、契約プランによってデータ通信量に上限が設けられていることが一般的です。"
+        },
+        {
+            question: "電子商取引サイトなどで、顧客の購買履歴などからその人が興味を持ちそうな商品を推薦する機能を何と呼ぶか。",
+            options: ["パーソナライズ", "カスタマイズ", "レコメンデーション", "ターゲティング広告", "アフィリエイト"],
+            answer: 2,
+            explanation: "レコメンデーション機能は、協調フィルタリングなどのアルゴリズムを用いて、利用者の嗜好に合った情報や商品を提示する機能です。"
+        },
+        {
+            question: "ハイブリッド暗号方式（SSL/TLSなど）に関する説明として、正しいものはどれか。",
+            options: ["共通鍵暗号方式のみを使用する", "公開鍵暗号方式のみを使用する", "処理の遅い共通鍵でデータを、高速な公開鍵で鍵を暗号化する", "高速な共通鍵でデータを、安全に鍵交換できる公開鍵でその共通鍵を暗号化する", "暗号化を行わない通信方式である"],
+            answer: 3,
+            explanation: "ハイブリッド暗号方式は、両者の長所を組み合わせた方式です。実際のデータは処理の速い共通鍵で暗号化し、その共通鍵自体を、安全に配送できる公開鍵暗号方式で暗号化して相手に送ります。"
+        }
+    ];
+
+
+    // --- DOM要素の取得 ---
+    const startScreen = document.getElementById('start-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const resultScreen = document.getElementById('result-screen');
+    
+    const startBtn = document.getElementById('start-btn');
+    const questionNumberEl = document.getElementById('question-number');
+    const questionTextEl = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const feedbackContainer = document.getElementById('feedback-container');
+    const feedbackResultEl = document.getElementById('feedback-result');
+    const explanationEl = document.getElementById('explanation');
+    const explanationTextEl = document.getElementById('explanation-text');
+    const nextBtn = document.getElementById('next-btn');
+    const restartBtn = document.getElementById('restart-btn');
+    const scoreEl = document.getElementById('score');
+    const resultMessageEl = document.getElementById('result-message');
+    const progressBar = document.getElementById('progress-bar');
+
+
+    // --- 変数定義 ---
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let shuffledQuizData = [];
+
+    // --- イベントリスナー ---
+    startBtn.addEventListener('click', startQuiz);
+    nextBtn.addEventListener('click', nextQuestion);
+    restartBtn.addEventListener('click', startQuiz);
+
+    // --- 関数定義 ---
+
+    // クイズを開始する関数
+    function startQuiz() {
+        startScreen.classList.add('hidden');
+        resultScreen.classList.add('hidden');
+        quizScreen.classList.remove('hidden');
+        
+        currentQuestionIndex = 0;
+        score = 0;
+        // クイズデータをシャッフルして毎回違う順序で出題
+        shuffledQuizData = [...quizData].sort(() => Math.random() - 0.5);
+        displayQuestion();
+    }
+
+    // 問題を表示する関数
+    function displayQuestion() {
+        resetState();
+        const currentQuestion = shuffledQuizData[currentQuestionIndex];
+        questionNumberEl.textContent = currentQuestionIndex + 1;
+        questionTextEl.innerHTML = `Q${currentQuestionIndex + 1}. ${currentQuestion.question}`;
+        
+        currentQuestion.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.innerHTML = `<span class="bg-blue-100 text-blue-800 font-bold rounded-full w-8 h-8 flex items-center justify-center mr-4">${index + 1}</span> ${option}`;
+            button.classList.add('option-btn', 'w-full', 'p-4', 'text-left', 'bg-white', 'border-2', 'border-gray-300', 'rounded-lg', 'flex', 'items-center', 'text-lg');
+            button.dataset.index = index;
+            button.addEventListener('click', selectAnswer);
+            optionsContainer.appendChild(button);
+        });
+
+        updateProgressBar();
+    }
+    
+    // 状態をリセットする関数
+    function resetState() {
+        feedbackContainer.classList.add('hidden');
+        nextBtn.classList.add('hidden');
+        while (optionsContainer.firstChild) {
+            optionsContainer.removeChild(optionsContainer.firstChild);
+        }
+    }
+
+    // 回答を選択した時の処理
+    function selectAnswer(e) {
+        const selectedBtn = e.currentTarget;
+        const selectedIndex = parseInt(selectedBtn.dataset.index);
+        const correctIndex = shuffledQuizData[currentQuestionIndex].answer;
+
+        if (selectedIndex === correctIndex) {
+            feedbackResultEl.textContent = "正解！";
+            feedbackResultEl.className = "text-2xl font-bold mb-4 text-green-600";
+            score++;
+        } else {
+            feedbackResultEl.textContent = "不正解...";
+            feedbackResultEl.className = "text-2xl font-bold mb-4 text-red-600";
+        }
+        
+        explanationTextEl.textContent = shuffledQuizData[currentQuestionIndex].explanation;
+        feedbackContainer.classList.remove('hidden');
+
+        // 全てのボタンの状態を更新
+        Array.from(optionsContainer.children).forEach(button => {
+            const btnIndex = parseInt(button.dataset.index);
+            if (btnIndex === correctIndex) {
+                button.classList.add('correct');
+            } else if (btnIndex === selectedIndex) {
+                button.classList.add('incorrect');
+            }
+            button.disabled = true;
+        });
+
+        if (shuffledQuizData.length > currentQuestionIndex + 1) {
+            nextBtn.textContent = "次の問題へ";
+            nextBtn.classList.remove('hidden');
+        } else {
+            nextBtn.textContent = "結果を見る";
+            nextBtn.classList.remove('hidden');
+        }
+    }
+    
+    // 次の問題へ進む、または結果を表示する
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < shuffledQuizData.length) {
+            displayQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    // 結果を表示する関数
+    function showResult() {
+        quizScreen.classList.add('hidden');
+        resultScreen.classList.remove('hidden');
+        scoreEl.textContent = score;
+        
+        let message = "";
+        if (score >= 95) {
+            message = "素晴らしい！完璧です。ネットワークマスターですね！";
+        } else if (score >= 80) {
+            message = "高得点！素晴らしい理解度です。この調子で頑張りましょう。";
+        } else if (score >= 60) {
+            message = "合格ラインです。苦手な部分を解説で復習しましょう。";
+        } else if (score >= 40) {
+            message = "もう少しです。間違えた問題を中心に、もう一度挑戦してみましょう。";
+        } else {
+            message = "基礎からもう一度復習が必要です。繰り返し学習が力になります。";
+        }
+        resultMessageEl.textContent = message;
+    }
+
+    // プログレスバーを更新する関数
+    function updateProgressBar() {
+        const progressPercentage = ((currentQuestionIndex + 1) / shuffledQuizData.length) * 100;
+        progressBar.style.width = `${progressPercentage}%`;
+    }
+
+</script>
+
+</body>
+</html>

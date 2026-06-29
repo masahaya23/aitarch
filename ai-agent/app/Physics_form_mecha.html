@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Untitled</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物理公式マスター（1章-4章）</title>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root { --primary: #ef4444; --bg: #fff1f2; --text: #1f2937; }
+        body { font-family: sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        .container { text-align: center; width: 100%; max-width: 450px; }
+        h1 { font-size: 1.4rem; color: var(--text); margin-bottom: 5px; }
+        .sub-text { font-size: 0.8rem; color: #6b7280; margin-bottom: 20px; }
+        .card-container { width: 100%; height: 260px; margin: 0 auto; perspective: 1000px; }
+        .card { width: 100%; height: 100%; position: relative; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; cursor: pointer; }
+        .card.is-flipped { transform: rotateY(180deg); }
+        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); background: white; border: 4px solid var(--primary); box-sizing: border-box; }
+        .card-back { background: var(--primary); color: white; transform: rotateY(180deg); }
+        .label { font-size: 0.75rem; opacity: 0.7; margin-bottom: 15px; font-weight: bold; }
+        .content { font-size: 1.4rem; font-weight: bold; padding: 0 15px; word-break: break-all; }
+        .math-text { font-size: 1.8rem; }
+        .controls { display: flex; gap: 15px; justify-content: center; margin-top: 30px; }
+        button { padding: 12px 25px; border: none; border-radius: 12px; background: white; color: var(--primary); font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.2s; -webkit-tap-highlight-color: transparent; }
+        button:active { transform: scale(0.95); background: #fecdd3; }
+        .status { margin-top: 20px; color: #9ca3af; font-size: 0.9rem; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>物理公式マスター</h1>
+    <p class="sub-text">1章：平面運動 〜 4章：万有引力</p>
+    <div class="card-container">
+        <div class="card" id="card">
+            <div class="card-face card-front">
+                <div class="label">公式名</div>
+                <div class="content" id="front-text">読み込み中...</div>
+            </div>
+            <div class="card-face card-back">
+                <div class="label" style="color: white;">公式</div>
+                <div class="content math-text" id="back-text"></div>
+            </div>
+        </div>
+    </div>
+    <div class="controls">
+        <button id="prev-btn">前へ</button>
+        <button id="next-btn">次へ</button>
+    </div>
+    <div class="status"><span id="current-num">0</span> / <span id="total-num">0</span></div>
+</div>
+
+<script>
+    // HTML読み込み完了後に実行
+    document.addEventListener('DOMContentLoaded', () => {
+        const rawData = [
+            // 第1章：平面内の運動
+            { q: "速度の成分 (x成分)", a: "\\( v_x = v \\cos \\theta \\)" },
+            { q: "速度の成分 (y成分)", a: "\\( v_y = v \\sin \\theta \\)" },
+            { q: "相対速度 (Aから見たB)", a: "\\( \\vec{v}_{AB} = \\vec{v}_B - \\vec{v}_A \\)" },
+            { q: "平均の加速度", a: "\\( \\vec{a} = \\frac{\\Delta \\vec{v}}{\\Delta t} \\)" },
+            { q: "自由落下 (速度)", a: "\\( v = gt \\)" },
+            { q: "自由落下 (変位)", a: "\\( y = \\frac{1}{2}gt^2 \\)" },
+            { q: "水平投射 (軌道の式)", a: "\\( y = \\frac{g}{2v_0^2}x^2 \\)" },
+            { q: "斜方投射 (速度y成分)", a: "\\( v_y = v_0 \\sin \\theta - gt \\)" },
+            { q: "終端速度", a: "\\( v_f = \\frac{mg}{k} \\)" },
+            // 第2章：剛体
+            { q: "力のモーメント", a: "\\( M = Fl \\)" },
+            { q: "剛体のつりあい (並進)", a: "\\( \\vec{F}_1 + \\vec{F}_2 + \\dots = 0 \\)" },
+            { q: "剛体のつりあい (回転)", a: "\\( M_1 + M_2 + \\dots = 0 \\)" },
+            { q: "重心の座標", a: "\\( x_G = \\frac{m_1x_1 + m_2x_2}{m_1 + m_2} \\)" },
+            // 第3章：運動量の保存
+            { q: "運動量", a: "\\( p = mv \\)" },
+            { q: "力積", a: "\\( I = F \\Delta t \\)" },
+            { q: "運動量と力積の関係", a: "\\( m\\vec{v}' - m\\vec{v} = \\vec{F} \\Delta t \\)" },
+            { q: "運動量保存則", a: "\\( m_1v_1 + m_2v_2 = m_1v_1' + m_2v_2' \\)" },
+            { q: "反発係数 (はねかえり係数)", a: "\\( e = - \\frac{v_1' - v_2'}{v_1 - v_2} \\)" },
+            // 第4章：円運動と万有引力
+            { q: "角速度", a: "\\( \\omega = \\frac{\\theta}{t} \\)" },
+            { q: "円運動の速度", a: "\\( v = r\\omega \\)" },
+            { q: "向心加速度", a: "\\( a = r\\omega^2 = \\frac{v^2}{r} \\)" },
+            { q: "向心力", a: "\\( F = m\\frac{v^2}{r} = mr\\omega^2 \\)" },
+            { q: "慣性力", a: "\\( \\vec{f} = -m\\vec{a} \\)" },
+            { q: "遠心力", a: "\\( f = mr\\omega^2 \\)" },
+            { q: "単振動の復元力", a: "\\( F = -Kx \\)" },
+            { q: "単振動の周期", a: "\\( T = 2\\pi \\sqrt{\\frac{m}{K}} \\)" },
+            { q: "単振り子の周期", a: "\\( T = 2\\pi \\sqrt{\\frac{l}{g}} \\)" },
+            { q: "万有引力の法則", a: "\\( F = G \\frac{Mm}{r^2} \\)" },
+            { q: "万有引力による位置エネ", a: "\\( U = -G \\frac{Mm}{r} \\)" },
+            { q: "ケプラーの第3法則", a: "\\( \\frac{T^2}{a^3} = k \\)" }
+        ];
+
+        let idx = 0;
+        const card = document.getElementById('card');
+        const fT = document.getElementById('front-text');
+        const bT = document.getElementById('back-text');
+        const cN = document.getElementById('current-num');
+        const tN = document.getElementById('total-num');
+
+        function up() {
+            card.classList.remove('is-flipped');
+            setTimeout(() => {
+                fT.innerText = rawData[idx].q;
+                bT.innerHTML = rawData[idx].a;
+                cN.innerText = idx + 1;
+                if (window.MathJax) { MathJax.typesetPromise(); }
+            }, 150);
+        }
+
+        card.onclick = () => card.classList.toggle('is-flipped');
+        
+        document.getElementById('next-btn').onclick = (e) => {
+            e.stopPropagation();
+            idx = (idx + 1) % rawData.length;
+            up();
+        };
+
+        document.getElementById('prev-btn').onclick = (e) => {
+            e.stopPropagation();
+            idx = (idx - 1 + rawData.length) % rawData.length;
+            up();
+        };
+
+        tN.innerText = rawData.length;
+        up();
+    });
+</script>
+</body>
+</html>
+    
+  </body>
+  
+</html>

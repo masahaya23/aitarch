@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- タスクバーに表示するタイトル-->
+    <title>【実習】AI家庭教師</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="/common/theme.css">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+    </style>
+</head>
+<!-- bodyタグのクラスはJSで動的に付与されるため、空にしておく -->
+<body class="bg-[var(--bg-color)] overflow-x-hidden">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- 左サイドバー: 中身はJSで自動生成される -->
+        <aside id="sidebar-container" class="w-full md:w-1/3 lg:w-1/4 p-6 bg-white/60 backdrop-blur-sm border-r border-black/10" data-aos="fade-right" data-aos-duration="900">
+            <!-- ここにsidebar.jsから記事一覧が挿入されます -->
+        </aside>
+
+        <!--記事の本文をここに記述 -->
+        <main class="w-full md:w-2/3 lg:w-3/4 p-8 md:p-12" data-aos="fade-up" data-aos-duration="900" data-aos-delay="200">
+            <div class="prose prose-lg max-w-4xl text-[var(--text-color)] prose-headings:text-[var(--text-color)] prose-p:text-[var(--text-color)] prose-strong:text-[var(--text-color)] prose-a:text-[var(--theme-color)] prose-ul:text-[var(--text-color)] prose-li:text-[var(--text-color)]">
+                
+                <!-- Title -->
+                <h1 class="text-4xl md:text-4xl font-bold pb-4 mb-8 border-b border-[var(--theme-color)]/30">【実習】AI家庭教師</h1>
+                <p class="text-base text-[var(--text-color)] opacity-70 mt-4 mb-8">公開日: 2025-07-25</p>
+    <div class="container mx-auto max-w-4xl p-4 sm:p-8">
+        <header class="bg-blue-600 text-white p-6 rounded-lg shadow-lg text-center mb-8">
+            <h1 class="text-3xl font-bold">【研修用】AI家庭教師 活用マニュアル</h1>
+            <p class="mt-2">AIをお子様専用の家庭教師にしてみよう！</p>
+        </header>
+
+        <main class="bg-white p-6 sm:p-8 rounded-lg shadow-md">
+
+            <!-- 1. はじめに -->
+            <section id="intro" class="mb-12">
+                <h2 class="text-2xl font-bold border-b-2 border-blue-800 pb-2 mb-4 text-blue-800">1. AIが家庭教師になる時代</h2>
+                <p class="text-gray-700 leading-relaxed">
+                    本日はAI実習教室にご参加いただきありがとうございます。<br>
+                    このマニュアルでは、対話型AI（特にGoogleのGemini）を使って、お子様の勉強をサポートする方法を学びます。<br>
+                    AIに「先生役」を演じてもらうことで、苦手な問題の解説から、類題の作成、テスト対策まで、まるでマンツーマンの家庭教師がいるかのように学習を進めることができます。
+                </p>
+                <div class="tip-box">
+                    <p class="font-semibold text-blue-500 text-blue-500">💡 Canvas機能とは？</p>
+                    <p class="text-sm text-gray-700 mt-1">
+                        Canvas機能（またはチャット画面）は、AIとの対話を記録し、文脈を保ったまま会話を続けられる場所です。PDFなどのファイルをアップロードしたり、AIが生成した図や表を確認したりするのに非常に便利です。
+                    </p>
+                </div>
+            </section>
+
+            <!-- 2. 数学の問題を解説してもらう -->
+            <section id="math" class="mb-12">
+                <h2 class="text-2xl font-bold border-b-2 border-blue-800 pb-2 mb-4 text-blue-800">2. 実践①：数学の入試問題を解説してもらう</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    まずは、お手元の数学の問題（Math.pdf）をAIにアップロードして、指定した問題の解説を頼んでみましょう。AIが優秀な数学の先生になってくれます。
+                </p>
+                <div class="prompt-box">
+                    <h3 class="prompt-title text-red-500">プロンプト例（コピーして使ってみましょう）</h3>
+                    <button class="copy-btn text-red-500" onclick="copyPrompt(this)">コピー</button>
+                    <pre class="whitespace-pre-wrap text-gray-800"><code>貴方は優秀な中学校数学の教員です。PDFの入試問題の大問3について、正解と解説をお願いします。
+
+# 要件
+- 中学生にわかるようにやさしくかつ簡潔に表現してください。
+- フランクな話し言葉で解説してださい
+- 図や表なども交えて、解説してください</code></pre>
+                </div>
+                <div class="tip-box">
+                    <p class="font-semibold text-blue-500">💡 プロンプトのポイント</p>
+                    <ul class="list-disc list-inside text-sm text-gray-700 mt-1 space-y-1">
+                        <li><strong>役割を与える：</strong>「優秀な中学校数学の教員です」と役割を指定することで、AIの回答スタイルが最適化されます。</li>
+                        <li><strong>要件を明確に：</strong>「中学生にわかるように」「フランクな話し言葉で」など、求める品質を具体的に伝えることが重要です。</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <!-- 3. 類題を作成してもらう -->
+            <section id="math-similar" class="mb-12">
+                <h2 class="text-2xl font-bold border-b-2 border-blue-800 pb-2 mb-4 text-blue-800">3. 実践②：類題で理解を深める</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    一つの問題が理解できたら、同じパターンの問題を解いて定着させることが大切です。AIに類題の作成と解説をお願いしてみましょう。前の会話の流れを引き継いで質問できます。
+                </p>
+                <div class="prompt-box">
+                    <h3 class="prompt-title text-red-500">プロンプト例（続けて入力します）</h3>
+                    <button class="copy-btn text-red-500" onclick="copyPrompt(this)">コピー</button>
+                    <pre class="whitespace-pre-wrap text-gray-800"><code>この問題の類題を作ってください。
+類題の解説もお願いします。</code></pre>
+                </div>
+                 <div class="tip-box">
+                    <p class="font-semibold text-blue-500">💡 会話が続くメリット</p>
+                    <p class="text-sm text-gray-700 mt-1">
+                        AIは直前の会話を覚えています。「この問題」と言うだけで、先ほど解説してくれた数学の問題を指していると理解してくれます。
+                    </p>
+                </div>
+            </section>
+
+            <!-- 4. 理科の問題を解説してもらう -->
+            <section id="science" class="mb-12">
+                <h2 class="text-2xl font-bold border-b-2 border-blue-800 pb-2 mb-4 text-blue-800">4. 実践③：理科にも挑戦！</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    同じように、理科の問題（Rika.pdf）も解説してもらいましょう。AIは様々な教科の先生になることができます。
+                </p>
+                <div class="prompt-box">
+                    <h3 class="prompt-title text-red-500">プロンプト例（ファイルをアップロードしてから使います）</h3>
+                    <button class="copy-btn text-red-500" onclick="copyPrompt(this)">コピー</button>
+                    <pre class="whitespace-pre-wrap text-gray-800"><code>貴方は優秀な中学校理科の教員です。PDFの入試問題の大問1について、正解と解説をお願いします。
+
+# 要件
+- 中学生にわかるようにやさしくかつ簡潔に表現してください。
+- フランクな話し言葉で解説してださい
+- 図や表なども交えて、解説してください</code></pre>
+                </div>
+            </section>
+
+            <!-- 5. オリジナルテストを作成する -->
+            <section id="test-creation" class="mb-12">
+                <h2 class="text-2xl font-bold border-b-2 border-blue-800 pb-2 mb-4 text-blue-800">5. 実践④：AIでオリジナルテストを作る</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    学習した範囲の理解度をチェックするために、AIにオリジナルのテスト問題を作ってもらいましょう。苦手な分野に絞って問題を作ることも可能です。
+                </p>
+                <div class="prompt-box">
+                    <h3 class="prompt-title text-red-500">プロンプト例（理科の解説に続けて入力します）</h3>
+                    <button class="copy-btn text-red-500" onclick="copyPrompt(this)">コピー</button>
+                    <pre class="whitespace-pre-wrap text-gray-800"><code>ありがとう！今解説してくれた内容について、理解度を確認するためのテストを5問作ってください。
+4択の選択式問題でお願いします。</code></pre>
+                </div>
+                 <div class="tip-box">
+                    <p class="font-semibold text-blue-500">💡 テストで実力チェック</p>
+                    <p class="text-sm text-gray-700 mt-1">
+                        AIが作ったテストにその場で解答し、すぐに答え合わせをすることもできます。「今のテストの答えを教えて」と聞くだけでOKです。
+                    </p>
+                </div>
+            </section>
+            
+            <!-- 6. 英会話 -->
+            <section id="english">
+                <h2 class="text-2xl font-bold border-b-2 border-blue-800 pb-2 mb-4 text-blue-800">6. 発展：英会話のトレーニング相手にも</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    AIは、英会話の練習相手としても非常に優れています。間違いを恐れずに、気軽に話しかけてみましょう。自然な会話で、モチベーションを上げてくれます。
+                </p>
+                <div class="prompt-box">
+                    <h3 class="prompt-title text-red-500">プロンプト例（新しいチャットで試してみましょう）</h3>
+                    <button class="copy-btn text-red-500" onclick="copyPrompt(this)">コピー</button>
+                    <pre class="whitespace-pre-wrap text-gray-800"><code>今日からあなたと英会話の練習をしたいです。
+まずは、自己紹介から始めましょう。あなたが先に話してください。
+私の英語に不自然な点があれば、優しく指摘して、より自然な表現を教えてください。</code></pre>
+                </div>
+                <div class="tip-box">
+                    <p class="font-semibold text-blue-500">💡 AI英会話のメリット</p>
+                     <ul class="list-disc list-inside text-sm text-gray-700 mt-1 space-y-1">
+                        <li>24時間365日、いつでも練習相手になってくれる。</li>
+                        <li>間違えても恥ずかしくない。</li>
+                        <li>自分のペースで会話を進められる。</li>
+                    </ul>
+                </div>
+            </section>
+
+        </main>
+
+    </div>
+
+    <script>
+        function copyPrompt(button) {
+            const pre = button.nextElementSibling;
+            const textToCopy = pre.innerText;
+            
+            // テキストエリアを一時的に作成してコピー
+            const textArea = document.createElement('textarea');
+            textArea.value = textToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                button.innerText = 'コピー完了！';
+                setTimeout(() => {
+                    button.innerText = 'コピー';
+                }, 2000);
+            } catch (err) {
+                console.error('コピーに失敗しました', err);
+                button.innerText = '失敗';
+            }
+            document.body.removeChild(textArea);
+        }
+    </script>
+            </div>
+            <footer class="text-left text-slate-400 mt-12">
+                <p>&copy; 2025 Aitarch. All Rights Reserved.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- 記事リストを生成するJSファイルを読み込む -->
+    <script src="../../sidebar.js"></script>
+    <script>
+        // AOSを初期化
+        AOS.init({ once: true });
+
+        //ここに記事のディレクトリを入れる 
+        generateSidebar('ai-life', '/ai-life/article/4.html');
+    </script>
+</body>
+</html>

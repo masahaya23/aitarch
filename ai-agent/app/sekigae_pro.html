@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>席替えくん Pro</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/papaparse@5/papaparse.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f0f4ff;--sf:#fff;--sf2:#f5f0ff;--bd:#d4c5ff;--a2:#ff3d71;--a3:#00c48c;--pu:#7b61ff;--ye:#ffd60a;--tx:#1a0050;--tx2:#6b5b95;--fx:#ff9500;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);background-image:radial-gradient(ellipse at 0% 0%,#ffe0f0 0%,transparent 38%),radial-gradient(ellipse at 100% 0%,#e0eaff 0%,transparent 38%),radial-gradient(ellipse at 50% 100%,#e0fff4 0%,transparent 44%);color:var(--tx);min-height:100vh;}
+.nav{background:linear-gradient(135deg,#7b61ff,#ff6b35 55%,#ff3d71);display:flex;align-items:center;padding:0 14px;height:54px;gap:10px;flex-shrink:0;box-shadow:0 4px 22px #7b61ff44;}
+.logo{font-size:18px;font-weight:900;color:#fff;}.logo-s{font-size:10px;font-weight:700;background:#fff;color:var(--pu);padding:1px 7px;border-radius:99px;margin-left:3px;}
+.tabs{display:flex;gap:3px;margin-left:auto;}
+.tb{padding:6px 13px;border-radius:99px;font-weight:800;font-size:12px;cursor:pointer;border:2px solid rgba(255,255,255,.35);background:rgba(255,255,255,.22);color:#fff;transition:all .18s;font-family:inherit;white-space:nowrap;}
+.tb:hover{background:rgba(255,255,255,.38);}
+.tb.a-s{background:#fff;color:var(--pu);border-color:transparent;}
+.tb.a-r{background:var(--ye);color:#1a0050;border-color:transparent;animation:tpulse .9s infinite alternate;}
+.tb.a-v{background:#e0fff4;color:#007a58;border-color:transparent;}
+.tb.a-h{background:#fff0f0;color:var(--a2);border-color:transparent;}
+@keyframes tpulse{from{box-shadow:0 3px 12px #ffd60a88}to{box-shadow:0 3px 24px #ffd60acc;transform:scale(1.03)}}
+.lay{display:flex;height:calc(100vh - 54px);overflow:hidden;}
+.sb{width:280px;background:var(--sf);border-right:2.5px solid var(--bd);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;}
+.sb-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:14px;}
+.sb-foot{padding:12px;border-top:2px solid var(--bd);flex-shrink:0;}
+.main{flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;align-items:center;gap:14px;}
+.itabs{display:flex;border-bottom:2.5px solid var(--bd);background:var(--sf2);}
+.itab{flex:1;padding:10px 3px;font-size:11px;font-weight:800;cursor:pointer;border:none;background:transparent;color:var(--tx2);border-bottom:3px solid transparent;transition:all .15s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:3px;}
+.itab.active{color:var(--pu);border-bottom-color:var(--pu);background:#fff;}
+.itab:hover:not(.active){color:var(--pu);background:#ede8ff;}
+.sec{font-size:10px;font-weight:900;color:var(--tx2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px;}
+.btn{padding:9px 15px;border-radius:11px;font-weight:800;font-size:13px;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px;font-family:inherit;}
+.btn:active{transform:scale(.97);}
+.bp{background:linear-gradient(135deg,#7b61ff,#0095ff);color:#fff;box-shadow:0 4px 14px #7b61ff44;}.bp:hover{filter:brightness(1.08);}
+.bp:disabled{background:#e0d8ff;color:#a090cc;box-shadow:none;cursor:not-allowed;transform:none;}
+.bst{background:linear-gradient(135deg,#ff3d71,#ff6b35);color:#fff;box-shadow:0 4px 14px #ff3d7155;animation:pbtn .8s infinite alternate;}
+@keyframes pbtn{from{box-shadow:0 4px 14px #ff3d7155}to{box-shadow:0 4px 28px #ff3d7188}}
+.bg2{background:linear-gradient(135deg,#00c48c,#00a8a8);color:#fff;box-shadow:0 4px 14px #00c48c44;}.bg2:hover{filter:brightness(1.08);}
+.by{background:linear-gradient(135deg,#ffd60a,#ff9500);color:#2d1b00;box-shadow:0 4px 14px #ffd60a44;}.by:hover{filter:brightness(1.08);}
+.by:disabled{background:#fff3c0;color:#a08840;box-shadow:none;cursor:not-allowed;transform:none;}
+.bgh{background:transparent;color:var(--tx2);border:2px solid var(--bd);}.bgh:hover{color:var(--tx);border-color:var(--tx2);background:var(--sf2);}
+.bdn{background:#fff0f0;color:var(--a2);border:2px solid #ffd0d8;}.bdn:hover{background:#ffe0e8;}
+.bwn{background:#fff8e6;color:var(--fx);border:2px solid #ffe0a0;}.bwn:hover{background:#fff0c0;}
+.bteal{background:linear-gradient(135deg,#00c48c,#0095ff);color:#fff;box-shadow:0 4px 14px #00c48c44;}.bteal:hover{filter:brightness(1.08);}
+.bteal:disabled{background:#c8efe4;color:#60a890;box-shadow:none;cursor:not-allowed;transform:none;}
+.inp{background:var(--sf2);border:2px solid var(--bd);border-radius:10px;color:var(--tx);padding:8px 12px;font-size:13px;font-family:inherit;width:100%;outline:none;transition:border .15s;}
+.inp:focus{border-color:var(--pu);background:#fff;box-shadow:0 0 0 3px #7b61ff18;}
+.inp:disabled{opacity:.4;cursor:not-allowed;}
+.dz{border:2.5px dashed var(--bd);border-radius:13px;padding:20px 12px;text-align:center;transition:all .2s;cursor:pointer;background:var(--sf2);}
+.dz:hover,.dz.over{border-color:var(--pu);background:#ede8ff;}
+.card{background:var(--sf);border:2px solid var(--bd);border-radius:13px;padding:13px;box-shadow:0 3px 12px #7b61ff10;}
+.seat{width:106px;height:84px;border-radius:12px;border:2px solid #d8d0f0;background:#fff;color:var(--tx);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:border .12s,box-shadow .12s,transform .12s;position:relative;font-family:inherit;overflow:visible;padding:5px 4px;box-shadow:0 2px 8px #7b61ff0e;user-select:none;}
+.seat:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 6px 16px #7b61ff25;border-color:var(--pu);}
+.seat.excl{background:#f0eef8;border-color:#ccc8e8;border-style:dashed;color:#c0b8d8;box-shadow:none;}
+.seat.excl:hover{transform:none;box-shadow:none;border-color:#ccc8e8;}
+.seat.fsec{border-color:var(--fx);background:#fff8e6;}
+.seat.fpub{border-color:#00c48c;border-width:3px;}
+.seat.spin{animation:spn .18s infinite alternate;}
+@keyframes spn{from{filter:hue-rotate(0deg)brightness(1.1)}to{filter:hue-rotate(60deg)brightness(1.2)}}
+.seat.hl{outline:3px solid #ff3d71!important;box-shadow:0 0 18px #ff3d7166!important;}
+.seat.swsel{outline:4px solid var(--ye)!important;box-shadow:0 0 20px #ffd60a88!important;transform:scale(1.06)!important;}
+.seat.grpsel{outline:3px solid var(--pu)!important;}
+.snum{font-size:11px;font-weight:900;color:var(--tx2);line-height:1;}
+.sname{font-size:14px;font-weight:900;line-height:1.15;text-align:center;word-break:break-all;width:100%;}
+.sattr{font-size:9px;font-weight:700;text-align:center;line-height:1.4;width:100%;color:var(--tx2);}
+.sbadge-r{position:absolute;top:3px;right:4px;font-size:9px;}
+.sbadge-l{position:absolute;top:3px;left:4px;font-size:9px;}
+.cbadge{position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:var(--ye);color:#1a0050;font-size:8px;font-weight:900;padding:2px 7px;border-radius:99px;white-space:nowrap;box-shadow:0 2px 10px #ffd60a66;animation:bb .5s infinite alternate;z-index:1;}
+@keyframes bb{from{transform:translateX(-50%) translateY(0)}to{transform:translateX(-50%) translateY(-3px)}}
+.board-area{display:flex;align-items:center;width:100%;margin:6px 0;}
+.board-left{display:flex;align-items:center;flex:1;}
+.board-center{flex:1;display:flex;justify-content:center;}
+.board-right{flex:1;}
+.board-box{background:linear-gradient(135deg,#1a3a2a,#2d5a3d);border-radius:12px;padding:10px 32px;border:3px solid #4a9a6a;box-shadow:0 6px 20px #00000022;}
+.board-box span{font-size:19px;font-weight:900;color:#a8f0c0;letter-spacing:.4em;}
+.cls-tag{background:#fff;border-radius:9px;padding:7px 14px;font-size:14px;font-weight:900;color:var(--pu);border:2.5px solid var(--pu);white-space:pre-wrap;box-shadow:0 2px 10px #7b61ff18;text-align:center;line-height:1.4;width:fit-content;max-width:280px;}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:800;}
+.tw{background:rgba(255,255,255,.88);color:var(--pu);border:1.5px solid rgba(255,255,255,.6);}
+.tg{background:#e0faf0;color:#007a58;border:1.5px solid #80e8c0;}
+.modal-bg{position:fixed;inset:0;background:#2d006088;z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px);}
+.modal{background:#fff;border:3px solid var(--bd);border-radius:20px;padding:22px;min-width:340px;max-width:500px;width:92%;box-shadow:0 24px 80px #7b61ff33;max-height:90vh;overflow-y:auto;}
+::-webkit-scrollbar{width:5px;height:5px;}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:99px;}
+.pbar{height:8px;background:#e8e0ff;border-radius:99px;overflow:hidden;}
+.pfill{height:100%;border-radius:99px;background:linear-gradient(90deg,#7b61ff,#00c48c);transition:width .3s;}
+.pitem{display:flex;align-items:center;gap:7px;background:var(--sf2);border:2px solid var(--bd);border-radius:10px;padding:8px 10px;margin-bottom:6px;}
+.vtog{display:flex;border:2px solid var(--bd);border-radius:11px;overflow:hidden;background:var(--sf2);}
+.vb{padding:7px 13px;font-size:12px;font-weight:800;cursor:pointer;border:none;background:transparent;color:var(--tx2);font-family:inherit;display:flex;align-items:center;gap:4px;white-space:nowrap;}
+.vb.active{background:var(--pu);color:#fff;}.vb:not(.active):hover{background:#ede8ff;color:var(--pu);}
+.crule{display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:10px;border:2px solid var(--bd);background:var(--sf2);margin-bottom:6px;cursor:pointer;transition:border .15s;}
+.crule:hover,.crule.editing{border-color:var(--pu);background:#ede8ff;}
+.cswatch{width:24px;height:24px;border-radius:6px;flex-shrink:0;border:2px solid #d4c5ff;}
+.deco{position:fixed;border-radius:50%;opacity:.07;pointer-events:none;z-index:0;animation:fd 8s infinite ease-in-out;}
+@keyframes fd{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+@media print{@page{size:A4 landscape;margin:0;}body>*:not(#pt){display:none!important;}#pt{display:block!important;position:fixed;inset:0;background:#fff!important;}.pca{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}}
+#pt{display:none;}
+@keyframes pd{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+</style></head>
+<body>
+<div class="deco" style="width:360px;height:360px;background:#7b61ff;top:-130px;left:-130px;"></div>
+<div class="deco" style="width:240px;height:240px;background:#ff3d71;bottom:40px;right:-90px;animation-delay:2.5s;"></div>
+<div id="pt"></div>
+<div id="root" style="position:relative;z-index:1;"></div>
+<script type="text/babel">
+const{useState,useRef,useEffect,useMemo,useReducer}=React;
+
+/* ══ ICONS ══ */
+const Ic=({d,sz=16})=><svg width={sz} height={sz} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d={d}/></svg>;
+const ISh=()=><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.2 0 2.3.6 3 1.5l3.8 5.4"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.7"/><path d="m18 14 4 4-4 4"/></svg>;
+const IPl=()=><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>;
+const ISt=()=><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect width="14" height="14" x="5" y="5" rx="2"/></svg>;
+const IX=({sz=16})=><Ic d="M18 6 6 18M6 6l12 12" sz={sz}/>;
+const ICk=({sz=16})=><Ic d="M20 6 9 17l-5-5" sz={sz}/>;
+const IUp=()=><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>;
+const ILk=({sz=14})=><svg width={sz} height={sz} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
+const IUl=({sz=14})=><svg width={sz} height={sz} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>;
+const IPin=({sz=13})=><svg width={sz} height={sz} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>;
+const IUs=()=><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>;
+const ITr=()=><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>;
+const IPr=()=><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>;
+const IDl=()=><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
+const IGr=()=><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg>;
+const ISw=()=><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7 16V4m0 0L3 8m4-4 4 4"/><path d="M17 8v12m0 0 4-4m-4 4-4-4"/></svg>;
+
+const PCOLS=['#ffd6d6','#d6e4ff','#d6ffe8','#fff9d6','#eed6ff','#ffd6f0','#d6fff0','#ffebd6','#e8e6ff','#d6f4ff'];
+const PNMS=['赤（女子）','青（男子）','緑','黄','紫','ピンク','ミント','オレンジ','ラベンダー','水色'];
+const META=['氏名','名前','番号','id','出席番号'];
+
+/* ══ STORAGE ══ */
+const K='sp9';
+const lsi=k=>localStorage.getItem(`${K}-${k}`);
+const ssi=(k,v)=>localStorage.setItem(`${K}-${k}`,v);
+const rsi=k=>localStorage.removeItem(`${K}-${k}`);
+
+function loadSt(){
+  try{
+    const c=lsi('c'),p=lsi('p'),r=lsi('r');
+    return{
+      config:c?(()=>{const x=JSON.parse(c);return{...x,excl:new Set(x.excl||[])};})():{rows:0,cols:0,excl:new Set(),label:'',seatDir:'v'},
+      participants:p?JSON.parse(p):null,
+      results:r?new Map(JSON.parse(r)):null,
+      fixedSec:JSON.parse(lsi('f')||'{}'),fixedPub:JSON.parse(lsi('pf')||'{}'),
+      history:JSON.parse(lsi('h')||'[]'),
+      displayAttrs:lsi('da')?JSON.parse(lsi('da')):null,
+      colorRules:JSON.parse(lsi('cr')||'[]'),
+      groupColors:JSON.parse(lsi('gc')||'{}'),groupNames:JSON.parse(lsi('gn')||'{}'),
+      printSettings:JSON.parse(lsi('ps')||'{"mode":"student","showAttrLegend":true,"showGroupLegend":true}'),
+    };
+  }catch{return{config:{rows:0,cols:0,excl:new Set(),label:'',seatDir:'v'},participants:null,results:null,fixedSec:{},fixedPub:{},history:[],displayAttrs:null,colorRules:[],groupColors:{},groupNames:{},printSettings:{mode:'student',showAttrLegend:true,showGroupLegend:true}};}
+}
+function saveSt(st){
+  ssi('c',JSON.stringify({...st.config,excl:Array.from(st.config.excl)}));
+  st.participants?ssi('p',JSON.stringify(st.participants)):rsi('p');
+  st.results?ssi('r',JSON.stringify([...st.results])):rsi('r');
+  ssi('f',JSON.stringify(st.fixedSec||{}));ssi('pf',JSON.stringify(st.fixedPub||{}));
+  ssi('h',JSON.stringify(st.history.slice(0,20)));
+  st.displayAttrs?ssi('da',JSON.stringify(st.displayAttrs)):rsi('da');
+  ssi('cr',JSON.stringify(st.colorRules||[]));ssi('gc',JSON.stringify(st.groupColors||{}));
+  ssi('gn',JSON.stringify(st.groupNames||{}));ssi('ps',JSON.stringify(st.printSettings||{}));
+}
+function reducer(st,a){
+  let n;
+  switch(a.type){
+    case 'CFG':{const c=a.p;if(!(c.excl instanceof Set))c.excl=new Set(c.excl||[]);c.excl=new Set([...c.excl].filter(id=>{const[r,cc]=id.split('-').map(Number);return r<c.rows&&cc<c.cols;}));n={...st,config:c};break;}
+    case 'PPT':n={...st,participants:a.p};break;
+    case 'RES':n={...st,results:a.p};break;
+    case 'FSec':n={...st,fixedSec:{...st.fixedSec,[a.p.id]:a.p.s}};break;
+    case 'RFSec':{const f={...st.fixedSec};delete f[a.p];n={...st,fixedSec:f};break;}
+    case 'CFSec':n={...st,fixedSec:{}};break;
+    case 'FPub':n={...st,fixedPub:{...st.fixedPub,[a.p.id]:a.p.s}};break;
+    case 'RFPub':{const f={...st.fixedPub};delete f[a.p];n={...st,fixedPub:f};break;}
+    case 'CFPub':n={...st,fixedPub:{}};break;
+    case 'SWAP':{const nr=new Map(st.results);const[va,vb]=[nr.get(a.p.a),nr.get(a.p.b)];va?nr.set(a.p.b,va):nr.delete(a.p.b);vb?nr.set(a.p.a,vb):nr.delete(a.p.a);n={...st,results:nr};break;}
+    case 'HIST':n={...st,history:[a.p,...st.history].slice(0,20)};break;
+    case 'LHIST':n={...st,results:new Map(a.p.results)};break;
+    case 'DA':n={...st,displayAttrs:a.p};break;
+    case 'CR':n={...st,colorRules:a.p};break;
+    case 'GC':n={...st,groupColors:a.p||{}};break;
+    case 'GN':n={...st,groupNames:a.p||{}};break;
+    case 'PS':n={...st,printSettings:{...st.printSettings,...a.p}};break;
+    case 'RESET':n={...st,results:null,groupColors:{},groupNames:{}};break;
+    default:return st;
+  }
+  saveSt(n);return n;
+}
+
+/* ══ HELPERS ══ */
+function parseCSV(file,cb){
+  Papa.parse(file,{complete:res=>{
+    const rows=res.data.filter(r=>r&&r.length>=2&&r[0]?.toString().trim()!=='');
+    if(!rows.length){cb({attrs:['番号','氏名'],data:[]});return;}
+    const firstNum=/^\d+$/.test(rows[0][0]?.toString().trim());
+    let attrs,dr;
+    if(firstNum){attrs=['番号','氏名'];dr=rows;}else{attrs=rows[0].map(v=>v.toString().trim());dr=rows.slice(1);}
+    const ii=Math.max(0,attrs.findIndex(a=>['番号','id','出席番号'].includes(a.toLowerCase())));
+    const ni=Math.max(1,attrs.findIndex(a=>['氏名','名前','name'].includes(a.toLowerCase())));
+    const data=dr.map(row=>{const o={id:row[ii]?.toString().trim()||'',name:row[ni]?.toString().trim()||''};attrs.forEach((a,i)=>{o[a]=row[i]?.toString().trim()||'';});return o;}).filter(d=>d.id!=='');
+    cb({attrs,data});
+  }});
+}
+const seatLabel=id=>{const[r,c]=id.split('-').map(Number);return`${r+1}行${c+1}列`;};
+const getP=a=>a&&typeof a==='object'?a:(a?{id:a,name:a}:null);
+const getNumId=p=>p['番号']||p.id;
+const getColor=(stu,rules)=>{if(!stu||!rules?.length)return null;for(const r of rules)if(stu[r.attr]===r.value)return r.color;return null;};
+function availSeats(cfg){const s=[];for(let r=0;r<cfg.rows;r++)for(let c=0;c<cfg.cols;c++)if(!cfg.excl.has(`${r}-${c}`))s.push(`${r}-${c}`);return s;}
+function seatIdxMap(cfg,dir){
+  const map={};let n=0;
+  if((dir||'v')==='v'){for(let c=cfg.cols-1;c>=0;c--)for(let r=0;r<cfg.rows;r++){const id=`${r}-${c}`;if(!cfg.excl.has(id))map[id]=++n;}}
+  else{for(let r=0;r<cfg.rows;r++)for(let c=cfg.cols-1;c>=0;c--){const id=`${r}-${c}`;if(!cfg.excl.has(id))map[id]=++n;}}
+  return map;
+}
+const numSort=data=>[...data].sort((a,b)=>{const na=parseInt(a['番号']||a.id)||0,nb=parseInt(b['番号']||b.id)||0;return na!==nb?na-nb:(a.id||'').localeCompare(b.id||'');});
+function attrSort(data,prios,si=0){
+  if(!prios?.length)return numSort(data);
+  const s=[...data].sort((a,b)=>{for(const{attr,dir}of prios){const va=a[attr]||'',vb=b[attr]||'';const na=parseFloat(va),nb=parseFloat(vb);const cmp=!isNaN(na)&&!isNaN(nb)?na-nb:va.localeCompare(vb,'ja');if(cmp!==0)return dir==='desc'?-cmp:cmp;}return 0;});
+  return s.slice(si).concat(s.slice(0,si));
+}
+function generate(cfg,data,fixedSec,fixedPub){
+  const avail=availSeats(cfg);if(avail.length<data.length||!data.length)return null;
+  const res=new Map(),fixIds=new Set(),fixPos=new Set();
+  for(const[sid,stuid]of Object.entries(fixedPub||{})){if(stuid&&!cfg.excl.has(sid)){const stu=data.find(p=>p.id===stuid);if(stu&&!fixIds.has(stuid)){res.set(sid,stu);fixIds.add(stuid);fixPos.add(sid);}}}
+  for(const[sid,stuid]of Object.entries(fixedSec||{})){if(stuid&&!cfg.excl.has(sid)&&!fixPos.has(sid)&&!fixIds.has(stuid)){const stu=data.find(p=>p.id===stuid);if(stu){res.set(sid,stu);fixIds.add(stuid);fixPos.add(sid);}}}
+  const freeS=avail.filter(id=>!fixPos.has(id)).sort(()=>Math.random()-.5);
+  const free=data.filter(p=>!fixIds.has(p.id)).sort(()=>Math.random()-.5);
+  for(let i=0;i<free.length;i++)res.set(freeS[i],free[i]);
+  return res;
+}
+
+/* ══ PRINT（逆算方式） ══ */
+function doPrint({cfg,results,displayAttrs,colorRules,groupColors,groupNames,label,mode,showAttrLegend,showGroupLegend,seatDir}){
+  const extra=(displayAttrs||[]).filter(a=>!META.includes(a));
+  const dr=mode==='teacher'?[...Array(cfg.rows).keys()].reverse():[...Array(cfg.rows).keys()];
+  const dc=mode==='teacher'?[...Array(cfg.cols).keys()].reverse():[...Array(cfg.cols).keys()];
+  const attrLeg=showAttrLegend?(colorRules||[]).filter(r=>results&&[...results.values()].some(v=>{const p=getP(v);return p&&p[r.attr]===r.value;})):[];
+  const grpUsed={};
+  if(showGroupLegend&&groupColors)Object.values(groupColors).forEach(col=>{if(!grpUsed[col])grpUsed[col]=(groupNames||{})[col]||'';});
+  const grpLeg=Object.entries(grpUsed);
+  const hasLeg=attrLeg.length>0||grpLeg.length>0;
+  // セルサイズを逆算（mm）
+  const PW=270,PH=185,LEGW=hasLeg?25:0,BRDH=12,GAP=1.5;
+  const gw=PW-LEGW-2,gh=PH-BRDH-2;
+  const cwmm=Math.min((gw-(cfg.cols-1)*GAP)/Math.max(cfg.cols,1),(gh-(cfg.rows-1)*GAP)/Math.max(cfg.rows,1)*1.55);
+  const chmm=cwmm/1.55;
+  const fss=Math.max(5,cwmm*0.42).toFixed(1),fsn=Math.max(4,cwmm*0.29).toFixed(1),fsa=Math.max(3.5,cwmm*0.24).toFixed(1);
+  const cw=cwmm.toFixed(1),ch=chmm.toFixed(1);
+  const idxMap=seatIdxMap(cfg,seatDir||'v');
+  const cellH=(r,c)=>{
+    const id=`${r}-${c}`;
+    if(cfg.excl.has(id))return`<div style="width:${cw}mm;height:${ch}mm;"></div>`;
+    const p=getP(results?.get(id));
+    const bg=(groupColors&&groupColors[id])||(p?getColor(p,colorRules):null)||'#fff';
+    if(p)return`<div class="pca" style="width:${cw}mm;height:${ch}mm;border-radius:2mm;border:0.5px solid #c0b0f0;background:${bg};display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1px;overflow:hidden;box-sizing:border-box;gap:0.5px;"><div style="font-size:${fsn}pt;font-weight:800;color:#6b5b95;">${getNumId(p)}</div><div style="font-size:${fss}pt;font-weight:900;color:#1a0050;text-align:center;line-height:1.2;word-break:break-all;">${p.name||''}</div>${extra.map(at=>p[at]?`<div style="font-size:${fsa}pt;color:#6b5b95;font-weight:700;">${p[at]}</div>`:'').join('')}</div>`;
+    return`<div style="width:${cw}mm;height:${ch}mm;border-radius:2mm;border:0.5px solid #d4c5ff;background:#fafafa;display:flex;align-items:center;justify-content:center;"><span style="font-size:${fsn}pt;color:#ccc;font-weight:800;">${idxMap[id]||''}</span></div>`;
+  };
+  const boardH=`<div class="pca" style="background:linear-gradient(135deg,#2d5a3d,#1a3a2a);border-radius:2mm;padding:2mm 8mm;border:0.5px solid #4a9a6a;display:inline-block;"><span style="font-size:10pt;font-weight:900;color:#a8f0c0;letter-spacing:3mm;">黒　板</span></div>`;
+  const labelH=label?`<div style="background:#fff;border:0.5px solid #7b61ff;border-radius:2mm;padding:1.5mm 3.5mm;font-size:9pt;font-weight:900;color:#7b61ff;white-space:pre-wrap;line-height:1.4;">${label.replace(/</g,'&lt;')}</div>`:'';
+  const brdRow=`<div style="display:flex;align-items:center;margin:${GAP}mm 0;width:100%;"><div style="flex:1;">${labelH}</div><div style="flex:1;text-align:center;">${boardH}</div><div style="flex:1;"></div></div>`;
+  const legH=hasLeg?`<div class="pca" style="display:flex;flex-direction:column;gap:1.5mm;padding:2mm;background:#f8f6ff;border-radius:2mm;border:0.5px solid #d4c5ff;width:${LEGW}mm;flex-shrink:0;"><div style="font-size:5pt;font-weight:900;color:#6b5b95;margin-bottom:1mm;">凡例</div>${[...attrLeg.map(r=>`<div style="display:flex;align-items:center;gap:1.5mm;"><div class="pca" style="width:3mm;height:3mm;border-radius:0.5mm;background:${r.color};flex-shrink:0;"></div><span style="font-size:7pt;font-weight:700;color:#1a0050;">${r.attr}＝${r.value}</span></div>`),
+    ...grpLeg.map(([col,nm])=>`<div style="display:flex;align-items:center;gap:1.5mm;"><div class="pca" style="width:3mm;height:3mm;border-radius:0.5mm;background:${col};flex-shrink:0;"></div><span style="font-size:7pt;font-weight:700;color:#1a0050;">${nm||'班'}</span></div>`)].join('')}</div>`:'';
+  const gridH=`<div style="display:grid;gap:${GAP}mm;grid-template-columns:repeat(${cfg.cols},${cw}mm);">${dr.map(r=>dc.map(c=>cellH(r,c)).join('')).join('')}</div>`;
+  const contentH=`<div style="display:flex;align-items:flex-start;gap:2mm;width:100%;justify-content:${hasLeg?'flex-start':'center'};">${gridH}${legH}</div>`;
+  const body=mode==='student'?brdRow+contentH:contentH+brdRow;
+  const target=document.getElementById('pt');
+  target.innerHTML=`<div style="font-family:'M PLUS Rounded 1c',sans-serif;padding:3mm;">${body}</div>`;
+  target.style.display='block';
+  const cleanup=()=>{target.style.display='none';target.innerHTML='';window.removeEventListener('afterprint',cleanup);};
+  window.addEventListener('afterprint',cleanup);
+  setTimeout(()=>window.print(),100);
+}
+
+/* ══ EXCEL ══ */
+function exportXL(results,cfg,participants,colorRules,seatDir){
+  if(!results||!window.XLSX)return;
+  const XLSX=window.XLSX;
+  const extra=(participants?.attrs||[]).filter(a=>!['番号','氏名','id','出席番号','名前'].includes(a));
+  const idxMap=seatIdxMap(cfg,seatDir||'v');
+  const revR=[...Array(cfg.rows).keys()].reverse(),revC=[...Array(cfg.cols).keys()].reverse();
+  const grid=[['【教員用座席表（黒板が下）】',...revC.map(c=>`${c+1}列`)]];
+  for(const r of revR){const row=[`${r+1}行`];for(const c of revC){const id=`${r}-${c}`;if(cfg.excl.has(id)){row.push('空席');continue;}const p=getP(results.get(id));row.push(p?`${getNumId(p)} ${p.name}`:'');}grid.push(row);}
+  const list=[['座席番号','行','列','出席番号','氏名',...extra]];
+  for(const[id,sn]of Object.entries(idxMap).sort((a,b)=>a[1]-b[1])){const[r,c]=id.split('-').map(Number);const p=getP(results.get(id));if(p)list.push([sn,r+1,c+1,getNumId(p),p.name,...extra.map(e=>p[e]||'')]);}
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(grid),'座席表');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(list),'一覧');
+  XLSX.writeFile(wb,`席替え_${cfg.label?.split('\n')[0]||''}${new Date().toLocaleDateString('ja-JP').replace(/\//g,'-')}.xlsx`);
+}
+
+/* ══ CUSTOM HOOKS ══ */
+function usePrintShortcut(getArgs){
+  useEffect(()=>{
+    const h=e=>{if((e.ctrlKey||e.metaKey)&&e.key==='p'){e.preventDefault();doPrint(getArgs());}};
+    window.addEventListener('keydown',h);
+    return()=>window.removeEventListener('keydown',h);
+  });
+}
+function useCheckedAttrs(displayAttrs,attrs){
+  return displayAttrs||(attrs.filter(a=>!['番号','id','出席番号'].includes(a)).includes('氏名')?['氏名']:[]);
+}
+
+/* ══ COMPONENTS ══ */
+function DropZone({onFile}){
+  const[over,setOver]=useState(false);const ref=useRef();
+  const go=f=>{if(f&&/\.csv$/i.test(f.name))onFile(f);else alert('CSVファイルを選択してください');};
+  return(
+    <div className={`dz ${over?'over':''}`} onClick={()=>ref.current.click()}
+      onDragOver={e=>{e.preventDefault();setOver(true);}} onDragLeave={()=>setOver(false)}
+      onDrop={e=>{e.preventDefault();setOver(false);go(e.dataTransfer.files[0]);}}>
+      <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:7,color:'var(--tx2)'}}>
+        <IUp/><span style={{fontWeight:800,fontSize:13}}>CSVをドラッグ＆ドロップ</span>
+        <span style={{fontSize:11,lineHeight:1.6,opacity:.7}}>またはクリックして選択</span>
+      </div>
+      <input type="file" accept=".csv" ref={ref} style={{display:'none'}} onChange={e=>{go(e.target.files[0]);e.target.value='';}}/>
+    </div>
+  );
+}
+
+function FixedModal({seatId,students,fixedMap,onSave,onClose,title,badge}){
+  const[sel,setSel]=useState(fixedMap[seatId]||'');
+  const taken=Object.entries(fixedMap).filter(([k])=>k!==seatId).map(([,v])=>v);
+  const avail=(students||[]).filter(p=>!taken.includes(p.id));
+  return(
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal" onClick={e=>e.stopPropagation()}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+          <div>
+            <div style={{fontWeight:900,fontSize:17,color:'var(--fx)'}}>{badge} {title}</div>
+            <div style={{fontSize:12,color:'var(--tx2)',marginTop:3}}>座席 {seatLabel(seatId)}</div>
+          </div>
+          <button className="btn bgh" style={{padding:'5px 9px'}} onClick={onClose}><IX sz={14}/></button>
+        </div>
+        {!students
+          ?<div style={{color:'var(--tx2)',fontSize:13,textAlign:'center',padding:'16px 0'}}>先にCSVを読み込んでください</div>
+          :<>
+            <div style={{maxHeight:260,overflowY:'auto',display:'flex',flexDirection:'column',gap:5,marginBottom:14}}>
+              <button className={`btn ${sel===''?'bdn':'bgh'}`} style={{justifyContent:'flex-start'}} onClick={()=>setSel('')}><IUl/>固定なし</button>
+              {avail.map(p=>(
+                <button key={p.id} className={`btn ${sel===p.id?'bwn':'bgh'}`} style={{justifyContent:'flex-start'}} onClick={()=>setSel(p.id)}>
+                  <IPin sz={13}/> {getNumId(p)}　{p.name}
+                </button>
+              ))}
+            </div>
+            <div style={{display:'flex',gap:8,justifyContent:'flex-end'}}>
+              <button className="btn bgh" onClick={onClose}>キャンセル</button>
+              <button className="btn bwn" onClick={()=>onSave(seatId,sel)}><ILk/>保存</button>
+            </div>
+          </>
+        }
+      </div>
+    </div>
+  );
+}
+
+function PrioList({items,onChange}){
+  const di=useRef(null);
+  return(
+    <div>
+      {items.map((it,i)=>(
+        <div key={it.attr} className="pitem" draggable
+          onDragStart={()=>{di.current=i;}} onDragOver={e=>e.preventDefault()}
+          onDrop={()=>{if(di.current===null||di.current===i)return;const n=[...items];const[m]=n.splice(di.current,1);n.splice(i,0,m);di.current=null;onChange(n);}}>
+          <span style={{color:'var(--tx2)',cursor:'grab'}}><IGr/></span>
+          <span style={{flex:1,fontSize:12,fontWeight:800}}>{i+1}. {it.attr}</span>
+          <select value={it.dir} onChange={e=>onChange(items.map((x,j)=>j===i?{...x,dir:e.target.value}:x))}
+            style={{fontSize:11,border:'1.5px solid var(--bd)',borderRadius:6,padding:'2px 4px',background:'var(--sf2)',color:'var(--tx)',fontFamily:'inherit',fontWeight:700}}>
+            <option value="asc">昇順↑</option><option value="desc">降順↓</option>
+          </select>
+          <button className="btn bgh" style={{padding:'2px 6px'}} onClick={()=>onChange(items.filter((_,j)=>j!==i))}><IX sz={11}/></button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function BoardArea({label,onLabelChange}){
+  const[editing,setEditing]=useState(false);
+  const ref=useRef();
+  useEffect(()=>{if(editing)ref.current?.focus();},[editing]);
+  return(
+    <div className="board-area">
+      <div className="board-left">
+        {onLabelChange
+          ?editing
+            ?<textarea ref={ref} className="inp cls-tag-edit"
+                value={label||''} rows={Math.max(1,(label||'').split('\n').length)}
+                style={{resize:'none',minWidth:80,width:'auto',lineHeight:1.5,fontSize:14,fontWeight:900,color:'var(--pu)',padding:'6px 12px'}}
+                onChange={e=>onLabelChange(e.target.value)}
+                onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();setEditing(false);}if(e.key==='Escape')setEditing(false);}}
+                onBlur={()=>setEditing(false)}/>
+            :<div className="cls-tag" style={{cursor:'pointer',minWidth:0}} onClick={()=>onLabelChange!==undefined&&setEditing(true)} title="クリックして編集">
+              {label||<span style={{opacity:.4,fontSize:12}}>クラス名（クリックして入力）</span>}
+            </div>
+          :label&&<div className="cls-tag">{label}</div>
+        }
+      </div>
+      <div className="board-center"><div className="board-box"><span>黒　板</span></div></div>
+      <div className="board-right"/>
+    </div>
+  );
+}
+
+function SeatGrid({cfg,results,fixedSec,fixedPub,isSpinning,onSeatClick,onSeatRightClick,
+  curSeatId,hlSeatId,showNum,displayAttrs,colorRules,groupColors,reversed,seatDir,
+  swapMode,swapSel,onSwapClick,groupMode,groupSelSet,onMouseDown,onMouseEnter,hideFixedBadge}){
+  const rows=Array.from({length:cfg.rows},(_,r)=>r);
+  const cols=Array.from({length:cfg.cols},(_,c)=>c);
+  const dr=reversed?[...rows].reverse():rows;
+  const dc=reversed?[...cols].reverse():cols;
+  const extra=(displayAttrs||[]).filter(a=>!META.includes(a));
+  const idxMap=useMemo(()=>seatIdxMap(cfg,seatDir||'v'),[cfg,seatDir]);
+  return(
+    <div style={{display:'grid',gap:8,gridTemplateColumns:`repeat(${cfg.cols},auto)`,justifyContent:'center'}}>
+      {dr.map(r=>dc.map(c=>{
+        const id=`${r}-${c}`;
+        const excl=cfg.excl.has(id);
+        const p=getP(results?.get(id));
+        const isFP=!excl&&fixedPub&&!!fixedPub[id];
+        const isFS=!excl&&fixedSec&&!!fixedSec[id]&&!p;
+        const gc=groupColors?.[id];
+        const bg=gc||(p?getColor(p,colorRules):null);
+        const cls=['seat',excl&&'excl',isFP&&p&&'fpub',isFS&&'fsec',
+          isSpinning&&p&&'spin',id===hlSeatId&&'hl',
+          swapMode&&swapSel===id&&'swsel',groupMode&&groupSelSet?.has(id)&&'grpsel'
+        ].filter(Boolean).join(' ');
+        return(
+          <button key={id} className={cls}
+            style={bg&&!excl?{background:bg,...(!gc&&{borderColor:bg+'aa'})}:{}}
+            data-seat-id={id}
+            onClick={()=>{if(swapMode){onSwapClick?.(id,excl,!!p);return;}if(groupMode)return;onSeatClick?.(id,excl,!!p);}}
+            onMouseDown={e=>onMouseDown?.(e,id,excl)}
+            onMouseEnter={()=>onMouseEnter?.(id,excl)}
+            onContextMenu={e=>{e.preventDefault();!excl&&onSeatRightClick?.(id);}}>
+            {id===curSeatId&&!excl&&<span className="cbadge">✨ 今ここ</span>}
+            {excl
+              ?<span style={{fontSize:10,fontWeight:800,color:'#b8b0d0'}}>空</span>
+              :<>
+                {isFP&&!hideFixedBadge&&<span className="sbadge-l">📌</span>}
+                {isFS&&<span className="sbadge-r">🔒</span>}
+                {p?<>
+                  <span className="snum">{getNumId(p)}</span>
+                  <span className="sname">{p.name}</span>
+                  {extra.length>0&&<span className="sattr">{extra.map(a=>p[a]||'').filter(Boolean).map((v,i)=><React.Fragment key={i}>{i>0&&<br/>}{v}</React.Fragment>)}</span>}
+                </>:<span className="snum" style={{opacity:.3}}>{showNum?String(idxMap[id]||'').padStart(2,'0'):''}</span>}
+              </>
+            }
+          </button>
+        );
+      }))}
+    </div>
+  );
+}
+
+function ResetBtn({dispatch}){
+  const[conf,setConf]=useState(false);
+  if(conf)return(
+    <div style={{display:'flex',gap:6,flexWrap:'wrap',alignItems:'center'}}>
+      <span style={{fontSize:11,fontWeight:700,color:'var(--a2)'}}>リセット？（班分けも削除）</span>
+      <button className="btn bdn" style={{padding:'6px 10px',fontSize:12}} onClick={()=>{dispatch({type:'RESET'});setConf(false);}}>はい</button>
+      <button className="btn bgh" style={{padding:'6px 10px',fontSize:12}} onClick={()=>setConf(false)}>いいえ</button>
+    </div>
+  );
+  return(
+    <button className="btn bgh" style={{justifyContent:'center',fontSize:12,width:'100%'}} onClick={()=>setConf(true)}>
+      <ITr/>席替え結果をリセット
+    </button>
+  );
+}
+
+/* ══ SETTINGS PAGE ══ */
+function SettingsPage({state,dispatch}){
+  const{config:cfg,participants,results,fixedSec,colorRules,displayAttrs}=state;
+  const[tab,setTab]=useState('setup');
+  const[fixModal,setFixModal]=useState(null);
+  const attrs=participants?.attrs||[];
+  const extra=attrs.filter(a=>!['番号','id','出席番号'].includes(a));
+  const checked=useCheckedAttrs(displayAttrs,attrs);
+  const total=cfg.rows>0&&cfg.cols>0?cfg.rows*cfg.cols-cfg.excl.size:0;
+  const cnt=participants?.data.length||0;
+  const[editIdx,setEditIdx]=useState(null);
+  const[na,setNa]=useState('');const[nv,setNv]=useState('');const[nc,setNc]=useState(PCOLS[0]);
+  const vals=useMemo(()=>na&&participants?[...new Set(participants.data.map(p=>p[na]||'').filter(Boolean))]:[]  ,[na,participants]);
+  const usedPairs=useMemo(()=>{const s=new Set(),d=new Set();colorRules.forEach((r,i)=>{const k=`${r.attr}:${r.value}`;s.has(k)?d.add(i):s.add(k);});return d;},[colorRules]);
+  const resetEdit=()=>{setEditIdx(null);setNa('');setNv('');setNc(PCOLS[0]);};
+  const startEdit=i=>{const r=colorRules[i];setEditIdx(i);setNa(r.attr);setNv(r.value);setNc(r.color);};
+  const toggleExcl=id=>{if(results)return;const n=new Set(cfg.excl);n.has(id)?n.delete(id):n.add(id);dispatch({type:'CFG',p:{...cfg,excl:n}});};
+  return(
+    <div style={{display:'flex',height:'calc(100vh - 54px)',overflow:'hidden'}}>
+      <aside className="sb">
+        <div className="itabs">
+          {[['setup','⚙️ 基本'],['attr','👁 属性'],['color','🎨 色'],['fixed','🔒 固定']].map(([k,l])=>(
+            <button key={k} className={`itab ${tab===k?'active':''}`} onClick={()=>setTab(k)}>{l}</button>
+          ))}
+        </div>
+        <div className="sb-body">
+          {tab==='setup'&&<>
+            <div>
+              <div className="sec">📂 生徒データ（CSV）</div>
+              {participants
+                ?<div style={{background:'#e0faf0',border:'2px solid #80e8c0',borderRadius:11,padding:'9px 12px',display:'flex',alignItems:'center',gap:8}}>
+                  <span className="tag tg"><ICk/>読込済</span>
+                  <span style={{fontWeight:800,fontSize:13}}>{participants.data.length}名</span>
+                  {participants.attrs.length>2&&<span style={{fontSize:11,color:'var(--tx2)',fontWeight:700}}>{participants.attrs.length}属性</span>}
+                  <button className="btn bgh" style={{marginLeft:'auto',padding:'4px 7px'}} onClick={()=>dispatch({type:'PPT',p:null})}><IX sz={12}/></button>
+                </div>
+                :<DropZone onFile={f=>parseCSV(f,({attrs,data})=>{if(data.length>0)dispatch({type:'PPT',p:{attrs,data}});else alert('有効なデータが見つかりません');})}/>
+              }
+            </div>
+            <div>
+              <div className="sec">🏫 教室レイアウト</div>
+              <div style={{display:'flex',flexDirection:'column',gap:9}}>
+                <div>
+                  <label style={{fontSize:11,fontWeight:800,color:'var(--tx2)',display:'block',marginBottom:4}}>クラス名（任意・Shift+Enterで改行）</label>
+                  <textarea className="inp" placeholder="例：1年A組" rows={2} value={cfg.label||''} style={{resize:'none',lineHeight:1.5}}
+                    onChange={e=>dispatch({type:'CFG',p:{...cfg,label:e.target.value}})}
+                    onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey)e.preventDefault();}}/>
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7}}>
+                  {[['行数（縦）','rows',10],['列数（横）','cols',12]].map(([lb,key,mx])=>(
+                    <div key={key}>
+                      <label style={{fontSize:11,fontWeight:800,color:'var(--tx2)',display:'block',marginBottom:4}}>{lb}</label>
+                      <input className="inp" type="number" min="1" max={mx} value={cfg[key]||''} disabled={!!results}
+                        onChange={e=>dispatch({type:'CFG',p:{...cfg,[key]:parseInt(e.target.value)||0}})}/>
+                    </div>
+                  ))}
+                </div>
+                <div>
+                  <div className="sec">📐 座席番号の並び順</div>
+                  <div className="vtog">
+                    <button className={`vb ${(cfg.seatDir||'v')==='v'?'active':''}`} onClick={()=>dispatch({type:'CFG',p:{...cfg,seatDir:'v'}})}>縦優先（右上↓）</button>
+                    <button className={`vb ${cfg.seatDir==='h'?'active':''}`} onClick={()=>dispatch({type:'CFG',p:{...cfg,seatDir:'h'}})}>横優先（右上←）</button>
+                  </div>
+                </div>
+                <div style={{fontSize:11,fontWeight:700,color:'var(--tx2)',background:'#f5f0ff',borderRadius:8,padding:'7px 11px',lineHeight:1.7}}>
+                  💡 グリッドをクリック→空席切替<br/>右クリック→裏固定（生徒非表示）
+                </div>
+              </div>
+            </div>
+            {cfg.rows>0&&cfg.cols>0&&(
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7}}>
+                {[['有効座席',total,'var(--pu)'],['生徒数',cnt,cnt>total?'var(--a2)':'var(--a3)']].map(([lb,v,col])=>(
+                  <div key={lb} className="card" style={{padding:'10px 12px',textAlign:'center'}}>
+                    <div style={{fontSize:10,fontWeight:800,color:'var(--tx2)',marginBottom:3}}>{lb}</div>
+                    <div style={{fontSize:24,fontWeight:900,color:col}}>{v}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>}
+          {tab==='attr'&&<>
+            <div className="sec">👁 席に表示する属性</div>
+            {extra.length===0
+              ?<div style={{fontSize:12,color:'var(--tx2)',fontWeight:700}}>属性付きCSVを読み込むと設定できます</div>
+              :extra.map(a=>(
+                <label key={a} style={{display:'flex',alignItems:'center',gap:8,cursor:'pointer',fontSize:13,fontWeight:800,padding:'7px 10px',borderRadius:9,marginBottom:5,background:checked.includes(a)?'#ede8ff':'var(--sf2)',border:`2px solid ${checked.includes(a)?'var(--pu)':'var(--bd)'}`}}>
+                  <input type="checkbox" checked={checked.includes(a)} style={{width:15,height:15,accentColor:'var(--pu)'}}
+                    onChange={e=>{const n=e.target.checked?[...checked,a]:checked.filter(x=>x!==a);dispatch({type:'DA',p:n});}}/>
+                  {a}
+                </label>
+              ))
+            }
+          </>}
+          {tab==='color'&&<>
+            <div className="sec">🎨 属性値ごとの色分け</div>
+            <div style={{fontSize:11,fontWeight:700,color:'var(--tx2)',background:'#fff8e6',borderRadius:8,padding:'7px 11px',lineHeight:1.7,border:'1.5px solid #ffe0a0',marginBottom:4}}>
+              項目をクリックして編集できます。
+            </div>
+            {colorRules.map((r,i)=>(
+              <div key={i} className={`crule ${editIdx===i?'editing':''}`} onClick={()=>editIdx===i?resetEdit():startEdit(i)}>
+                <div className="cswatch" style={{background:r.color}}/>
+                <span style={{flex:1,fontSize:12,fontWeight:800}}>{r.attr}＝{r.value}</span>
+                {usedPairs.has(i)&&<span style={{fontSize:9,color:'var(--a2)',fontWeight:800}}>重複</span>}
+                <button className="btn bgh" style={{padding:'2px 6px'}} onClick={e=>{e.stopPropagation();dispatch({type:'CR',p:colorRules.filter((_,j)=>j!==i)});if(editIdx===i)resetEdit();}}><IX sz={11}/></button>
+              </div>
+            ))}
+            {usedPairs.size>0&&<div style={{fontSize:11,fontWeight:700,color:'var(--a2)',background:'#fff0f0',borderRadius:8,padding:'7px 11px',border:'1.5px solid #ffd0d8'}}>⚠️ 重複した設定があります。上位の設定が優先されます。</div>}
+            <div style={{background:'var(--sf2)',borderRadius:11,padding:'11px',display:'flex',flexDirection:'column',gap:7}}>
+              <div style={{fontSize:11,fontWeight:800,color:'var(--tx2)'}}>{editIdx!==null?'✏️ 編集':'＋ ルールを追加'}</div>
+              <select className="inp" style={{fontSize:12}} value={na} onChange={e=>{setNa(e.target.value);setNv('');}}>
+                <option value="">属性を選択...</option>{attrs.map(a=><option key={a} value={a}>{a}</option>)}
+              </select>
+              {na&&<select className="inp" style={{fontSize:12}} value={nv} onChange={e=>setNv(e.target.value)}>
+                <option value="">値を選択...</option>{vals.map(v=><option key={v} value={v}>{v}</option>)}
+              </select>}
+              {na&&nv&&<>
+                <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+                  {PCOLS.map((col,i)=>(<button key={col} onClick={()=>setNc(col)} title={PNMS[i]} style={{width:26,height:26,borderRadius:6,border:`3px solid ${nc===col?'#7b61ff':'#d4c5ff'}`,background:col,cursor:'pointer'}}/>))}
+                  <input type="color" value={nc} onChange={e=>setNc(e.target.value)} style={{width:26,height:26,borderRadius:6,border:'2px solid var(--bd)',cursor:'pointer',padding:0}}/>
+                </div>
+                {editIdx!==null
+                  ?<div style={{display:'flex',gap:7}}>
+                    <button className="btn bp" style={{flex:1,justifyContent:'center'}} onClick={()=>{const n=[...colorRules];n[editIdx]={attr:na,value:nv,color:nc};dispatch({type:'CR',p:n});resetEdit();}}><ICk/>更新</button>
+                    <button className="btn bgh" style={{justifyContent:'center'}} onClick={resetEdit}>キャンセル</button>
+                  </div>
+                  :<button className="btn bp" style={{justifyContent:'center'}} onClick={()=>{dispatch({type:'CR',p:[...colorRules,{attr:na,value:nv,color:nc}]});setNa('');setNv('');setNc(PCOLS[0]);}}>追加</button>
+                }
+              </>}
+            </div>
+            {colorRules.length>0&&<button className="btn bdn" style={{justifyContent:'center'}} onClick={()=>dispatch({type:'CR',p:[]})}><ITr/>全て削除</button>}
+          </>}
+          {tab==='fixed'&&<>
+            <div style={{fontSize:12,fontWeight:700,color:'var(--tx2)',lineHeight:1.7,background:'#fff8e6',borderRadius:9,padding:'9px 12px',border:'2px solid #ffe0a0'}}>
+              🔒 <strong>裏固定</strong>：グリッドを右クリックで設定。席替えページには表示されず、ルーレットも実施されます。
+            </div>
+            {!Object.keys(fixedSec).length
+              ?<div style={{color:'var(--tx2)',fontSize:13,fontWeight:700,textAlign:'center',padding:'14px 0'}}>固定席なし</div>
+              :<div style={{display:'flex',flexDirection:'column',gap:5}}>
+                {Object.entries(fixedSec).map(([sid,stuid])=>{
+                  const[r,c]=sid.split('-').map(Number);
+                  const stu=participants?.data.find(p=>p.id===stuid);
+                  return(
+                    <div key={sid} style={{background:'#fff8e6',borderRadius:9,padding:'9px 11px',display:'flex',alignItems:'center',gap:7,border:'2px solid #ffe0a0'}}>
+                      <IPin sz={12} style={{color:'var(--fx)',flexShrink:0}}/>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontSize:10,fontWeight:800,color:'var(--tx2)'}}>{r+1}行{c+1}列</div>
+                        <div style={{fontSize:13,fontWeight:800,color:'var(--fx)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{stuid} {stu?.name||'（不明）'}</div>
+                      </div>
+                      <button className="btn bgh" style={{padding:'3px 7px'}} onClick={()=>dispatch({type:'RFSec',p:sid})}><IX sz={11}/></button>
+                    </div>
+                  );
+                })}
+                <button className="btn bdn" style={{justifyContent:'center',marginTop:4}} onClick={()=>dispatch({type:'CFSec'})}><ITr/>全て解除</button>
+              </div>
+            }
+          </>}
+        </div>
+        <div className="sb-foot">{results&&<ResetBtn dispatch={dispatch}/>}</div>
+      </aside>
+      <main style={{flex:1,overflowY:'auto',padding:'18px 20px',display:'flex',flexDirection:'column',alignItems:'center',gap:14}}>
+        {cfg.rows>0&&cfg.cols>0
+          ?<>
+            <BoardArea label={cfg.label} onLabelChange={label=>dispatch({type:'CFG',p:{...cfg,label}})}/>
+            <SeatGrid cfg={cfg} results={results} fixedSec={fixedSec} fixedPub={{}}
+              showNum={true} displayAttrs={checked} colorRules={state.colorRules} groupColors={state.groupColors}
+              seatDir={cfg.seatDir||'v'}
+              onSeatClick={id=>{if(!results)toggleExcl(id);}}
+              onSeatRightClick={id=>setFixModal(id)}/>
+            <div style={{display:'flex',gap:8,flexWrap:'wrap',justifyContent:'center',marginTop:2}}>
+              <span style={{fontSize:11,fontWeight:800,padding:'3px 10px',borderRadius:99,border:'2px solid var(--bd)',color:'var(--tx2)',background:'#fff'}}>白 通常席</span>
+              <span style={{fontSize:11,fontWeight:800,padding:'3px 10px',borderRadius:99,border:'2px solid #ffe0a0',color:'var(--fx)',background:'#fff8e6'}}>🔒 裏固定席</span>
+              <span style={{fontSize:11,fontWeight:800,padding:'3px 10px',borderRadius:99,border:'2px dashed var(--bd)',color:'var(--tx2)',background:'#f0eef8'}}>点線 空席</span>
+            </div>
+          </>
+          :<div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:12,color:'var(--tx2)'}}>
+            <div style={{fontSize:52}}>🏫</div><div style={{fontWeight:900,fontSize:16}}>左で設定してください</div>
+          </div>
+        }
+      </main>
+      {fixModal&&(
+        <FixedModal seatId={fixModal} students={participants?.data} fixedMap={fixedSec}
+          title="裏固定（生徒非表示）" badge="🔒"
+          onSave={(id,stuid)=>{dispatch({type:stuid?'FSec':'RFSec',p:stuid?{id,s:stuid}:id});setFixModal(null);}}
+          onClose={()=>setFixModal(null)}/>
+      )}
+    </div>
+  );
+}
+
+/* ══ SEATS PAGE ══ */
+function SeatsPage({state,dispatch}){
+  const{config:cfg,participants,results,fixedSec,fixedPub,displayAttrs,colorRules,groupColors,groupNames,printSettings}=state;
+  const attrs=participants?.attrs||[];
+  const checked=useCheckedAttrs(displayAttrs,attrs);
+  const seatDir=cfg.seatDir||'v';
+  const[itab,setItab]=useState('shuffle');
+  const[viewMode,setViewMode]=useState('student');
+  const[isSpinning,setIsSpinning]=useState(false);
+  const[bulkDisp,setBulkDisp]=useState(null);
+  const spinRef=useRef(null);
+  const[ob,setOb]=useState({mode:false,pending:null,revealed:new Set(),order:[],idx:0,spinning:false,roulDisp:null});
+  const spinOneRef=useRef(null);
+  const[startNum,setStartNum]=useState(1);
+  const[shuffleDone,setShuffleDone]=useState(false);
+  const[swapMode,setSwapMode]=useState(false);
+  const[swapSel,setSwapSel]=useState(null);
+  const[groupSelSet,setGroupSelSet]=useState(new Set());
+  const[groupColor,setGroupColor]=useState(PCOLS[0]);
+  const[groupNameInput,setGroupNameInput]=useState('');
+  const[pubFixModal,setPubFixModal]=useState(null);
+  const[search,setSearch]=useState('');
+  const total=cfg.rows>0&&cfg.cols>0?cfg.rows*cfg.cols-cfg.excl.size:0;
+  const cnt=participants?.data.length||0;
+  const canShuffle=cfg.rows>0&&cfg.cols>0&&cnt>0&&total>=cnt;
+  const ns=useMemo(()=>participants?numSort(participants.data):[],[participants]);
+  const clamped=Math.max(0,Math.min((parseInt(startNum)||1)-1,ns.length-1));
+  const sr=search.trim()?participants?.data.find(p=>p.name.includes(search)||getNumId(p)===search):null;
+  const hlSeat=useMemo(()=>{if(!sr||!results)return null;for(const[id,v]of results.entries()){if(getP(v)?.id===sr.id)return id;}return null;},[sr,results]);
+  const pubFixIds=useMemo(()=>new Set(Object.values(fixedPub).filter(Boolean)),[fixedPub]);
+  const pubFixDisp=useMemo(()=>{
+    if(results)return results;
+    if(!participants||!Object.keys(fixedPub).length)return null;
+    const m=new Map();
+    for(const[sid,stuid]of Object.entries(fixedPub)){if(stuid&&!cfg.excl.has(sid)){const stu=participants.data.find(p=>p.id===stuid);if(stu)m.set(sid,stu);}}
+    return m.size?m:null;
+  },[fixedPub,results,participants,cfg.excl]);
+  const makeDummy=()=>{
+    const avail=availSeats(cfg);if(!participants?.data.length)return new Map();
+    const m=new Map(),fp=new Set(),fi=new Set();
+    for(const[sid,stuid]of Object.entries(fixedPub||{})){if(stuid&&!cfg.excl.has(sid)){const stu=participants.data.find(p=>p.id===stuid);if(stu){m.set(sid,stu);fp.add(sid);fi.add(stuid);}}}
+    const freeS=avail.filter(id=>!fp.has(id)).sort(()=>Math.random()-.5);
+    const freeD=participants.data.filter(p=>!fi.has(p.id)).sort(()=>Math.random()-.5);
+    for(let i=0;i<Math.min(freeD.length,freeS.length);i++)m.set(freeS[i],freeD[i]);
+    return m;
+  };
+  const startRoul=()=>{setShuffleDone(false);clearInterval(spinRef.current);setIsSpinning(true);setBulkDisp(makeDummy());spinRef.current=setInterval(()=>setBulkDisp(makeDummy()),80);};
+  const stopRoul=()=>{
+    clearInterval(spinRef.current);setIsSpinning(false);setBulkDisp(null);
+    const r=generate(cfg,participants.data,fixedSec,fixedPub);
+    if(r){dispatch({type:'RES',p:r});dispatch({type:'HIST',p:{date:new Date().toLocaleString('ja-JP'),results:[...r],label:cfg.label?.split('\n')[0]||'無題'}});setShuffleDone(true);}
+  };
+  const initOb=()=>{
+    setShuffleDone(false);
+    const base=generate(cfg,participants.data,fixedSec,fixedPub);if(!base)return;
+    const order=ns.slice(clamped).concat(ns.slice(0,clamped)).filter(p=>!pubFixIds.has(p.id));
+    const rev=new Set();
+    for(const[sid,stuid]of Object.entries(fixedPub)){if(stuid&&!cfg.excl.has(sid))rev.add(sid);}
+    setOb({mode:true,pending:base,revealed:rev,order,idx:0,spinning:false,roulDisp:null});
+  };
+  const curStu=ob.mode&&ob.idx<ob.order.length?ob.order[ob.idx]:null;
+  const curDest=useMemo(()=>{if(!curStu||!ob.pending)return null;for(const[seat,v]of ob.pending.entries()){if(getP(v)?.id===curStu.id)return seat;}return null;},[curStu,ob.pending]);
+  const revMap=useMemo(()=>{if(!ob.mode||!ob.pending)return null;const m=new Map();for(const[seat,v]of ob.pending.entries()){if(ob.revealed.has(seat))m.set(seat,v);}return m;},[ob.mode,ob.pending,ob.revealed]);
+  const startOneRoul=()=>{
+    if(!curStu)return;
+    clearInterval(spinOneRef.current);
+    const avail=availSeats(cfg).filter(id=>!ob.revealed.has(id));
+    setOb(prev=>({...prev,spinning:true}));
+    spinOneRef.current=setInterval(()=>{
+      const rs=avail.length>0?avail[Math.floor(Math.random()*avail.length)]:curDest;
+      const m=new Map(revMap||[]);if(rs)m.set(rs,curStu);
+      setOb(prev=>({...prev,roulDisp:m}));
+    },80);
+  };
+  const stopOneRoul=()=>{
+    clearInterval(spinOneRef.current);
+    setOb(prev=>{const rev=new Set(prev.revealed);if(curDest)rev.add(curDest);return{...prev,spinning:false,roulDisp:null,revealed:rev,idx:prev.idx+1};});
+  };
+  const handleNext=()=>{
+    if(ob.spinning){stopOneRoul();return;}
+    if(!curStu){
+      dispatch({type:'RES',p:ob.pending});
+      dispatch({type:'HIST',p:{date:new Date().toLocaleString('ja-JP'),results:[...ob.pending],label:cfg.label?.split('\n')[0]||'無題'}});
+      setOb(prev=>({...prev,mode:false}));setShuffleDone(true);return;
+    }
+    startOneRoul();
+  };
+  const cancelOb=()=>{clearInterval(spinOneRef.current);setOb({mode:false,pending:null,revealed:new Set(),order:[],idx:0,spinning:false,roulDisp:null});};
+  const handleSwap=(id,excl)=>{if(excl)return;if(!swapSel){setSwapSel(id);return;}if(swapSel===id){setSwapSel(null);return;}dispatch({type:'SWAP',p:{a:swapSel,b:id}});setSwapSel(null);};
+  const isDragging=useRef(false);const dragRect=useRef(null);const dragStartSeat=useRef(null);
+  const dragOverlay=useRef(null);
+  const groupMode=itab==='group';
+  useEffect(()=>{if(!groupMode)setGroupSelSet(new Set());},[groupMode]);
+  const updateRect=(cx,cy)=>{
+    if(!isDragging.current||!dragRect.current)return;
+    dragRect.current.x2=cx;dragRect.current.y2=cy;
+    const{x1,y1,x2,y2}=dragRect.current;
+    const L=Math.min(x1,x2),T=Math.min(y1,y2),W=Math.abs(x2-x1),H=Math.abs(y2-y1);
+    if(dragOverlay.current)Object.assign(dragOverlay.current.style,{left:L+'px',top:T+'px',width:W+'px',height:H+'px'});
+    const newSel=new Set();
+    document.querySelectorAll('[data-seat-id]').forEach(btn=>{
+      const br=btn.getBoundingClientRect();
+      if(br.right>L&&br.left<L+W&&br.bottom>T&&br.top<T+H){const sid=btn.getAttribute('data-seat-id');if(sid&&!cfg.excl.has(sid))newSel.add(sid);}
+    });
+    if(newSel.size>0)setGroupSelSet(newSel);
+  };
+  const startDrag=(e,id,excl)=>{
+    if(excl||e.button!==0)return;e.preventDefault();
+    isDragging.current=true;dragStartSeat.current=id||null;
+    dragRect.current={x1:e.clientX,y1:e.clientY,x2:e.clientX,y2:e.clientY};
+    if(dragOverlay.current)dragOverlay.current.style.cssText=`display:block;position:fixed;left:${e.clientX}px;top:${e.clientY}px;width:0;height:0;border:2px dashed var(--pu);background:#7b61ff15;pointer-events:none;z-index:50;border-radius:4px;`;
+  };
+  useEffect(()=>{
+    if(!groupMode)return;
+    const onMove=e=>{if(isDragging.current)updateRect(e.clientX,e.clientY);};
+    const onUp=e=>{
+      if(!isDragging.current)return;
+      const{x1,y1}=dragRect.current||{x1:e.clientX,y1:e.clientY};
+      const dist=Math.hypot(e.clientX-x1,e.clientY-y1);
+      if(dist<6&&dragStartSeat.current&&!cfg.excl.has(dragStartSeat.current)){
+        setGroupSelSet(prev=>{const n=new Set(prev);n.has(dragStartSeat.current)?n.delete(dragStartSeat.current):n.add(dragStartSeat.current);return n;});
+      }
+      isDragging.current=false;dragStartSeat.current=null;
+      if(dragOverlay.current)dragOverlay.current.style.display='none';
+    };
+    window.addEventListener('mousemove',onMove);window.addEventListener('mouseup',onUp);
+    return()=>{window.removeEventListener('mousemove',onMove);window.removeEventListener('mouseup',onUp);};
+  },[groupMode,cfg]);
+  useEffect(()=>()=>{clearInterval(spinRef.current);clearInterval(spinOneRef.current);},[]);
+  const dispRes=isSpinning?bulkDisp:ob.mode?(ob.spinning?ob.roulDisp:(revMap||new Map())):pubFixDisp;
+  const rev=viewMode==='teacher';
+  const prog=ob.order.length>0?(ob.idx/ob.order.length)*100:0;
+  const curRoulSeat=useMemo(()=>{
+    if(!ob.spinning||!ob.roulDisp||!curStu)return null;
+    for(const[seat,v]of ob.roulDisp.entries()){if(!ob.revealed.has(seat)&&getP(v)?.id===curStu.id)return seat;}
+    return null;
+  },[ob.spinning,ob.roulDisp,curStu,ob.revealed]);
+  const getPrintArgs=()=>({cfg,results:pubFixDisp,displayAttrs:checked,colorRules,groupColors,groupNames,label:cfg.label||'',mode:viewMode,showAttrLegend:printSettings?.showAttrLegend!==false,showGroupLegend:printSettings?.showGroupLegend!==false,seatDir});
+  usePrintShortcut(getPrintArgs);
+  return(
+    <div className="lay">
+      <div ref={dragOverlay} style={{display:'none',position:'fixed',border:'2px dashed var(--pu)',background:'#7b61ff15',pointerEvents:'none',zIndex:50,borderRadius:4}}/>
+      <aside className="sb">
+        <div className="itabs">
+          {[['shuffle','🎲 席替え'],['group','🎨 班分け'],['output','📥 出力']].map(([k,l])=>(
+            <button key={k} className={`itab ${itab===k?'active':''}`} onClick={()=>setItab(k)}>{l}</button>
+          ))}
+        </div>
+        <div className="sb-body">
+          {itab==='shuffle'&&<>
+            {results&&!ob.mode&&!swapMode&&(
+              <div>
+                <div className="sec">🔍 検索</div>
+                <input className="inp" placeholder="名前 or 出席番号" value={search} onChange={e=>setSearch(e.target.value)}/>
+                {search&&<div style={{marginTop:5,fontSize:12,fontWeight:800,color:sr?'var(--a3)':'var(--a2)'}}>{sr?`✅ ${sr.name}さんの席が光ります`:'見つかりません'}</div>}
+              </div>
+            )}
+            {ob.mode
+              ?<div style={{display:'flex',flexDirection:'column',gap:11}}>
+                <div style={{background:'linear-gradient(135deg,#7b61ff18,#00c48c18)',border:'2px solid #7b61ff44',borderRadius:14,padding:'13px'}}>
+                  <div style={{fontSize:11,fontWeight:800,color:'var(--tx2)',marginBottom:7}}>🎯 一人ずつ席替え</div>
+                  <div className="pbar" style={{marginBottom:9}}><div className="pfill" style={{width:`${prog}%`}}/></div>
+                  <div style={{fontSize:12,fontWeight:800,color:'var(--tx2)',marginBottom:7}}>{ob.idx} / {ob.order.length} 名完了</div>
+                  {pubFixIds.size>0&&<div style={{fontSize:10,fontWeight:700,color:'#00a878',marginBottom:6}}>📌 固定の{pubFixIds.size}名はスキップ済み</div>}
+                  {curStu
+                    ?<div style={{background:'#fff',borderRadius:11,padding:'11px 13px',border:'2px solid var(--bd)'}}>
+                      <div style={{fontSize:10,fontWeight:800,color:'var(--tx2)',marginBottom:3}}>{ob.spinning?'🎲 ルーレット中...':'▶ 次の人'}</div>
+                      <div style={{fontSize:18,fontWeight:900,color:'var(--pu)'}}>{getNumId(curStu)}　{curStu.name}</div>
+                    </div>
+                    :<div style={{background:'#e0fff4',borderRadius:11,padding:'11px 13px',border:'2px solid #80e8c0',fontWeight:900,color:'var(--a3)',textAlign:'center',fontSize:14}}>🎉 全員完了！</div>
+                  }
+                </div>
+                <button className={`btn ${ob.spinning?'bst':'bteal'}`} style={{justifyContent:'center',padding:'14px',fontSize:15}} onClick={handleNext}>
+                  {ob.spinning?<><span style={{width:9,height:9,borderRadius:'50%',background:'#fff',display:'inline-block',animation:'pd 1s infinite'}}/> ストップ！</>:curStu?<><IPl/>ルーレット！</>:<><ICk/>席替え確定！</>}
+                </button>
+                <button className="btn bgh" style={{justifyContent:'center',fontSize:12}} onClick={cancelOb}>キャンセル</button>
+              </div>
+              :<>
+                <div>
+                  <div className="sec">🎲 一括席替え</div>
+                  <button className={`btn ${isSpinning?'bst':'bp'}`} style={{width:'100%',justifyContent:'center',padding:'12px'}} disabled={!isSpinning&&!canShuffle} onClick={isSpinning?stopRoul:startRoul}>
+                    {isSpinning?<><span style={{width:8,height:8,borderRadius:'50%',background:'#fff',display:'inline-block',animation:'pd 1s infinite'}}/><ISt/>ストップ！</>:<><ISh/>一括席替え開始</>}
+                  </button>
+                </div>
+                <div>
+                  <div className="sec">🎯 一人ずつ席替え</div>
+                  <label style={{fontSize:11,fontWeight:800,color:'var(--tx2)',display:'block',marginBottom:4}}>開始番号（1〜{ns.length}）</label>
+                  <input className="inp" type="number" min="1" max={ns.length||1} value={startNum} onChange={e=>setStartNum(parseInt(e.target.value)||1)}/>
+                  {ns.length>0&&<div style={{fontSize:11,color:'var(--tx2)',fontWeight:700,marginTop:4}}>→ {getNumId(ns[clamped])} {ns[clamped]?.name} からスタート</div>}
+                  <button className="btn by" style={{width:'100%',justifyContent:'center',padding:'12px',marginTop:9}} disabled={!canShuffle} onClick={initOb}><IUs/>一人ずつ席替え開始</button>
+                </div>
+                <div>
+                  <div className="sec">📌 固定（前方優先など）</div>
+                  <div style={{fontSize:11,fontWeight:700,color:'var(--tx2)',background:'#f0fff8',borderRadius:8,padding:'7px 11px',lineHeight:1.7,border:'1.5px solid #b0e8d0',marginBottom:8}}>
+                    ルーレットでスキップされ、最初から席が決まります。グリッドを右クリックで設定。
+                  </div>
+                  {Object.keys(fixedPub).length>0&&<div style={{display:'flex',flexDirection:'column',gap:4,marginBottom:8}}>
+                    {Object.entries(fixedPub).map(([sid,stuid])=>{
+                      const[r,c]=sid.split('-').map(Number);
+                      const stu=participants?.data.find(p=>p.id===stuid);
+                      return(
+                        <div key={sid} style={{background:'#f0fff8',borderRadius:8,padding:'7px 10px',display:'flex',alignItems:'center',gap:6,border:'1.5px solid #80e8c0'}}>
+                          <span>📌</span>
+                          <div style={{flex:1,minWidth:0}}>
+                            <div style={{fontSize:9,color:'var(--tx2)',fontWeight:800}}>{r+1}行{c+1}列</div>
+                            <div style={{fontSize:12,fontWeight:800,color:'#007a58',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{stuid} {stu?.name||'—'}</div>
+                          </div>
+                          <button className="btn bgh" style={{padding:'2px 6px'}} onClick={()=>dispatch({type:'RFPub',p:sid})}><IX sz={10}/></button>
+                        </div>
+                      );
+                    })}
+                    <button className="btn bdn" style={{justifyContent:'center',fontSize:11}} onClick={()=>dispatch({type:'CFPub'})}><ITr/>全て解除</button>
+                  </div>}
+                </div>
+                {results&&<div>
+                  <div className="sec"><ISw/>席の手動入れ替え</div>
+                  <button className={`btn ${swapMode?'bst':'bteal'}`} style={{width:'100%',justifyContent:'center',padding:'11px'}} onClick={()=>{setSwapMode(v=>!v);setSwapSel(null);}}>
+                    <ISw/>{swapMode?'入れ替えモード終了':'座席を手動で入れ替える'}
+                  </button>
+                  {swapMode&&<div style={{fontSize:11,fontWeight:700,color:'var(--tx2)',marginTop:5,textAlign:'center'}}>{swapSel?'2つ目をクリック':'1つ目をクリック'}</div>}
+                </div>}
+              </>
+            }
+          </>}
+          {itab==='group'&&<>
+            <div>
+              <div className="sec">🎨 班分け（座席の色付け）</div>
+              <div style={{fontSize:11,fontWeight:700,color:'var(--tx2)',background:'#f5f0ff',borderRadius:8,padding:'7px 11px',lineHeight:1.7,marginBottom:10}}>
+                座席を左クリックまたはドラッグで選択して色を塗れます。属性の色より優先されます。
+              </div>
+            </div>
+            <div>
+              <div className="sec">塗る色を選択</div>
+              <div style={{display:'flex',flexWrap:'wrap',gap:5,marginBottom:8}}>
+                {PCOLS.map((col,i)=>(<button key={col} onClick={()=>{setGroupColor(col);const ex=groupNames[col];if(ex)setGroupNameInput(ex);}} title={PNMS[i]} style={{width:28,height:28,borderRadius:7,border:`3px solid ${groupColor===col?'#7b61ff':'#d4c5ff'}`,background:col,cursor:'pointer'}}/>))}
+                <input type="color" value={groupColor} onChange={e=>setGroupColor(e.target.value)} style={{width:28,height:28,borderRadius:7,border:'2px solid var(--bd)',cursor:'pointer',padding:0}}/>
+              </div>
+              <label style={{fontSize:11,fontWeight:800,color:'var(--tx2)',display:'block',marginBottom:4}}>班名（任意）</label>
+              <input className="inp" style={{fontSize:12}} placeholder="例：1班" value={groupNameInput} onChange={e=>setGroupNameInput(e.target.value)}/>
+            </div>
+            <div style={{fontSize:12,fontWeight:800,color:'var(--tx2)',marginBottom:4}}>選択中: {groupSelSet.size}席</div>
+            <div style={{display:'flex',gap:7}}>
+              <button className="btn bp" style={{flex:1,justifyContent:'center',padding:'9px'}} disabled={groupSelSet.size===0}
+                onClick={()=>{
+                  const nc={...groupColors};groupSelSet.forEach(id=>{nc[id]=groupColor;});
+                  dispatch({type:'GC',p:nc});
+                  if(groupNameInput.trim())dispatch({type:'GN',p:{...groupNames,[groupColor]:groupNameInput.trim()}});
+                  setGroupSelSet(new Set());
+                }}><ICk/>色を適用</button>
+              <button className="btn bgh" style={{padding:'9px'}} onClick={()=>setGroupSelSet(new Set())}><IX sz={13}/>解除</button>
+            </div>
+            <div style={{fontSize:10,fontWeight:700,color:'var(--tx2)',background:'var(--sf2)',borderRadius:8,padding:'7px 11px',lineHeight:1.7}}>
+              💡 ドラッグで矩形範囲選択<br/>クリックで個別トグル選択
+            </div>
+            {Object.keys(groupColors).length>0&&<div>
+              <div className="sec">設定済みの班</div>
+              {[...new Set(Object.values(groupColors))].map(col=>(
+                <div key={col} style={{display:'flex',alignItems:'center',gap:7,marginBottom:5}}>
+                  <div style={{width:20,height:20,borderRadius:5,background:col,border:'1.5px solid #ccc',flexShrink:0}}/>
+                  <span style={{fontSize:12,fontWeight:800,flex:1}}>{groupNames[col]||'（名前なし）'}</span>
+                  <button className="btn bgh" style={{padding:'2px 6px',fontSize:10}} onClick={()=>{const nc={...groupColors};Object.keys(nc).forEach(id=>{if(nc[id]===col)delete nc[id];});dispatch({type:'GC',p:nc});}}><IX sz={10}/></button>
+                </div>
+              ))}
+              <button className="btn bdn" style={{justifyContent:'center',width:'100%',marginTop:4}} onClick={()=>dispatch({type:'GC',p:{}})}><ITr/>全ての班分け色を削除</button>
+            </div>}
+          </>}
+          {itab==='output'&&<>
+            <div>
+              <div className="sec">🖨️ 印刷設定</div>
+              <div className="vtog" style={{marginBottom:10}}>
+                <button className={`vb ${(printSettings?.mode||'student')==='student'?'active':''}`} onClick={()=>dispatch({type:'PS',p:{mode:'student'}})}>📋 生徒用</button>
+                <button className={`vb ${printSettings?.mode==='teacher'?'active':''}`} onClick={()=>dispatch({type:'PS',p:{mode:'teacher'}})}>👨‍🏫 先生用</button>
+              </div>
+              <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:10}}>
+                {[['showAttrLegend','属性の色凡例を表示'],['showGroupLegend','班分けの色凡例を表示']].map(([key,lbl])=>(
+                  <label key={key} style={{display:'flex',alignItems:'center',gap:8,fontSize:13,fontWeight:800,cursor:'pointer'}}>
+                    <input type="checkbox" checked={printSettings?.[key]!==false} style={{width:15,height:15,accentColor:'var(--pu)'}} onChange={e=>dispatch({type:'PS',p:{[key]:e.target.checked}})}/>
+                    {lbl}
+                  </label>
+                ))}
+              </div>
+              <div style={{fontSize:11,fontWeight:700,color:'var(--tx2)',background:'var(--sf2)',borderRadius:8,padding:'7px 11px',lineHeight:1.6}}>
+                💡 <strong>Ctrl+P</strong>（Mac: ⌘+P）でも印刷できます<br/>ダイアログで「余白：なし」「ヘッダー/フッターなし」に設定すると綺麗に印刷できます
+              </div>
+            </div>
+            {pubFixDisp
+              ?<div style={{display:'flex',flexDirection:'column',gap:7}}>
+                <button className="btn bp" style={{justifyContent:'center',padding:'11px'}} onClick={()=>doPrint(getPrintArgs())}><IPr/>印刷する</button>
+                <button className="btn bg2" style={{justifyContent:'center',padding:'11px'}} onClick={()=>exportXL(pubFixDisp,cfg,participants,colorRules,seatDir)}><IDl/>Excelで出力</button>
+              </div>
+              :<div style={{color:'var(--tx2)',fontSize:13,fontWeight:700,textAlign:'center',padding:'20px 0'}}>席替えを実施すると出力できます</div>
+            }
+          </>}
+        </div>
+        <div className="sb-foot"><ResetBtn dispatch={dispatch}/></div>
+      </aside>
+      <main className="main" onMouseDown={groupMode?e=>{if(!e.target.closest('[data-seat-id]'))startDrag(e,null,false);}:undefined}>
+        {cfg.rows>0&&cfg.cols>0?<>
+          <div style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap',justifyContent:'center'}}>
+            <div className="vtog">
+              <button className={`vb ${viewMode==='student'?'active':''}`} onClick={()=>setViewMode('student')}>📋 生徒用（黒板が上）</button>
+              <button className={`vb ${viewMode==='teacher'?'active':''}`} onClick={()=>setViewMode('teacher')}>👨‍🏫 先生用（黒板が下）</button>
+            </div>
+            {swapMode&&swapSel&&<div style={{background:'var(--ye)',borderRadius:99,padding:'5px 13px',fontSize:11,fontWeight:900,color:'#1a0050'}}>✅ 1つ目選択済み→2つ目をクリック</div>}
+            {groupMode&&<div style={{background:'#ede8ff',borderRadius:99,padding:'5px 13px',fontSize:11,fontWeight:900,color:'var(--pu)'}}>🎨 班分け選択中</div>}
+          </div>
+          {!rev&&<BoardArea label={cfg.label} onLabelChange={label=>dispatch({type:'CFG',p:{...cfg,label}})}/>}
+          <SeatGrid cfg={cfg} results={dispRes} fixedSec={{}} fixedPub={fixedPub}
+            isSpinning={isSpinning||ob.spinning} curSeatId={ob.spinning?curRoulSeat:null}
+            hlSeatId={hlSeat} showNum={!ob.mode&&!isSpinning}
+            displayAttrs={checked} colorRules={colorRules} groupColors={groupColors}
+            seatDir={seatDir} reversed={rev} swapMode={swapMode} swapSel={swapSel} onSwapClick={handleSwap}
+            groupMode={groupMode} groupSelSet={groupSelSet}
+            onMouseDown={groupMode?startDrag:undefined}
+            onMouseEnter={groupMode?(id)=>{const el=document.querySelector(`[data-seat-id="${id}"]`);if(el){const br=el.getBoundingClientRect();updateRect(br.left+br.width/2,br.top+br.height/2);}}:undefined}
+            hideFixedBadge={shuffleDone} onSeatClick={()=>{}}
+            onSeatRightClick={id=>{if(!isSpinning&&!ob.mode&&!swapMode)setPubFixModal(id);}}/>
+          {rev&&<BoardArea label={cfg.label} onLabelChange={label=>dispatch({type:'CFG',p:{...cfg,label}})}/>}
+          {!pubFixDisp&&!ob.mode&&!isSpinning&&<div style={{color:'var(--tx2)',fontSize:14,fontWeight:800,background:'#fff',border:'2px solid var(--bd)',borderRadius:14,padding:'12px 24px',textAlign:'center'}}>左のボタンで席替えを開始してください 🎉</div>}
+          <div style={{display:'flex',gap:8,flexWrap:'wrap',justifyContent:'center'}}>
+            <span style={{fontSize:11,fontWeight:800,padding:'3px 10px',borderRadius:99,border:'2px solid var(--bd)',color:'var(--tx2)',background:'#fff'}}>白 通常席</span>
+            <span style={{fontSize:11,fontWeight:800,padding:'3px 10px',borderRadius:99,border:'2px solid #00c48c',color:'#007a58',background:'#f0fff8'}}>📌 固定</span>
+          </div>
+        </>:<div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:12}}>
+          <div style={{fontSize:52}}>🪑</div><div style={{fontWeight:900,fontSize:16,color:'var(--tx2)'}}>「設定」タブで教室を設定してください</div>
+        </div>}
+      </main>
+      {pubFixModal&&(
+        <FixedModal seatId={pubFixModal} students={participants?.data} fixedMap={fixedPub}
+          title="固定（前方優先など）" badge="📌"
+          onSave={(id,stuid)=>{dispatch({type:stuid?'FPub':'RFPub',p:stuid?{id,s:stuid}:id});setPubFixModal(null);}}
+          onClose={()=>setPubFixModal(null)}/>
+      )}
+    </div>
+  );
+}
+
+/* ══ VIEW PAGE ══ */
+function ViewPage({state,dispatch}){
+  const{config:cfg,participants,displayAttrs,colorRules,groupColors,groupNames,printSettings}=state;
+  const attrs=participants?.attrs||[];
+  const checked=useCheckedAttrs(displayAttrs,attrs);
+  const seatDir=cfg.seatDir||'v';
+  const[sortMode,setSortMode]=useState('num');
+  const[prios,setPrios]=useState([]);
+  const[attrStart,setAttrStart]=useState(1);
+  const[viewMode,setViewMode]=useState('student');
+  const avail=attrs.filter(a=>!prios.find(p=>p.attr===a));
+  const idxMap=useMemo(()=>seatIdxMap(cfg,seatDir),[cfg,seatDir]);
+  const viewResults=useMemo(()=>{
+    if(!cfg.rows||!cfg.cols||!participants)return null;
+    const seats=availSeats(cfg).sort((a,b)=>(idxMap[a]||999)-(idxMap[b]||999));
+    const si=Math.max(0,Math.min((parseInt(attrStart)||1)-1,participants.data.length-1));
+    const ordered=sortMode==='num'?numSort(participants.data):attrSort(participants.data,prios,si);
+    const m=new Map();
+    for(let i=0;i<Math.min(ordered.length,seats.length);i++)m.set(seats[i],ordered[i]);
+    return m;
+  },[cfg,participants,sortMode,prios,attrStart,idxMap]);
+  const rev=viewMode==='teacher';
+  const getPrintArgs=()=>({cfg,results:viewResults,displayAttrs:checked,colorRules,groupColors,groupNames,label:cfg.label||'',mode:viewMode,showAttrLegend:printSettings?.showAttrLegend!==false,showGroupLegend:printSettings?.showGroupLegend!==false,seatDir});
+  usePrintShortcut(getPrintArgs);
+  if(!participants)return(
+    <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:12,color:'var(--tx2)',padding:24}}>
+      <div style={{fontSize:52}}>📋</div><div style={{fontWeight:900,fontSize:16}}>「設定」タブでCSVを読み込んでください</div>
+    </div>
+  );
+  return(
+    <div className="lay">
+      <aside className="sb">
+        <div className="sb-body">
+          <div>
+            <div className="sec">📋 並び順</div>
+            <div style={{display:'flex',flexDirection:'column',gap:7}}>
+              <button className={`btn ${sortMode==='num'?'bp':'bgh'}`} style={{justifyContent:'center'}} onClick={()=>setSortMode('num')}>🔢 出席番号順</button>
+              <button className={`btn ${sortMode==='attr'?'bteal':'bgh'}`} style={{justifyContent:'center'}} disabled={attrs.length<=2} onClick={()=>setSortMode('attr')}>🗂 属性優先順位順</button>
+            </div>
+            <div style={{fontSize:11,fontWeight:700,color:'var(--tx2)',marginTop:9,background:'#f5f0ff',borderRadius:8,padding:'7px 11px',lineHeight:1.7}}>
+              座席番号1番（右上）から選んだ順番で配置します。
+            </div>
+          </div>
+          {sortMode==='attr'&&<>
+            <div>
+              <div className="sec">優先順位（ドラッグで並べ替え）</div>
+              <PrioList items={prios} onChange={setPrios}/>
+              {avail.length>0&&(
+                <select className="inp" style={{marginTop:7,fontSize:12}} value="" onChange={e=>{if(e.target.value)setPrios([...prios,{attr:e.target.value,dir:'asc'}]);}}>
+                  <option value="">＋ 属性を追加...</option>
+                  {avail.map(a=><option key={a} value={a}>{a}</option>)}
+                </select>
+              )}
+            </div>
+            <div>
+              <label style={{fontSize:11,fontWeight:800,color:'var(--tx2)',display:'block',marginBottom:4}}>開始位置（何番目から）</label>
+              <input className="inp" type="number" min="1" max={participants.data.length||1} value={attrStart} onChange={e=>setAttrStart(parseInt(e.target.value)||1)}/>
+              {prios.length>0&&<div style={{fontSize:10,fontWeight:700,color:'var(--tx2)',marginTop:5,background:'var(--sf2)',borderRadius:8,padding:'6px 10px',maxHeight:80,overflowY:'auto',lineHeight:1.8}}>
+                順: {attrSort(participants.data,prios,Math.max(0,Math.min((parseInt(attrStart)||1)-1,participants.data.length-1))).map(p=>getNumId(p)).join(' → ')}
+              </div>}
+            </div>
+          </>}
+          <div>
+            <div className="sec">🖨️ 印刷</div>
+            <button className="btn bp" style={{width:'100%',justifyContent:'center',padding:'11px'}} onClick={()=>doPrint(getPrintArgs())}><IPr/>印刷する</button>
+          </div>
+        </div>
+        <div className="sb-foot">{state.results&&<ResetBtn dispatch={dispatch}/>}</div>
+      </aside>
+      <main className="main">
+        <div className="vtog">
+          <button className={`vb ${viewMode==='student'?'active':''}`} onClick={()=>setViewMode('student')}>📋 生徒用（黒板が上）</button>
+          <button className={`vb ${viewMode==='teacher'?'active':''}`} onClick={()=>setViewMode('teacher')}>👨‍🏫 先生用（黒板が下）</button>
+        </div>
+        {!rev&&<BoardArea label={cfg.label} onLabelChange={label=>dispatch({type:'CFG',p:{...cfg,label}})}/>}
+        {cfg.rows>0&&cfg.cols>0
+          ?<SeatGrid cfg={cfg} results={viewResults} fixedSec={{}} fixedPub={{}}
+            showNum={false} displayAttrs={checked} colorRules={colorRules} groupColors={groupColors}
+            seatDir={seatDir} reversed={rev}/>
+          :<div style={{color:'var(--tx2)',fontWeight:800,fontSize:15}}>「設定」タブで教室を設定してください</div>
+        }
+        {rev&&<BoardArea label={cfg.label} onLabelChange={label=>dispatch({type:'CFG',p:{...cfg,label}})}/>}
+        <div style={{fontSize:12,fontWeight:800,color:'var(--tx2)',marginTop:4}}>
+          {sortMode==='num'?`出席番号順（${participants.data.length}名）`:`属性優先順位順（${participants.data.length}名）`}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+/* ══ HISTORY PAGE ══ */
+function HistoryPage({state,dispatch,setPage}){
+  const{history}=state;
+  return(
+    <div className="lay">
+      <main style={{flex:1,overflowY:'auto',padding:'18px 20px'}}>
+        <div style={{fontWeight:900,fontSize:16,marginBottom:16}}>📋 席替え履歴</div>
+        {!history.length
+          ?<div style={{color:'var(--tx2)',fontSize:14,fontWeight:700,textAlign:'center',padding:'40px 0'}}>履歴なし</div>
+          :<div style={{display:'flex',flexDirection:'column',gap:10}}>
+            {history.map((h,i)=>(
+              <div key={i} className="card" style={{cursor:'pointer',padding:'13px 16px'}} onClick={()=>{dispatch({type:'LHIST',p:h});setPage('seats');}}>
+                <div style={{fontSize:11,color:'var(--tx2)',fontWeight:700,marginBottom:3}}>{h.date}</div>
+                <div style={{fontWeight:900,fontSize:14}}>{h.label}</div>
+                <div style={{fontSize:11,color:'var(--tx2)',marginTop:3,fontWeight:700}}>{h.results.length}名配置 — クリックして復元</div>
+              </div>
+            ))}
+          </div>
+        }
+      </main>
+    </div>
+  );
+}
+
+/* ══ APP ══ */
+function App(){
+  const[page,setPage]=useState('seats');
+  const[state,dispatch]=useReducer(reducer,loadSt());
+  const attrs=state.participants?.attrs||[];
+  const checked=useCheckedAttrs(state.displayAttrs,attrs);
+  const st={...state,displayAttrs:checked,groupColors:state.groupColors||{},groupNames:state.groupNames||{}};
+  return(
+    <div style={{minHeight:'100vh',display:'flex',flexDirection:'column'}}>
+      <nav className="nav">
+        <div style={{display:'flex',alignItems:'center',gap:5}}>
+          <span style={{fontSize:20}}>🪑</span>
+          <span className="logo">席替えくん</span><span className="logo-s">Pro</span>
+        </div>
+        {state.config.label&&<span className="tag tw" style={{fontSize:12,whiteSpace:'pre-wrap'}}>{state.config.label}</span>}
+        {state.results&&<span className="tag" style={{background:'rgba(255,255,255,.2)',color:'#fff',border:'1.5px solid rgba(255,255,255,.4)',fontSize:11}}><ICk/>席替え済み</span>}
+        <div className="tabs">
+          {[['settings','⚙️ 設定','a-s'],['seats','🎲 席替え','a-r'],['view','📋 座席表','a-v'],['history','🕐 履歴','a-h']].map(([p,l,cls])=>(
+            <button key={p} className={`tb ${page===p?cls:''}`} onClick={()=>setPage(p)}>{l}</button>
+          ))}
+        </div>
+      </nav>
+      {page==='settings'&&<SettingsPage state={st} dispatch={dispatch}/>}
+      {page==='seats'&&<SeatsPage state={st} dispatch={dispatch}/>}
+      {page==='view'&&<ViewPage state={st} dispatch={dispatch}/>}
+      {page==='history'&&<HistoryPage state={st} dispatch={dispatch} setPage={setPage}/>}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

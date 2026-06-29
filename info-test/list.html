@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>共通テスト「情報Ⅰ」攻略 - Aitarch</title>
+        <meta name="description" content="大学入試共通テスト「情報Ⅰ」の対策サイト。アルゴリズム・ネットワーク・デジタル・プログラミングなど各分野のドリル100問を無料公開。">
+        <meta property="og:title" content="共通テスト「情報Ⅰ」攻略 - Aitarch">
+        <meta property="og:description" content="大学入試共通テスト「情報Ⅰ」の対策サイト。アルゴリズム・ネットワーク・デジタル・プログラミングなど各分野のドリル100問を無料公開。">
+        <meta property="og:type" content="website">
+        <meta property="og:site_name" content="Aitarch">
+        <meta name="twitter:card" content="summary">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+        <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+        <link rel="stylesheet" href="/common/theme.css">
+        <style>
+            body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+        </style>
+    </head>
+    <body class="theme-info-test overflow-x-hidden">
+
+        <div class="flex flex-col md:flex-row min-h-screen">
+            <!-- 左サイドバー: 中身はJSで自動生成される -->
+            <aside id="sidebar-container" class="w-full md:w-1/3 lg:w-1/4 p-6 bg-white/60 backdrop-blur-sm border-r border-black/10" data-aos="fade-right" data-aos-duration="900">
+                <!-- Loading sidebar... -->
+            </aside>
+
+            <!-- 右コンテンツ: カテゴリの紹介など -->
+            <main class="w-full md:w-2/3 lg:w-3/4 p-8 md:p-12" data-aos="fade-left" data-aos-duration="900" data-aos-delay="200">
+                <div class="prose prose-lg max-w-4xl text-[var(--text-color)]">
+                    <h1 class="text-4xl md:text-4xl font-bold pb-4 mb-8 border-b border-[var(--theme-color)]/30">共通テスト「情報Ⅰ」攻略</h1>
+                    <p>2025年から必修化される大学入学共通テスト「情報Ⅰ」。このカテゴリでは、長年の教員経験を活かし、プログラミング、データサイエンス、ネットワークの基礎などの将来に役立つ知識を、高校生にも分かりやすく解説します。</p>
+                    <p class="mt-8">左のメニューから記事を選択してください。</p>
+                </div>
+                <footer class="text-left text-slate-400 mt-12">
+                    <p>&copy; 2025 Aitarch. All Rights Reserved.</p>
+                </footer>
+            </main>
+        </div>
+
+    
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // AOSを初期化
+        AOS.init({ once: true });
+
+        /**
+         * キャッシュを回避するため、タイムスタンプを付けてsidebar.jsを動的に読み込みます。
+         */
+        // 1. 新しいscript要素を作成
+        const script = document.createElement('script');
+        
+        // 2. 現在時刻からユニークなタイムスタンプを生成
+        const timestamp = new Date().getTime();
+        
+        // 3. script要素のsrc属性に、タイムスタンプ付きのURLを設定
+        script.src = `../sidebar.js?v=${timestamp}`;
+        
+        // 4. sidebar.jsの読み込みが完了してから、サイドバー生成関数を実行
+        script.onload = function() {
+            generateSidebar('info-test');
+        };
+        
+        // 5. ページにscript要素を追加して、読み込みを開始
+        document.body.appendChild(script);
+    </script>
+    </body>
+</html>

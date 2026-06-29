@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- タスクバーに表示するタイトル-->
+    <title>【実習】AIで音楽・画像を生成しよう</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="/common/theme.css">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+    </style>
+</head>
+<!-- bodyタグのクラスはJSで動的に付与されるため、空にしておく -->
+<body class="bg-[var(--bg-color)] overflow-x-hidden">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- 左サイドバー: 中身はJSで自動生成される -->
+        <aside id="sidebar-container" class="w-full md:w-1/3 lg:w-1/4 p-6 bg-white/60 backdrop-blur-sm border-r border-black/10" data-aos="fade-right" data-aos-duration="900">
+            <!-- ここにsidebar.jsから記事一覧が挿入されます -->
+        </aside>
+
+        <!--記事の本文をここに記述 -->
+        <main class="w-full md:w-2/3 lg:w-3/4 p-8 md:p-12" data-aos="fade-up" data-aos-duration="900" data-aos-delay="200">
+            <div class="prose prose-lg max-w-4xl text-[var(--text-color)] prose-headings:text-[var(--text-color)] prose-p:text-[var(--text-color)] prose-strong:text-[var(--text-color)] prose-a:text-[var(--theme-color)] prose-ul:text-[var(--text-color)] prose-li:text-[var(--text-color)]">
+                
+                <!-- Title -->
+                <h1 class="text-4xl md:text-4xl font-bold pb-4 mb-8 border-b border-[var(--theme-color)]/30">【実習】AIで音楽・画像を生成しよう</h1>
+                <p class="text-base text-[var(--text-color)] opacity-70 mt-4 mb-8">公開日: 2025-07-25</p>
+    <div class="container mx-auto max-w-4xl p-4 sm:p-8">
+        <header class="bg-green-600 text-white p-6 rounded-lg shadow-lg text-center mb-8">
+            <h1 class="text-3xl font-bold">【研修用】AIで音楽・画像を生成しよう</h1>
+            <p class="mt-2">AIをあなたのクリエイティブパートナーに！</p>
+        </header>
+
+        <main class="bg-white p-6 sm:p-8 rounded-lg shadow-md">
+
+            <!-- 1. はじめに -->
+            <section id="intro" class="mb-12">
+                <h2 class="text-2xl font-bold border-b-2 border-green-500 pb-2 mb-4">1. AIで創造する時代</h2>
+                <p class="text-gray-700 leading-relaxed">
+                    AIは、分析や検索だけでなく、音楽やイラストといったクリエイティブな分野でも驚くべき能力を発揮します。このセクションでは、AIを使ってオリジナルの歌詞を作り、曲を生成し、さらにはイメージ通りの画像を生成する方法を学びます。あなたのアイデアをAIで形にしてみましょう！
+                </p>
+            </section>
+
+            <!-- 2. AIで歌詞を作る -->
+            <section id="lyrics" class="mb-12">
+                <h2 class="text-2xl font-bold border-b-2 border-green-500 pb-2 mb-4">2. 実践①：AIに作詞を依頼する</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    まずは、楽曲の土台となる「歌詞」をAI（Gemini）に作ってもらいます。伝えたいテーマや雰囲気、入れたい言葉などを「要件」として具体的に伝えるのがコツです。
+                </p>
+                <div class="prompt-box">
+                    <h3 class="prompt-title">プロンプト例：作詞</h3>
+                    <button class="copy-btn" onclick="copyPrompt(this)">コピー</button>
+                    <pre class="whitespace-pre-wrap text-gray-800"><code>suno.aiで3分ほどの楽曲を作ります。画像の歌詞を参考に下記の要件を満たす歌詞を作詞してください。
+
+#歌詞の内容
+- 人が生きる過程での悲しみ，挫折，絶望
+- 価値は変わる，絶対なんてない
+- 今を生きればそれでいい
+- でも、刹那に生きるより希望を持っていきたい
+- 君となら、君とならともに歩める、希望をもって
+#要件
+- はぎれのよい歌詞
+- 韻を踏む表現
+- アップテンポの歌詞
+- 一部に英語を入れて</code></pre>
+                </div>
+                <p class="text-gray-700 leading-relaxed my-4">
+                    歌詞ができたら、曲のイメージに合う「曲調」もAIに相談してみましょう。
+                </p>
+                <div class="prompt-box">
+                    <h3 class="prompt-title">プロンプト例：曲調の相談</h3>
+                    <button class="copy-btn" onclick="copyPrompt(this)">コピー</button>
+                    <pre class="whitespace-pre-wrap text-gray-800"><code>J-pop風にしたいのですが、曲調は何がおすすめですか、教えて</code></pre>
+                </div>
+            </section>
+            
+            <!-- 3. Suno.aiで作曲 -->
+            <section id="suno" class="mb-12">
+                <h2 class="text-2xl font-bold border-b-2 border-green-500 pb-2 mb-4">3. 実践②：Suno.aiで楽曲を生成する</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    歌詞と曲調のアイデアが固まったら、音楽生成AI「Suno.ai」で実際に曲を作ります。操作はとても簡単です。
+                </p>
+                <div class="step-box">
+                    <div class="flex items-center mb-3"><span class="step-number">1</span><h3 class="text-lg font-semibold">Suno.aiにサインインし、「Create」をクリック</h3></div>
+                    <div class="flex items-center mb-3"><span class="step-number">2</span><h3 class="text-lg font-semibold">「Custom Mode」をONにする</h3></div>
+                    <div class="flex items-center mb-3"><span class="step-number">3</span><h3 class="text-lg font-semibold">「Lyrics」の欄に、Geminiが作った歌詞を貼り付ける</h3></div>
+                    <div class="flex items-center mb-3"><span class="step-number">4</span><h3 class="text-lg font-semibold">「Style of Music」の欄に、曲調（例: Up-tempo J-pop, emotional rock）を入力</h3></div>
+                    <div class="flex items-center"><span class="step-number">5</span><h3 class="text-lg font-semibold">「Create」ボタンをクリックして、生成を待つ</h3></div>
+                </div>
+                <div class="tip-box">
+                    <p class="font-semibold">💡 Suno.aiのバージョンについて</p>
+                    <p class="text-sm text-gray-700 mt-1">
+                        Suno.aiには複数のバージョンがあります。無料で利用する場合、v3.5の方がv4.5よりも完成度の高い曲が生成されることがある、という声もあります。色々と試してみるのがおすすめです。
+                    </p>
+                </div>
+            </section>
+
+            <!-- 4. 画像生成 -->
+            <section id="image-generation">
+                <h2 class="text-2xl font-bold border-b-2 border-green-500 pb-2 mb-4">4. 実践③：AIで画像を生成する</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    頭の中にあるイメージを、AIを使って一枚の絵にしてみましょう。ここでも、AIに的確な指示（プロンプト）を出すことが重要です。
+                </p>
+                <div class="step-box">
+                    <div class="flex items-start mb-4">
+                        <span class="step-number mt-1">1</span>
+                        <div>
+                            <h3 class="text-lg font-semibold">プロンプトを考える</h3>
+                            <p class="text-gray-600">まず、どんな画像が欲しいか、日本語で具体的にGeminiに伝えて、画像生成用の詳しいプロンプトを作成してもらいます。</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start mb-4">
+                        <span class="step-number mt-1">2</span>
+                        <div>
+                            <h3 class="text-lg font-semibold">英語に翻訳する</h3>
+                            <p class="text-gray-600">多くの画像生成AIは英語のプロンプトで性能が向上するため、作成したプロンプトをGeminiに英語に翻訳してもらいます。</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="step-number mt-1">3</span>
+                        <div>
+                            <h3 class="text-lg font-semibold">画像生成AIで実行</h3>
+                            <p class="text-gray-600">翻訳された英語のプロンプトを使い、画像生成AI（例: Google AI Studio の Generate Media など）で画像を生成します。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="tip-box">
+                    <p class="font-semibold">💡 用途に合わせたツールの使い分け</p>
+                    <ul class="list-disc list-inside text-sm text-gray-700 mt-1 space-y-1">
+                        <li><strong>新規画像生成:</strong> Google AI Studio (Generate Media), Midjourney, Stable Diffusionなど</li>
+                        <li><strong>既存の写真の加工:</strong> ChatGPT (DALL-E 3) は、アップロードした画像を元に編集する機能も強力です。</li>
+                    </ul>
+                </div>
+            </section>
+
+        </main>
+
+    </div>
+
+    <script>
+        function copyPrompt(button) {
+            const pre = button.parentElement.querySelector('pre');
+            const textToCopy = pre.innerText;
+            
+            const textArea = document.createElement('textarea');
+            textArea.value = textToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                button.innerText = 'コピー完了！';
+                setTimeout(() => {
+                    button.innerText = 'コピー';
+                }, 2000);
+            } catch (err) {
+                console.error('コピーに失敗しました', err);
+                button.innerText = '失敗';
+            }
+            document.body.removeChild(textArea);
+        }
+    </script>
+                <p class="lead">Blank</p>
+            </div>
+            <footer class="text-left text-slate-400 mt-12">
+                <p>&copy; 2025 Aitarch. All Rights Reserved.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- 記事リストを生成するJSファイルを読み込む -->
+    <script src="../../sidebar.js"></script>
+    <script>
+        // AOSを初期化
+        AOS.init({ once: true });
+
+        //ここに記事のディレクトリを入れる 
+        generateSidebar('ai-life', '/ai-life/article/6.html');
+    </script>
+</body>
+</html>

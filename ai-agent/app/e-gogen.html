@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英語語根データベース - Aitarch</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Noto Sans JP', 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0520 0%, #1e0a40 100%);
+            color: #e9d5ff;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ===== LEFT PANEL ===== */
+        #left-panel {
+            width: 300px;
+            flex-shrink: 0;
+            background: rgba(255,255,255,0.97);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #d8b4fe;
+            height: 100vh;
+        }
+        #left-header {
+            padding: 14px 16px 10px;
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            color: white;
+            flex-shrink: 0;
+        }
+        #left-header h1 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+        #search-input {
+            width: 100%;
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 13px;
+            outline: none;
+        }
+        #search-input::placeholder { color: rgba(255,255,255,0.7); }
+        #count-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.8);
+            margin-top: 5px;
+        }
+        #list-container {
+            flex: 1;
+            overflow-y: auto;
+        }
+        .list-item {
+            padding: 7px 14px;
+            border-bottom: 1px solid #f3e8ff;
+            cursor: pointer;
+            font-size: 13px;
+            color: #1e0a40;
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+            transition: background 0.12s;
+        }
+        .list-item:hover { background: #f5f3ff; }
+        .list-item.active { background: #ede9fe; font-weight: 700; }
+        .list-item .page-num {
+            font-size: 10px;
+            color: #9ca3af;
+            flex-shrink: 0;
+        }
+        .list-item .title-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* ===== RIGHT PANEL ===== */
+        #right-panel {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 24px;
+        }
+        .page-card {
+            background: rgba(255,255,255,0.07);
+            border-left: 4px solid #a78bfa;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 14px;
+            transition: background 0.15s;
+        }
+        .page-card:target,
+        .page-card.highlight {
+            background: rgba(167,139,250,0.18);
+            border-left-color: #c4b5fd;
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .page-badge {
+            background: #7c3aed;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 12px;
+            flex-shrink: 0;
+        }
+        .card-title {
+            color: #c4b5fd;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .card-body {
+            color: #ddd6fe;
+            font-size: 13px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* ===== LOADING ===== */
+        #loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: #a78bfa;
+        }
+        .spinner {
+            width: 36px; height: 36px;
+            border: 3px solid rgba(167,139,250,0.3);
+            border-top-color: #a78bfa;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 12px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ===== SCROLLBAR ===== */
+        #list-container::-webkit-scrollbar,
+        #right-panel::-webkit-scrollbar { width: 5px; }
+        #list-container::-webkit-scrollbar-track { background: #f5f3ff; }
+        #list-container::-webkit-scrollbar-thumb { background: #d8b4fe; border-radius: 3px; }
+        #right-panel::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+        #right-panel::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.4); border-radius: 3px; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ===== LEFT PANEL ===== -->
+<div id="left-panel">
+    <div id="left-header">
+        <h1>📖 英語語根データベース</h1>
+        <input type="text" id="search-input" placeholder="🔍 語根・意味を検索...">
+        <div id="count-label">読み込み中…</div>
+    </div>
+    <div id="list-container">
+        <div id="loading">
+            <div class="spinner"></div>
+            <span style="font-size:13px">データを読み込み中...</span>
+        </div>
+    </div>
+</div>
+
+<!-- ===== RIGHT PANEL ===== -->
+<div id="right-panel">
+    <div id="content-container"></div>
+</div>
+
+<script>
+const MD_PATH = '../../E_Gogen_Complete_Full_Text.md';
+let allPages = [];
+let sortedPages = [];
+let activeItem = null;
+
+async function init() {
+    try {
+        const res = await fetch(MD_PATH + '?v=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const text = await res.text();
+        parseAndRender(text);
+    } catch (e) {
+        document.getElementById('loading').innerHTML =
+            '<p style="color:#f87171;font-size:13px;padding:20px">❌ 読み込みエラー:<br>' + e.message + '</p>';
+    }
+}
+
+function parseAndRender(text) {
+    // Split on page markers
+    const parts = text.split(/## --- PAGE (\d+) ---/);
+    // parts = [preamble, "1", body1, "2", body2, ...]
+
+    for (let i = 1; i < parts.length - 1; i += 2) {
+        const num = parseInt(parts[i]);
+        const raw = (parts[i + 1] || '');
+        const lines = raw.split('\n')
+            .map(l => l.trim())
+            .filter(l => l && l !== '---');
+
+        const title = lines[0] || '（タイトルなし）';
+        // Strip Y:XX notation from title for display
+        const cleanTitle = title.replace(/\s*Y:\d+\s*$/, '').trim();
+        const body = lines.slice(1).join('\n');
+
+        allPages.push({ num, title: cleanTitle, body });
+    }
+
+    // ABC sort: extract leading English root for comparison key
+    sortedPages = [...allPages].sort((a, b) => {
+        const enKey = s => (s.match(/^[a-z,]+/i) || [''])[0].toLowerCase();
+        return enKey(a.title).localeCompare(enKey(b.title), 'en');
+    });
+
+    renderList(sortedPages);
+    renderContent(allPages);
+
+    document.getElementById('count-label').textContent =
+        '全 ' + allPages.length + ' ページ';
+
+    // Search
+    document.getElementById('search-input').addEventListener('input', e => {
+        const q = e.target.value.toLowerCase();
+        if (!q) {
+            renderList(sortedPages);
+            document.getElementById('count-label').textContent =
+                '全 ' + allPages.length + ' ページ';
+        } else {
+            const filtered = sortedPages.filter(p =>
+                p.title.toLowerCase().includes(q) ||
+                p.body.toLowerCase().includes(q)
+            );
+            renderList(filtered);
+            document.getElementById('count-label').textContent =
+                filtered.length + ' / ' + allPages.length + ' 件';
+        }
+    });
+}
+
+function renderList(pages) {
+    const container = document.getElementById('list-container');
+    if (pages.length === 0) {
+        container.innerHTML = '<p style="padding:20px;font-size:13px;color:#9ca3af;text-align:center">該当なし</p>';
+        return;
+    }
+    container.innerHTML = pages.map(p => `
+        <div class="list-item" data-page="${p.num}" onclick="jumpTo(${p.num}, this)">
+            <span class="page-num">${p.num}</span>
+            <span class="title-text">${escHtml(p.title)}</span>
+        </div>
+    `).join('');
+}
+
+function renderContent(pages) {
+    document.getElementById('content-container').innerHTML = pages.map(p => `
+        <div class="page-card" id="page-${p.num}">
+            <div class="card-header">
+                <span class="page-badge">PAGE ${p.num}</span>
+                <span class="card-title">${escHtml(p.title)}</span>
+            </div>
+            <div class="card-body">${escHtml(p.body)}</div>
+        </div>
+    `).join('');
+}
+
+function jumpTo(num, el) {
+    const card = document.getElementById('page-' + num);
+    if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Highlight card briefly
+        card.classList.add('highlight');
+        setTimeout(() => card.classList.remove('highlight'), 2000);
+    }
+    // Active state on list
+    if (activeItem) activeItem.classList.remove('active');
+    if (el) { el.classList.add('active'); activeItem = el; }
+}
+
+function escHtml(s) {
+    return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+init();
+</script>
+</body>
+</html>

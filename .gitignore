@@ -1,0 +1,37 @@
+# 認証情報・IDE設定（GitHubに上げない）
+.vscode/
+
+# 依存パッケージ
+node_modules/
+
+# ドキュメント（任意）
+docs/
+
+# Claude Code 関連
+.claude/
+CLAUDE.md
+
+# テキストファイル
+*.txt
+
+# OS生成ファイル
+.DS_Store
+Thumbs.db
+
+# 作業用スクリプト・生成物・別プロジェクト（サイト本体に含めない）
+gas/
+scripts/
+output/
+tmp/
+Antig_demo/
+chikoku/
+
+# ルート直下の作業メモ・PDF・暫定HTML（サイト本体ではない）
+/*.pdf
+/E_Gogen_Complete_Full_Text.md
+/GAS+APIアプリの作成.md
+/pysical_AI.md
+/ryosicom.md
+/google_finance.html
+/sekigae_pro.html
+/shooting01.html

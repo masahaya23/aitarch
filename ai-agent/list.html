@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OIH_AIエージェント研究会 - Aitarch</title>
+    <meta name="description" content="高校の数学・物理・英語学習アプリ、業務効率化ツールを公開。図形と方程式ゲーム、英語語根データベース、席替えアプリ、英作文自動採点など多数。">
+    <meta property="og:title" content="OIH_AIエージェント研究会 - Aitarch">
+    <meta property="og:description" content="高校の数学・物理・英語学習アプリ、業務効率化ツールを公開。図形と方程式ゲーム、英語語根データベース、席替えアプリ、英作文自動採点など多数。">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Aitarch">
+    <meta name="twitter:card" content="summary">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="/common/theme.css">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+        .app-link { transition: transform 0.2s ease;  color: #1e0a40 !important;}
+        .app-link:hover { transform: translateX(4px); }
+    </style>
+</head>
+<body class="theme-ai-agent overflow-x-hidden">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- 左サイドバー -->
+        <aside id="sidebar-container" class="w-full md:w-1/3 lg:w-1/4 p-6 bg-white/60 backdrop-blur-sm border-r border-black/10" data-aos="fade-right" data-aos-duration="900">
+            <!-- Loading sidebar... -->
+        </aside>
+
+        <!-- 右コンテンツ -->
+        <main class="w-full md:w-2/3 lg:w-3/4 p-8 md:p-12" data-aos="fade-left" data-aos-duration="900" data-aos-delay="200">
+            <div class="max-w-4xl text-[var(--text-color)]">
+                <h1 class="text-3xl md:text-4xl font-bold pb-4 mb-4 border-b border-[var(--theme-color)]/30">
+                    OIH_AIエージェント研究会
+                </h1>
+                <p class="text-lg mb-8 opacity-80">
+                    HTML・CSS・JavaScriptで作成した学習アプリを公開しています。<br>
+                    数学・物理・英語など、各教科の問題アプリを随時追加予定です。
+                </p>
+
+                <!-- カテゴリ別アプリ一覧（sidebar.js データから動的生成） -->
+                <div id="app-cards-container" class="space-y-10">
+                    <p class="text-sm opacity-50 italic">読み込み中</p>
+                </div>
+            </div>
+
+            <footer class="text-left text-slate-400 mt-12">
+                <p>&copy; 2025 Aitarch. All Rights Reserved.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ once: true });
+
+        const script = document.createElement('script');
+        const timestamp = new Date().getTime();
+        script.src = `../sidebar.js?v=${timestamp}`;
+        script.onload = function() {
+            generateSidebar('ai-agent');
+            generateAppCards('ai-agent');
+        };
+        document.body.appendChild(script);
+
+        function generateAppCards(categoryId) {
+            const data = allArticles[categoryId];
+            const container = document.getElementById('app-cards-container');
+            if (!data || !container) return;
+
+            const subjectDefs = [
+                { key: 'math',    label: '数学の問題・アプリ',  icon: '📐' },
+                { key: 'physics', label: '物理の問題アプリ',    icon: '⚛️' },
+                { key: 'english',  label: '英語・英作文アプリ',  icon: '🔤' },
+                { key: 'business', label: '業務効率化アプリ',   icon: '💼' },
+                { key: 'other',    label: 'その他',              icon: '📌' },
+            ];
+            const typeIcons = { game: '🎮', app: '⚙️', pdf: '📄', article: '📝' };
+
+            // subject でグループ化
+            const groups = {};
+            data.articles.forEach(a => {
+                const s = a.subject || 'other';
+                if (!groups[s]) groups[s] = [];
+                groups[s].push(a);
+            });
+
+            let html = '';
+            subjectDefs.forEach(({ key, label, icon }) => {
+                const items = groups[key];
+                html += `
+                <section>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="h-8 w-8 rounded-full flex items-center justify-center text-white text-sm"
+                             style="background-color:var(--theme-color)">${icon}</div>
+                        <h2 class="text-xl font-bold">${label}</h2>
+                    </div>
+                    <div class="space-y-3">`;
+                if (items && items.length > 0) {
+                    items.forEach(a => {
+                        const badge = a.type ? (typeIcons[a.type] || '') + ' ' : '';
+                        html += `
+                        <a href="${a.url}"
+                           class="flex items-center gap-3 bg-white/80 rounded-xl p-4 border border-[var(--theme-color)]/20
+                                  hover:border-[var(--theme-color)]/60 hover:shadow-md transition-all app-link text-gray-800">
+                            <span class="font-medium">${badge}${a.title}</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-auto opacity-40 shrink-0"
+                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </a>`;
+                    });
+                } else {
+                    html += `<div class="bg-white/50 rounded-xl p-4 text-sm text-gray-600 opacity-60 italic">準備中</div>`;
+                }
+                html += `</div></section>`;
+            });
+
+            container.innerHTML = html || '<p class="text-sm opacity-50 italic">コンテンツがありません</p>';
+        }
+    </script>
+</body>
+</html>

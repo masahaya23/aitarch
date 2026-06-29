@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>情報Ⅰ デジタル分野 100問ドリル</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', 'Inter', sans-serif;
+        }
+        .quiz-container {
+            max-width: 800px;
+            margin: 2rem auto;
+        }
+        .option-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .correct {
+            background-color: #d1fae5 !important;
+            border-color: #10b981 !important;
+        }
+        .incorrect {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+        }
+        .explanation {
+            border-left: 4px solid #60a5fa;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="quiz-container p-4 sm:p-6 md:p-8">
+        <div id="start-screen" class="text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold text-blue-600 mb-4">情報Ⅰ デジタル分野</h1>
+            <h2 class="text-xl sm:text-2xl font-semibold mb-8">共通テスト対策 100問ドリル</h2>
+            <p class="mb-8 text-gray-600">提供された資料に基づいて作成された100問のクイズです。<br>準備ができたら下のボタンを押して開始してください。</p>
+            <button id="start-btn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105">
+                クイズを開始
+            </button>
+        </div>
+
+        <div id="quiz-screen" class="hidden">
+            <div class="bg-white p-6 rounded-xl shadow-md mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-blue-700">問題 <span id="question-number"></span>/100</h2>
+                    <div id="progress-bar-container" class="w-1/2 bg-gray-200 rounded-full h-2.5">
+                        <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+                <p id="question-text" class="text-lg leading-relaxed"></p>
+            </div>
+
+            <div id="options-container" class="grid grid-cols-1 gap-4">
+                <!-- 選択肢ボタンはここにJSで生成されます -->
+            </div>
+
+            <div id="feedback-container" class="hidden mt-6">
+                <div id="feedback-result" class="text-2xl font-bold mb-4"></div>
+                <div id="explanation" class="bg-blue-50 p-4 rounded-lg explanation">
+                    <h3 class="font-bold text-lg mb-2 text-blue-800">解説</h3>
+                    <p id="explanation-text" class="text-gray-700"></p>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <button id="next-btn" class="bg-gray-800 text-white font-bold py-3 px-12 rounded-lg shadow-lg hover:bg-gray-900 transition-transform transform hover:scale-105 hidden">
+                    次の問題へ
+                </button>
+            </div>
+        </div>
+
+        <div id="result-screen" class="hidden text-center bg-white p-8 rounded-xl shadow-lg">
+            <h2 class="text-3xl font-bold text-blue-600 mb-4">結果発表</h2>
+            <p class="text-xl mb-6">お疲れ様でした！あなたのスコアは...</p>
+            <p class="text-6xl font-extrabold text-gray-800 mb-8"><span id="score"></span> / 100</p>
+            <p id="result-message" class="text-lg font-medium mb-8"></p>
+            <button id="restart-btn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105">
+                もう一度挑戦する
+            </button>
+        </div>
+    </div>
+
+<script>
+    // --- クイズデータ ---
+    // PDFの内容に基づいて100問の問題を作成
+    const quizData = [
+        {
+            question: "温度や音の強さなど、連続的に変化する量をそのまま表現する方法を何というか。",
+            options: ["デジタル", "アナログ", "2進法", "量子化", "符号化"],
+            answer: 1,
+            explanation: "アナログは、温度計の水銀の長さのように、連続的に変化する量を他の連続的な量で表現する方法です。"
+        },
+        {
+            question: "連続的な量を一定の間隔で区切り、離散的な量で表現する方法を何というか。",
+            options: ["デジタル", "アナログ", "連続量", "標本化", "平滑化"],
+            answer: 0,
+            explanation: "デジタルは、連続的な量を区切りのある数値などで表現する方法です。例えばデジタル時計の時刻表示がこれにあたります。"
+        },
+        {
+            question: "コンピュータ内部で情報を表現するために使われる、0と1の組み合わせで数を表す方法を何というか。",
+            options: ["10進法", "16進法", "アナログ", "2進法", "文字コード"],
+            answer: 3,
+            explanation: "2進法は、0と1の2種類の数字だけを使って数を表現する方法で、コンピュータの基本的な動作原理です。"
+        },
+        {
+            question: "情報量の最小単位で、2進数の1桁に相当するものは何か。",
+            options: ["バイト (Byte)", "ビット (bit)", "キロバイト (KB)", "ヘルツ (Hz)", "ピクセル (pixel)"],
+            answer: 1,
+            explanation: "ビットは情報量の最小単位です。1ビットで「0」か「1」の2通りの情報を表現できます。"
+        },
+        {
+            question: "8ビットをまとめて表す情報量の単位は何か。",
+            options: ["1ワード", "1キャラクタ", "1バイト", "1メガ", "1ギガ"],
+            answer: 2,
+            explanation: "1バイト (Byte) は8ビット (bit) で構成され、英数字1文字などを表現する際の基本単位としてよく使われます。"
+        },
+        {
+            question: "4ビットの情報量で表現できる情報の種類は何通りか。",
+            options: ["4通り", "8通り", "16通り", "32通り", "256通り"],
+            answer: 2,
+            explanation: "nビットで表現できる情報の種類は2のn乗通りです。したがって、4ビットでは 2^4 = 16通りとなります。"
+        },
+        {
+            question: "アナログデータをデジタルデータに変換することを何というか。",
+            options: ["DA変換", "AD変換", "符号化", "復号化", "圧縮"],
+            answer: 1,
+            explanation: "AD変換 (Analog to Digital Conversion) は、アナログ信号をデジタル信号に変換するプロセスです。"
+        },
+        {
+            question: "10進数の「13」を2進数で表現したものはどれか。",
+            options: ["1011", "1101", "1110", "1111", "10011"],
+            answer: 1,
+            explanation: "13を2で繰り返し割っていくと、余りが下から1, 0, 1, 1となります。これを逆から並べると1101(2)となります。"
+        },
+        {
+            question: "2進数の「1010」を10進数で表現したものはどれか。",
+            options: ["8", "9", "10", "11", "12"],
+            answer: 2,
+            explanation: "1010(2) = 1*2^3 + 0*2^2 + 1*2^1 + 0*2^0 = 8 + 0 + 2 + 0 = 10 となります。"
+        },
+        {
+            question: "16進数で、10進数の「10」を表す文字はどれか。",
+            options: ["A", "B", "C", "D", "E"],
+            answer: 0,
+            explanation: "16進数では、10進数の10から15までをAからFのアルファベットで表現します。10はA、11はB、...、15はFとなります。"
+        },
+        {
+            question: "16進数の「1F」を10進数で表現したものはどれか。",
+            options: ["16", "21", "30", "31", "47"],
+            answer: 3,
+            explanation: "1F(16) = 1*16^1 + 15*16^0 = 16 + 15 = 31 となります。（Fは10進数で15）"
+        },
+        {
+            question: "コンピュータで負の数を表現するために用いられる考え方はどれか。",
+            options: ["絶対値", "浮動小数点数", "補数", "指数", "仮数"],
+            answer: 2,
+            explanation: "補数を用いることで、減算を加算として扱うことができ、計算回路を単純化できます。一般的に「2の補数」が使われます。"
+        },
+        {
+            question: "4ビットの2進数で「-2」を2の補数で表現したものはどれか。",
+            options: ["0010", "1010", "1101", "1110", "1111"],
+            answer: 3,
+            explanation: "正の数「2」は0010(2)です。ビットを反転させると1101となり、これに1を加えると1110(2)となります。"
+        },
+        {
+            question: "小数を含む実数を「符号部」「仮数部」「指数部」に分けて表現する方法を何というか。",
+            options: ["固定小数点数", "浮動小数点数", "有理数", "無理数", "整数"],
+            answer: 1,
+            explanation: "浮動小数点数は、非常に大きな数や小さな数を効率的に表現するための形式で、科学技術計算などで広く用いられています。"
+        },
+        {
+            question: "文字や記号をコンピュータで扱うために、それぞれに割り当てられた固有の番号（符号）を何というか。",
+            options: ["フォント", "グリフ", "文字コード", "書式", "スタイル"],
+            answer: 2,
+            explanation: "文字コードは、文字とビット列を対応付けるための規格です。ASCIIコードやJISコード、Unicodeなどがあります。"
+        },
+        {
+            question: "世界中の様々な言語の文字を統一的に扱えるように定められた文字コード体系はどれか。",
+            options: ["ASCII", "JISコード", "シフトJIS", "EUC-JP", "Unicode"],
+            answer: 4,
+            explanation: "Unicodeは、世界の主要な文字のほとんどを収録し、単一の体系で扱えるようにした文字コード規格です。"
+        },
+        {
+            question: "2進数の加算で、1+1の結果はどうなるか。",
+            options: ["1", "2", "10", "11", "0"],
+            answer: 2,
+            explanation: "2進数では、1+1は2となり、これを2進数で表すと「10」（桁が一つ上がって1、その桁は0）となります。"
+        },
+        {
+            question: "コンピュータ内部で演算や制御を行う電子回路を総称して何というか。",
+            options: ["集積回路 (IC)", "CPU", "メモリ", "論理回路", "マザーボード"],
+            answer: 3,
+            explanation: "論理回路は、AND、OR、NOTといった基本的な回路の組み合わせで構成され、コンピュータのすべての計算を実現します。"
+        },
+        {
+            question: "2つの入力が両方とも「1」のときだけ、出力が「1」になる論理回路はどれか。",
+            options: ["OR回路", "NOT回路", "AND回路", "NAND回路", "XOR回路"],
+            answer: 2,
+            explanation: "AND回路は論理積を計算する回路で、すべての入力が真（1）の場合にのみ、出力が真（1）になります。"
+        },
+        {
+            question: "2つの入力のうち、少なくとも一方が「1」のとき、出力が「1」になる論理回路はどれか。",
+            options: ["OR回路", "NOT回路", "AND回路", "NOR回路", "XOR回路"],
+            answer: 0,
+            explanation: "OR回路は論理和を計算する回路で、いずれかの入力が真（1）であれば、出力が真（1）になります。"
+        },
+        {
+            question: "入力が「1」なら出力は「0」、「0」なら出力は「1」となる、入力を反転させる論理回路はどれか。",
+            options: ["OR回路", "NOT回路", "AND回路", "バッファ回路", "XOR回路"],
+            answer: 1,
+            explanation: "NOT回路は論理否定を計算する回路で、入力の真偽値を反転させて出力します。"
+        },
+        {
+            question: "2進数1桁の加算を行い、和（S）と桁上げ（C）を出力する回路を何というか。",
+            options: ["全加算回路", "減算回路", "乗算回路", "半加算回路", "比較回路"],
+            answer: 3,
+            explanation: "半加算回路（Half Adder）は、2つの1ビットの数を入力し、その和と桁上げの2ビットを出力します。"
+        },
+        {
+            question: "音の波において、1秒間に含まれる波の数を表す物理量は何か。",
+            options: ["周期", "振幅", "周波数", "波長", "音速"],
+            answer: 2,
+            explanation: "周波数は1秒あたりの振動の回数を示し、単位はヘルツ（Hz）です。周波数が高いと音は高く聞こえます。"
+        },
+        {
+            question: "音をデジタル化する際の最初のステップで、アナログ波形から一定の時間間隔でその値を抜き出す処理を何というか。",
+            options: ["量子化", "符号化", "標本化（サンプリング）", "AD変換", "フィルタリング"],
+            answer: 2,
+            explanation: "標本化（サンプリング）は、連続的なアナログ信号を離散的な点の集まりに変換する過程です。"
+        },
+        {
+            question: "音のデジタル化において、標本化された各点の値を、あらかじめ定められた段階値に近似する処理を何というか。",
+            options: ["量子化", "符号化", "標本化", "DA変換", "正規化"],
+            answer: 0,
+            explanation: "量子化は、標本化で得られた値を、有限個の段階値のいずれかに割り当てる処理です。この段階の細かさを量子化ビット数で表します。"
+        },
+        {
+            question: "音のデジタル化の最後のステップで、量子化された値を2進数のデータに変換する処理を何というか。",
+            options: ["量子化", "符号化", "標本化", "変調", "圧縮"],
+            answer: 1,
+            explanation: "符号化は、量子化によって得られた段階値を、0と1のビット列に変換する処理です。"
+        },
+        {
+            question: "音楽CDで採用されている標本化周波数は、およそ何Hzか。",
+            options: ["8,000 Hz", "16,000 Hz", "22,050 Hz", "44,100 Hz", "96,000 Hz"],
+            answer: 3,
+            explanation: "音楽CDの音質は、標本化周波数44.1kHz（44,100Hz）、量子化ビット数16ビットで規格化されています。"
+        },
+        {
+            question: "元の波形を正しく復元するためには、元の波形の最も高い周波数の「何倍」より大きい周波数で標本化する必要があるか。",
+            options: ["同じ", "半分", "2倍", "4倍", "10倍"],
+            answer: 2,
+            explanation: "これは標本化定理として知られており、元の信号に含まれる最大周波数の2倍以上の周波数で標本化すれば、元の信号を完全に復元できるとされています。"
+        },
+        {
+            question: "ディスプレイなどを構成する、画像の最小単位を何というか。",
+            options: ["ドット", "セル", "画素（ピクセル）", "バイト", "ポイント"],
+            answer: 2,
+            explanation: "画素（ピクセル）は、デジタル画像を構成する最小の点であり、通常は特定の色情報を持っています。"
+        },
+        {
+            question: "光の三原色として正しい組み合わせはどれか。",
+            options: ["赤・黄・青", "赤・緑・青", "シアン・マゼンタ・黄", "黒・白・灰色", "オレンジ・緑・紫"],
+            answer: 1,
+            explanation: "光の三原色は赤（Red）、緑（Green）、青（Blue）で、これらを混ぜ合わせると白に近づきます（加法混色）。ディスプレイはこの原理を利用しています。"
+        },
+        {
+            question: "色の三原色として正しい組み合わせはどれか。",
+            options: ["赤・黄・青", "赤・緑・青", "シアン・マゼンタ・黄", "黒・白・灰色", "オレンジ・緑・紫"],
+            answer: 2,
+            explanation: "色の三原色はシアン（Cyan）、マゼンタ（Magenta）、黄（Yellow）で、これらを混ぜ合わせると黒に近づきます（減法混色）。プリンタのインクはこの原理を利用しています。"
+        },
+        {
+            question: "画像のきめ細かさを示す尺度で、画素の密度を表すものを何というか。",
+            options: ["階調", "色深度", "解像度", "アスペクト比", "コントラスト"],
+            answer: 2,
+            explanation: "解像度は、画像の鮮明さを示す指標です。一般的に、横の画素数×縦の画素数や、ppi（pixels per inch）などの単位で表されます。"
+        },
+        {
+            question: "1画素の色を表現するために、何ビットの情報量を使うかを示す値を何というか。",
+            options: ["解像度", "階調（色深度）", "画素数", "データ量", "圧縮率"],
+            answer: 1,
+            explanation: "階調（色深度）は、1ピクセルが表現できる色の数のことです。例えば24ビットフルカラーでは、約1677万色を表現できます。"
+        },
+        {
+            question: "24ビットフルカラーの画像では、1画素あたり何通りの色を表現できるか。",
+            options: ["256色", "4,096色", "65,536色", "約1,677万色", "約10億色"],
+            answer: 3,
+            explanation: "24ビットは、赤・緑・青の各色に8ビットずつ割り当てます。これにより、2^24 = 16,777,216通りの色を表現できます。"
+        },
+        {
+            question: "画像を画素（ピクセル）と呼ばれる色のついた点の集まりとして表現する画像形式を何というか。",
+            options: ["ベクタ形式", "テキスト形式", "ラスタ形式", "ドロー形式", "CAD形式"],
+            answer: 2,
+            explanation: "ラスタ形式（ビットマップ形式）は、画像をピクセルの集合として表現します。写真などの複雑な画像の表現に適していますが、拡大すると画質が劣化します。"
+        },
+        {
+            question: "画像を点、線、多角形などの図形的な要素の数式情報として表現する画像形式を何というか。",
+            options: ["ベクタ形式", "ペイント形式", "ラスタ形式", "ビットマップ形式", "写真形式"],
+            answer: 0,
+            explanation: "ベクタ形式は、図形を数式で記録するため、拡大・縮小しても画質が劣化しないのが特徴です。ロゴやイラストの作成に適しています。"
+        },
+        {
+            question: "ラスタ形式の画像を拡大したときに、輪郭がギザギザに見える現象を何というか。",
+            options: ["モアレ", "ジャギー", "ノイズ", "ゴースト", "アーティファクト"],
+            answer: 1,
+            explanation: "ジャギーは、ピクセル単位で表現されるラスタ形式の画像において、斜線や曲線の部分が階段状に見えてしまう現象です。"
+        },
+        {
+            question: "コンピュータを構成する物理的な機器の総称を何というか。",
+            options: ["ソフトウェア", "ハードウェア", "OS", "アプリケーション", "ファームウェア"],
+            answer: 1,
+            explanation: "ハードウェアは、CPU、メモリ、キーボード、ディスプレイなど、コンピュータを構成する目に見える物理的な部品全体を指します。"
+        },
+        {
+            question: "コンピュータの五大装置に含まれないものはどれか。",
+            options: ["入力装置", "出力装置", "記憶装置", "演算装置", "電源装置"],
+            answer: 4,
+            explanation: "コンピュータの五大装置（五大機能）は、入力、出力、記憶（主記憶・補助記憶）、演算、制御の5つです。電源装置はこれに含まれません。"
+        },
+        {
+            question: "コンピュータの頭脳に相当し、制御と演算を行う中心的な装置は何か。",
+            options: ["メモリ", "ハードディスク", "マザーボード", "CPU", "GPU"],
+            answer: 3,
+            explanation: "CPU（中央処理装置）は、プログラムの命令を解釈・実行し、コンピュータ全体の動作を制御します。"
+        },
+        {
+            question: "CPUが直接読み書きを行う、作業用の高速な記憶装置は何か。",
+            options: ["ハードディスク (HDD)", "SSD", "主記憶装置 (メモリ)", "キャッシュメモリ", "USBメモリ"],
+            answer: 2,
+            explanation: "主記憶装置（メインメモリ）は、CPUが実行するプログラムやデータを一時的に保持する場所です。電源を切ると内容は消えます。"
+        },
+        {
+            question: "プログラムやデータを長期間保存するための記憶装置は何か。",
+            options: ["レジスタ", "キャッシュメモリ", "主記憶装置", "補助記憶装置", "演算装置"],
+            answer: 3,
+            explanation: "補助記憶装置には、ハードディスク（HDD）やSSD、USBメモリなどがあり、電源を切っても内容が消えない不揮発性が特徴です。"
+        },
+        {
+            question: "ハードウェアを制御し、応用ソフトウェアが動作するための基盤となるソフトウェアは何か。",
+            options: ["デバイスドライバ", "アプリケーションソフト", "オペレーティングシステム (OS)", "ミドルウェア", "ユーティリティソフト"],
+            answer: 2,
+            explanation: "OSは、コンピュータ全体の資源（リソース）を管理し、人間やアプリケーションがハードウェアを簡単に利用できるようにするための基本的なソフトウェアです。"
+        },
+        {
+            question: "ワープロソフトや表計算ソフトのように、特定の目的のために作られたソフトウェアを何というか。",
+            options: ["基本ソフトウェア", "応用ソフトウェア", "システムソフトウェア", "OS", "ファームウェア"],
+            answer: 1,
+            explanation: "応用ソフトウェア（アプリケーションソフト）は、OS上で動作し、文書作成やWeb閲覧など、利用者の具体的な作業を支援します。"
+        },
+        {
+            question: "OSの機能のうち、キーボードやプリンタなどの周辺機器を管理するものはどれか。",
+            options: ["タスク管理", "メモリ管理", "ファイル管理", "入出力管理", "ユーザ管理"],
+            answer: 3,
+            explanation: "入出力管理は、デバイスドライバを介して様々な周辺機器とのデータのやり取りを制御するOSの重要な機能です。"
+        },
+        {
+            question: "CPUと主記憶装置の間に置かれ、両者の速度差を埋めるための小容量で非常に高速なメモリを何というか。",
+            options: ["レジスタ", "仮想メモリ", "補助記憶装置", "キャッシュメモリ", "ROM"],
+            answer: 3,
+            explanation: "キャッシュメモリは、よく使うデータを一時的に保持しておくことで、CPUが低速な主記憶装置へアクセスする回数を減らし、処理速度を向上させます。"
+        },
+        {
+            question: "キャッシュメモリに必要なデータが存在する確率を何というか。",
+            options: ["ヒット率", "転送率", "アクセス率", "応答率", "稼働率"],
+            answer: 0,
+            explanation: "ヒット率が高いほど、CPUは高速なキャッシュメモリからデータを読み出せるため、コンピュータ全体の処理性能が向上します。"
+        },
+        {
+            question: "CPU内部にあって、次に実行すべき命令が格納されている主記憶装置のアドレスを保持するものは何か。",
+            options: ["命令レジスタ", "データレジスタ", "アキュムレータ", "プログラムカウンタ", "汎用レジスタ"],
+            answer: 3,
+            explanation: "プログラムカウンタは、命令が一つ実行されるごとに、次の命令のアドレスを指すように更新され、プログラムの逐次実行を制御します。"
+        },
+        {
+            question: "CPUの性能指標の一つで、1秒間に発生するクロック信号の回数を表すものは何か。",
+            options: ["MIPS", "FLOPS", "クロック周波数", "ビット数", "コア数"],
+            answer: 2,
+            explanation: "クロック周波数はHz（ヘルツ）で表され、この数値が高いほど、一般的にCPUの処理速度は速くなります。"
+        },
+        {
+            question: "1GHzのクロック周波数で動作するCPUは、1秒間に何回クロック信号を発生させるか。",
+            options: ["100万回", "1000万回", "1億回", "10億回", "1兆回"],
+            answer: 3,
+            explanation: "接頭辞「G（ギガ）」は10の9乗、つまり10億を意味します。したがって、1GHzは1秒間に10億回の振動（クロック）があることを示します。"
+        },
+        {
+            question: "コンピュータで小数計算を行う際に、表現できる桁数に限りがあるために生じる誤差を何というか。",
+            options: ["システムエラー", "バグ", "論理エラー", "演算誤差", "構文エラー"],
+            answer: 3,
+            explanation: "コンピュータは2進法で数値を扱うため、10進法の0.1のような単純な小数でも、2進法では無限小数となり、途中で丸める必要があります。この際に生じるのが丸め誤差などの演算誤差です。"
+        },
+        {
+            question: "データのもつ情報を保ったまま、ファイルサイズを小さくする処理を何というか。",
+            options: ["暗号化", "符号化", "圧縮", "伸張", "最適化"],
+            answer: 2,
+            explanation: "圧縮は、データの冗長性をなくすことでファイルサイズを小さくし、保存容量の節約や転送時間の短縮に役立ちます。"
+        },
+        {
+            question: "圧縮したデータを完全にもとのデータに戻すことができる圧縮方式はどれか。",
+            options: ["非可逆圧縮", "可逆圧縮", "ロスレス圧縮", "ロッシー圧縮", "差分圧縮"],
+            answer: 1,
+            explanation: "可逆圧縮は、データを完全に復元できるため、プログラムや文書ファイルなど、1ビットの変化も許されないデータの圧縮に用いられます。「ロスレス圧縮」も同じ意味です。"
+        },
+        {
+            question: "圧縮すると、もとのデータに完全には戻せないが、高い圧縮率が得られる圧縮方式はどれか。",
+            options: ["非可逆圧縮", "可逆圧縮", "ロスレス圧縮", "ZIP形式", "LZH形式"],
+            answer: 0,
+            explanation: "非可逆圧縮は、人間が知覚しにくい部分のデータを間引くことで高い圧縮率を実現します。画像（JPEG）や音声（MP3, AAC）データの圧縮に用いられます。「ロッシー圧縮」も同じ意味です。"
+        },
+        {
+            question: "静止画像の非可逆圧縮形式として、デジタルカメラなどで広く利用されているものはどれか。",
+            options: ["GIF", "PNG", "BMP", "JPEG", "TIFF"],
+            answer: 3,
+            explanation: "JPEGは、フルカラーの写真を効率よく圧縮できるため、Webやデジタルカメラで標準的に使用されています。"
+        },
+        {
+            question: "「AAAAABBC」というデータを「A5B2C1」のように、連続するデータの個数で表現する圧縮方法はどれか。",
+            options: ["ハフマン符号化", "LZ圧縮", "ランレングス圧縮", "差分圧縮", "算術符号"],
+            answer: 2,
+            explanation: "ランレングス圧縮は、同じデータが連続して出現する場合に非常に効果的な、単純な可逆圧縮アルゴリズムです。"
+        },
+        {
+            question: "10進数の0.5を2進数で表現したものはどれか。",
+            options: ["0.1", "0.01", "0.11", "0.5", "変換できない"],
+            answer: 0,
+            explanation: "小数第一位は2の-1乗（=0.5）の位なので、0.5(10)は0.1(2)となります。"
+        },
+        {
+            question: "1KB（キロバイト）は何バイトか。コンピュータの分野における一般的な定義はどれか。",
+            options: ["100 B", "1000 B", "1024 B", "2048 B", "8000 B"],
+            answer: 2,
+            explanation: "コンピュータは2進数を基本とするため、情報量の単位ではキロ(K)は1000ではなく2^10=1024として扱われます。"
+        },
+        {
+            question: "デジタルデータの特徴として、誤っているものはどれか。",
+            options: ["ノイズの影響を受けにくい", "コピーを繰り返しても品質が劣化しない", "データの加工や編集が容易である", "完全に元のアナログ情報を表現できる", "文字、音声、画像などを統一的に扱える"],
+            answer: 3,
+            explanation: "デジタル化（AD変換）の際、標本化や量子化によって元のアナログ情報の一部は失われます（変換誤差）。そのため、完全に元通りに表現できるわけではありません。"
+        },
+        {
+            question: "音のデジタル化において、音質を向上させるための方法として適切なものはどれか。",
+            options: ["標本化周波数を低くし、量子化ビット数を減らす", "標本化周波数を高くし、量子化ビット数を増やす", "標本化周波数を高くし、量子化ビット数を減らす", "標本化周波数を低くし、量子化ビット数を増やす", "圧縮率を高くする"],
+            answer: 1,
+            explanation: "標本化周波数を高くすると時間的により細かく、量子化ビット数を増やすと音の大小をより細かく表現できるため、元のアナログ波形に近くなり音質が向上します。"
+        },
+        {
+            question: "画像のデジタル化において、画質を向上させるための方法として適切なものはどれか。",
+            options: ["解像度を低くし、階調を少なくする", "解像度を高くし、階調を多くする", "解像度を高くし、階調を少なくする", "解像度を低くし、階調を多くする", "ファイルサイズを小さくする"],
+            answer: 1,
+            explanation: "解像度を高くするとよりきめ細かく、階調を多くするとより豊かな色を表現できるため、画質が向上します。"
+        },
+        {
+            question: "CPUが行う処理の基本的なサイクルは、「命令の取り出し」「解読」と、あと一つは何か。",
+            options: ["保存", "実行", "入力", "出力", "待機"],
+            answer: 1,
+            explanation: "CPUは、主記憶から命令を取り出し（フェッチ）、それを解読（デコード）し、そして実行（エグゼキュート）するというサイクルを高速で繰り返しています。"
+        },
+        {
+            question: "1つのCPUの中に、演算や制御を行う中心部分（コア）を複数搭載したCPUを何というか。",
+            options: ["シングルコアCPU", "マルチコアCPU", "スーパーコンピュータ", "GPU", "SoC"],
+            answer: 1,
+            explanation: "マルチコアCPUは、複数のコアで処理を並列実行することにより、コンピュータ全体の性能を向上させます。2つならデュアルコア、4つならクアッドコアと呼びます。"
+        },
+        {
+            question: "2進数1101と0101の論理積（AND）をとった結果はどれか。",
+            options: ["1101", "0101", "1100", "0100", "1001"],
+            answer: 1,
+            explanation: "各桁でANDをとります。1と1→1, 1と0→0, 0と1→0, 1と1→1。よって0101となります。"
+        },
+        {
+            question: "2進数1100と0110の論理和（OR）をとった結果はどれか。",
+            options: ["1100", "0110", "1110", "1000", "0000"],
+            answer: 2,
+            explanation: "各桁でORをとります。1か0→1, 1か1→1, 0か1→1, 0か0→0。よって1110となります。"
+        },
+        {
+            question: "4ビットの2進数1011の否定（NOT）をとった結果はどれか。",
+            options: ["0100", "1011", "0101", "1010", "0011"],
+            answer: 0,
+            explanation: "各ビットを反転させます。1は0に、0は1になるので、1011のNOTは0100となります。"
+        },
+        {
+            question: "1ピクセルを赤・緑・青の各8ビットで表現する24ビットフルカラーで、解像度が640×480ピクセルの非圧縮画像のデータ量はおよそ何KBか。",
+            options: ["約300 KB", "約600 KB", "約900 KB", "約1.2 MB", "約2.4 MB"],
+            answer: 2,
+            explanation: "データ量 = 640 * 480 * 24ビット。バイトに直すと 640 * 480 * 3バイト = 921,600バイト。KBに直すと 921,600 / 1024 ≒ 900KB となります。"
+        },
+        {
+            question: "モノラル音声を、標本化周波数8kHz、量子化ビット数8ビットで10秒間録音したときの、非圧縮のデータ量はおよそ何KBか。",
+            options: ["8 KB", "10 KB", "64 KB", "80 KB", "640 KB"],
+            answer: 3,
+            explanation: "データ量 = 8,000(Hz) * 8(bit) * 10(秒) = 640,000ビット。バイトに直すと 640,000 / 8 = 80,000バイト。KBに直すと 80,000 / 1000 ≒ 80KB となります。（1024で割っても近い値）"
+        },
+        {
+            question: "コンピュータの五大装置のうち、主記憶装置と補助記憶装置が分類されるものはどれか。",
+            options: ["入力装置", "出力装置", "記憶装置", "演算装置", "制御装置"],
+            answer: 2,
+            explanation: "記憶装置は、CPUが直接アクセスする主記憶装置と、データを長期保存する補助記憶装置に大別されます。"
+        },
+        {
+            question: "OSの機能で、複数のプログラム（タスク）の実行順序を管理したり、CPUの使用時間を割り当てたりする機能を何というか。",
+            options: ["メモリ管理", "ファイル管理", "タスク管理", "ユーザ管理", "ジョブ管理"],
+            answer: 2,
+            explanation: "タスク管理により、複数のアプリケーションを同時に実行しているように見せかける（マルチタスク）ことが可能になります。"
+        },
+        {
+            question: "2進数の小数 0.101(2) を10進数で表したものはどれか。",
+            options: ["0.5", "0.625", "0.75", "0.875", "0.101"],
+            answer: 1,
+            explanation: "0.101(2) = 1*2^-1 + 0*2^-2 + 1*2^-3 = 0.5 + 0 + 0.125 = 0.625 となります。"
+        },
+        {
+            question: "10進数 255 を16進数で表したものはどれか。",
+            options: ["99", "AA", "EE", "FF", "100"],
+            answer: 3,
+            explanation: "255 ÷ 16 = 15 余り 15。商も余りも15なので、16進数ではFFとなります。"
+        },
+        {
+            question: "2進数 10000000 を10進数で表したものはどれか。",
+            options: ["64", "100", "128", "255", "256"],
+            answer: 2,
+            explanation: "これは2の7乗の位が1なので、1 * 2^7 = 128 となります。"
+        },
+        {
+            question: "1TB（テラバイト）は、およそ何GB（ギガバイト）か。",
+            options: ["100 GB", "128 GB", "512 GB", "1000 GB", "1024 GB"],
+            answer: 4,
+            explanation: "情報量の単位では、T(テラ) = 1024 G(ギガ) の関係になります。"
+        },
+        {
+            question: "ペイント系ソフトウェアで作成した画像のファイル形式として一般的なものはどれか。",
+            options: ["SVG", "AI", "EPS", "PNG", "DOCX"],
+            answer: 3,
+            explanation: "PNGはラスタ形式の画像フォーマットで、可逆圧縮に対応しており、Webで広く使われています。他にJPEG, GIF, BMPなどもペイント系で扱われます。"
+        },
+        {
+            question: "ドロー系ソフトウェアで作成した画像のファイル形式として一般的なものはどれか。",
+            options: ["JPEG", "GIF", "BMP", "SVG", "MP3"],
+            answer: 3,
+            explanation: "SVG (Scalable Vector Graphics) はベクタ形式の画像フォーマットで、XMLベースで記述され、Webで広く利用されています。"
+        },
+        {
+            question: "キャッシュメモリのアクセス時間が10ナノ秒、主記憶装置のアクセス時間が90ナノ秒、ヒット率が90%のとき、実行アクセス時間は何ナノ秒か。",
+            options: ["10ナノ秒", "18ナノ秒", "81ナノ秒", "90ナノ秒", "100ナノ秒"],
+            answer: 1,
+            explanation: "実行アクセス時間 = 10 * 0.9 + 90 * (1 - 0.9) = 9 + 90 * 0.1 = 9 + 9 = 18ナノ秒となります。"
+        },
+        {
+            question: "音声や画像のデータを圧縮する際、人間の知覚しにくい部分の情報を削除することで高い圧縮率を得る。この考え方を利用しているのはどちらか。",
+            options: ["可逆圧縮", "非可逆圧縮", "どちらも利用している", "どちらも利用していない", "圧縮方式とは無関係である"],
+            answer: 1,
+            explanation: "非可逆圧縮は、人間の視聴覚特性を利用して、知覚に影響の少ない情報を積極的に削減することで、ファイルサイズを大幅に小さくします。"
+        },
+        {
+            question: "動画データにおいて、前のフレーム（コマ）との差がある部分だけを記録していく圧縮方法を何というか。",
+            options: ["フレーム内圧縮", "フレーム間圧縮", "ランレングス圧縮", "ハフマン圧縮", "周波数変換"],
+            answer: 1,
+            explanation: "フレーム間圧縮（差分圧縮）は、動きの少ない動画で非常に効果的です。MPEGなどの動画圧縮規格で中心的な役割を果たしています。"
+        },
+        {
+            question: "コンピュータの動作クロックが2.5GHzで、1命令の実行に平均で2クロック必要とするとき、このCPUの性能は何MIPSか。",
+            options: ["1,000 MIPS", "1,250 MIPS", "2,500 MIPS", "5,000 MIPS", "2.5 MIPS"],
+            answer: 1,
+            explanation: "1秒間に実行できる命令数 = 2.5 * 10^9 [クロック/秒] / 2 [クロック/命令] = 1.25 * 10^9 [命令/秒] = 1,250 * 10^6 [命令/秒]。よって1,250 MIPSとなります。"
+        },
+        {
+            question: "2進数の減算 1010 - 0111 を、4ビットの2の補数を用いた加算で実行する場合、1010に加えるべき値はどれか。",
+            options: ["0111", "1000", "1001", "0110", "1111"],
+            answer: 2,
+            explanation: "引く数である0111の2の補数を求めます。ビット反転で1000、それに1を加えて1001。したがって、1010 + 1001 を計算します。"
+        },
+        {
+            question: "ハードウェアと応用ソフトウェアの間に位置し、両者の橋渡しをするためのプログラムを何というか。",
+            options: ["OS", "コンパイラ", "API", "デバイスドライバ", "ライブラリ"],
+            answer: 3,
+            explanation: "デバイスドライバは、OSが特定のハードウェア（プリンタやマウスなど）を制御するための専用のソフトウェアです。"
+        },
+        {
+            question: "10進数で「-1」を8ビットの2の補数で表現したものはどれか。",
+            options: ["10000001", "01111111", "11111110", "11111111", "00000001"],
+            answer: 3,
+            explanation: "正の数「1」は00000001。ビット反転で11111110。1を加えて11111111となります。"
+        },
+        {
+            question: "文字コードUTF-8の特徴として正しいものはどれか。",
+            options: ["全ての文字を1バイトで表現する", "全ての文字を2バイトで表現する", "ASCIIコードとの互換性がない", "1文字を1～6バイトの可変長で表現する", "日本語しか表現できない"],
+            answer: 3,
+            explanation: "UTF-8は、文字によって使用するバイト数が変わる可変長エンコーディングです。ASCII文字は1バイトで表現できるため、互換性が高いという利点があります。"
+        },
+        {
+            question: "全加算回路（Full Adder）が持つ入力の数はいくつか。",
+            options: ["1つ", "2つ", "3つ", "4つ", "出力の数による"],
+            answer: 2,
+            explanation: "全加算回路は、加算する2つのビット（A, B）と、下の桁からの桁上がり（Cin）の合計3つを入力として受け取ります。"
+        },
+        {
+            question: "24ビットのビットマップ画像は、一般的に何と呼ばれるか。",
+            options: ["モノクロ2階調", "256色カラー", "ハイカラー", "フルカラー", "ディープカラー"],
+            answer: 3,
+            explanation: "24ビット（約1677万色）で表現される色は、人間の目で識別できる色をほぼ網羅しているため、フルカラーまたはトゥルーカラーと呼ばれます。"
+        }
+    ];
+
+
+
+    // --- DOM要素の取得 ---
+    const startScreen = document.getElementById('start-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const resultScreen = document.getElementById('result-screen');
+    
+    const startBtn = document.getElementById('start-btn');
+    const questionNumberEl = document.getElementById('question-number');
+    const questionTextEl = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const feedbackContainer = document.getElementById('feedback-container');
+    const feedbackResultEl = document.getElementById('feedback-result');
+    const explanationEl = document.getElementById('explanation');
+    const explanationTextEl = document.getElementById('explanation-text');
+    const nextBtn = document.getElementById('next-btn');
+    const restartBtn = document.getElementById('restart-btn');
+    const scoreEl = document.getElementById('score');
+    const resultMessageEl = document.getElementById('result-message');
+    const progressBar = document.getElementById('progress-bar');
+
+
+    // --- 変数定義 ---
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let shuffledQuizData = [];
+
+    // --- イベントリスナー ---
+    startBtn.addEventListener('click', startQuiz);
+    nextBtn.addEventListener('click', nextQuestion);
+    restartBtn.addEventListener('click', startQuiz);
+
+    // --- 関数定義 ---
+
+    // クイズを開始する関数
+    function startQuiz() {
+        startScreen.classList.add('hidden');
+        resultScreen.classList.add('hidden');
+        quizScreen.classList.remove('hidden');
+        
+        currentQuestionIndex = 0;
+        score = 0;
+        // クイズデータをシャッフルして毎回違う順序で出題
+        shuffledQuizData = [...quizData].sort(() => Math.random() - 0.5);
+        displayQuestion();
+    }
+
+    // 問題を表示する関数
+    function displayQuestion() {
+        resetState();
+        const currentQuestion = shuffledQuizData[currentQuestionIndex];
+        questionNumberEl.textContent = currentQuestionIndex + 1;
+        questionTextEl.innerHTML = `Q${currentQuestionIndex + 1}. ${currentQuestion.question}`;
+        
+        currentQuestion.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.innerHTML = `<span class="bg-blue-100 text-blue-800 font-bold rounded-full w-8 h-8 flex items-center justify-center mr-4">${index + 1}</span> ${option}`;
+            button.classList.add('option-btn', 'w-full', 'p-4', 'text-left', 'bg-white', 'border-2', 'border-gray-300', 'rounded-lg', 'flex', 'items-center', 'text-lg');
+            button.dataset.index = index;
+            button.addEventListener('click', selectAnswer);
+            optionsContainer.appendChild(button);
+        });
+
+        updateProgressBar();
+    }
+    
+    // 状態をリセットする関数
+    function resetState() {
+        feedbackContainer.classList.add('hidden');
+        nextBtn.classList.add('hidden');
+        while (optionsContainer.firstChild) {
+            optionsContainer.removeChild(optionsContainer.firstChild);
+        }
+    }
+
+    // 回答を選択した時の処理
+    function selectAnswer(e) {
+        const selectedBtn = e.currentTarget;
+        const selectedIndex = parseInt(selectedBtn.dataset.index);
+        const correctIndex = shuffledQuizData[currentQuestionIndex].answer;
+
+        if (selectedIndex === correctIndex) {
+            feedbackResultEl.textContent = "正解！";
+            feedbackResultEl.className = "text-2xl font-bold mb-4 text-green-600";
+            score++;
+        } else {
+            feedbackResultEl.textContent = "不正解...";
+            feedbackResultEl.className = "text-2xl font-bold mb-4 text-red-600";
+        }
+        
+        explanationTextEl.textContent = shuffledQuizData[currentQuestionIndex].explanation;
+        feedbackContainer.classList.remove('hidden');
+
+        // 全てのボタンの状態を更新
+        Array.from(optionsContainer.children).forEach(button => {
+            const btnIndex = parseInt(button.dataset.index);
+            if (btnIndex === correctIndex) {
+                button.classList.add('correct');
+            } else if (btnIndex === selectedIndex) {
+                button.classList.add('incorrect');
+            }
+            button.disabled = true;
+        });
+
+        if (shuffledQuizData.length > currentQuestionIndex + 1) {
+            nextBtn.textContent = "次の問題へ";
+            nextBtn.classList.remove('hidden');
+        } else {
+            nextBtn.textContent = "結果を見る";
+            nextBtn.classList.remove('hidden');
+        }
+    }
+    
+    // 次の問題へ進む、または結果を表示する
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < shuffledQuizData.length) {
+            displayQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    // 結果を表示する関数
+    function showResult() {
+        quizScreen.classList.add('hidden');
+        resultScreen.classList.remove('hidden');
+        scoreEl.textContent = score;
+        
+        let message = "";
+        if (score >= 95) {
+            message = "素晴らしい！完璧です。デジタルマスターですね！";
+        } else if (score >= 80) {
+            message = "高得点！素晴らしい理解度です。この調子で頑張りましょう。";
+        } else if (score >= 60) {
+            message = "合格ラインです。苦手な部分を解説で復習しましょう。";
+        } else if (score >= 40) {
+            message = "もう少しです。間違えた問題を中心に、もう一度挑戦してみましょう。";
+        } else {
+            message = "基礎からもう一度復習が必要です。繰り返し学習が力になります。";
+        }
+        resultMessageEl.textContent = message;
+    }
+
+    // プログレスバーを更新する関数
+    function updateProgressBar() {
+        const progressPercentage = ((currentQuestionIndex + 1) / shuffledQuizData.length) * 100;
+        progressBar.style.width = `${progressPercentage}%`;
+    }
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- タスクバーに表示するタイトル-->
+    <title>【実習】NoteBookLM活用</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="/common/theme.css">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+    </style>
+</head>
+<!-- bodyタグのクラスはJSで動的に付与されるため、空にしておく -->
+<body class="bg-[var(--bg-color)] overflow-x-hidden">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- 左サイドバー: 中身はJSで自動生成される -->
+        <aside id="sidebar-container" class="w-full md:w-1/3 lg:w-1/4 p-6 bg-white/60 backdrop-blur-sm border-r border-black/10" data-aos="fade-right" data-aos-duration="900">
+            <!-- ここにsidebar.jsから記事一覧が挿入されます -->
+        </aside>
+
+        <!--記事の本文をここに記述 -->
+        <main class="w-full md:w-2/3 lg:w-3/4 p-8 md:p-12" data-aos="fade-up" data-aos-duration="900" data-aos-delay="200">
+            <div class="prose prose-lg max-w-4xl text-[var(--text-color)] prose-headings:text-[var(--text-color)] prose-p:text-[var(--text-color)] prose-strong:text-[var(--text-color)] prose-a:text-[var(--theme-color)] prose-ul:text-[var(--text-color)] prose-li:text-[var(--text-color)]">
+                
+                <!-- Title -->
+                <h1 class="text-4xl md:text-4xl font-bold pb-4 mb-8 border-b border-[var(--theme-color)]/30">【実習】NoteBookLM活用</h1>
+                <p class="text-base text-[var(--text-color)] opacity-70 mt-4 mb-8">公開日: 2025-07-25</p>
+    <div class="container mx-auto max-w-4xl p-4 sm:p-8">
+        <header class="bg-indigo-600 text-white p-6 rounded-lg shadow-lg text-center mb-8">
+            <h1 class="text-3xl font-bold">【研修用】NotebookLM 活用マニュアル</h1>
+            <p class="mt-2">あなた専用のAIリサーチアシスタントを使いこなそう！</p>
+        </header>
+
+        <main class="bg-white p-6 sm:p-8 rounded-lg shadow-md">
+
+            <!-- 1. はじめに -->
+            <section id="intro" class="mb-12">
+                <h2 class="text-2xl font-bold border-b-2 border-indigo-800 pb-2 mb-4 text-indigo-800">1. NotebookLMとは？</h2>
+                <p class="text-gray-700 leading-relaxed">
+                    NotebookLMは、Googleが開発したAI搭載のノートツールです。最大の特徴は、あなたがアップロードした資料（ソース）の内容だけを元に、質問への回答、要約、アイデア出しなどを行ってくれる点です。<br>
+                    インターネット上の不確かな情報ではなく、信頼できるあなたの資料に基づいてAIが働くため、研究、学習、仕事の資料作成などで絶大な効果を発揮します。
+                </p>
+            </section>
+
+            <!-- 2. ソースの準備 -->
+            <section id="source" class="mb-12">
+                <h2 class="text-2xl font-bold border-b-2 border-indigo-800 pb-2 mb-4 text-indigo-800">2. 実践①：NotebookLMに資料を読み込ませる</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    まず、NotebookLMに分析してほしい資料（ソース）を指定します。今回は例として、お住まいの自治体の公式サイトや広報誌をソースにしてみましょう。
+                </p>
+                <div class="prompt-box">
+                    <h3 class="prompt-title text-indigo-800">「ソースを追加」でWebサイトのURLなどを追加</h3>
+                    <p class="text-sm text-gray-600 mb-2">例えば、Google検索で以下のように検索し、見つかった公式サイトのURLやPDFをソースとして追加します。（「東大阪市」の部分はお住まいの市町村名に変えてください）</p>
+                    <pre class="whitespace-pre-wrap text-gray-800 bg-white p-3 rounded"><code>- 東大阪市が提供する2025年8月の市政だより
+- 8月市政だよりに掲載の教育，福祉，医療，文化行事などのイベントやサービス
+- リチウムイオンバッテリー，モバイルバッテリーの回収ボックスの設置場所
+- 東大阪市政のサイト全体の情報</code></pre>
+                </div>
+                <div class="tip-box">
+                    <p class="font-semibold text-indigo-800">💡 いろいろな資料をソースにできます</p>
+                    <ul class="list-disc list-inside text-sm text-gray-700 mt-1 space-y-1">
+                        <li>PDFファイル</li>
+                        <li>Googleドキュメント</li>
+                        <li>WebサイトのURL</li>
+                        <li>コピーしたテキスト</li>
+                        <li>（音声ファイルからの文字起こしにも対応）</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <!-- 3. 具体的な質問をしてみる -->
+            <section id="questions" class="mb-12">
+                <h2 class="text-2xl font-bold border-b-2 border-indigo-800 pb-2 mb-4 text-indigo-800">3. 実践②：ソースに基づいて質問する</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    ソースの準備ができたら、それらの情報に関する質問をしてみましょう。まるでその資料をすべて読み込んだ専門家と対話するように、的確な答えが返ってきます。
+                </p>
+
+                <div class="prompt-box mb-6">
+                    <h3 class="prompt-title text-indigo-800">質問例１：家族のイベント探し</h3>
+                    <button class="copy-btn text-indigo-800" onclick="copyPrompt(this)">コピー</button>
+                    <pre class="whitespace-pre-wrap text-gray-800"><code>我が家には小学生の2人を含む4人家族です。夏から秋にかけて、家族で楽しめるイベントを紹介して</code></pre>
+                </div>
+
+                <div class="prompt-box mb-6">
+                    <h3 class="prompt-title text-indigo-800">質問例２：シニアのボランティア活動</h3>
+                    <button class="copy-btn text-indigo-800" onclick="copyPrompt(this)">コピー</button>
+                    <pre class="whitespace-pre-wrap text-gray-800"><code>私は71歳の男性です。ITやAIに関して指導するボランティア活動をしたいのですが、どうすれば実現しますか</code></pre>
+                </div>
+                
+                <div class="prompt-box mb-6">
+                    <h3 class="prompt-title text-indigo-800">質問例３：子育てに関する相談</h3>
+                    <button class="copy-btn text-indigo-800" onclick="copyPrompt(this)">コピー</button>
+                    <pre class="whitespace-pre-wrap text-gray-800"><code>私は来年の1月に出産します。2026年の9月から子供を保育所に預けたいのですが、どのように相談するとよいでしょうか</code></pre>
+                </div>
+
+                <div class="prompt-box">
+                    <h3 class="prompt-title text-indigo-800">質問例４：具体的な情報をリストアップ</h3>
+                    <button class="copy-btn text-indigo-800" onclick="copyPrompt(this)">コピー</button>
+                    <pre class="whitespace-pre-wrap text-gray-800"><code>モバイルバッテリーの回収ボックスの設置場所を一覧でお願いします</code></pre>
+                </div>
+            </section>
+
+            <!-- 4. 応用的な使い方 -->
+            <section id="advanced">
+                <h2 class="text-2xl font-bold border-b-2 border-indigo-800 pb-2 mb-4 text-indigo-800">4. 発展：NotebookLMの独創的な活用法</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    NotebookLMの可能性は、単なる情報検索にとどまりません。アイデア次第で、様々な知的生産活動のパートナーになります。
+                </p>
+                <div class="tip-box">
+                    <p class="font-semibold text-indigo-800">💡 こんなことにも役立ちます！</p>
+                     <ul class="list-disc list-inside text-sm text-gray-700 mt-1 space-y-1">
+                        <li>会議の音声データを文字起こしし、要約や議事録を作成する。</li>
+                        <li>YouTube動画のURLをソースにして、内容の要約や解説ノートを作る。</li>
+                        <li>会社の規約やマニュアルを読み込ませ、新入社員向けのQ&Aボットとして活用する。</li>
+                        <li>歴史上の人物（例：吉田松陰）に関するWebサイトや文献をソースにし、その人物になりきって相談に乗ってもらう。</li>
+                    </ul>
+                    <p class="text-sm text-gray-700 mt-2">
+                        このように、NotebookLMはあなたの知識や情報を拡張し、新しい視点を与えてくれる強力なツールです。ぜひ色々な使い方を試してみてください。
+                    </p>
+                </div>
+            </section>
+
+        </main>
+
+    </div>
+
+    <script>
+        function copyPrompt(button) {
+            const pre = button.parentElement.querySelector('pre');
+            const textToCopy = pre.innerText;
+            
+            const textArea = document.createElement('textarea');
+            textArea.value = textToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                button.innerText = 'コピー完了！';
+                setTimeout(() => {
+                    button.innerText = 'コピー';
+                }, 2000);
+            } catch (err) {
+                console.error('コピーに失敗しました', err);
+                button.innerText = '失敗';
+            }
+            document.body.removeChild(textArea);
+        }
+    </script>
+            </div>
+            <footer class="text-left text-slate-400 mt-12">
+                <p>&copy; 2025 Aitarch. All Rights Reserved.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- 記事リストを生成するJSファイルを読み込む -->
+    <script src="../../sidebar.js"></script>
+    <script>
+        // AOSを初期化
+        AOS.init({ once: true });
+
+        //ここに記事のディレクトリを入れる
+        generateSidebar('ai-life', '/ai-life/article/5.html');
+    </script>
+</body>
+</html>

@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>「問題解決分野」ドリル100問</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', 'Inter', sans-serif;
+        }
+        .quiz-container {
+            max-width: 800px;
+            margin: 2rem auto;
+        }
+        .option-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .correct {
+            background-color: #d1fae5 !important;
+            border-color: #10b981 !important;
+        }
+        .incorrect {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+        }
+        .explanation {
+            border-left: 4px solid #60a5fa;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="quiz-container p-4 sm:p-6 md:p-8">
+        <div id="start-screen" class="text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold text-blue-600 mb-4">問題解決分野 ドリル100問</h1>
+            <h2 class="text-xl sm:text-2xl font-semibold mb-8">共通テスト対策 ドリル100問</h2>
+            <p class="mb-8 text-gray-600">提供された資料に基づいて作成された100問のクイズです。<br>準備ができたら下のボタンを押して開始してください。</p>
+            <button id="start-btn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105">
+                クイズを開始
+            </button>
+        </div>
+
+        <div id="quiz-screen" class="hidden">
+            <div class="bg-white p-6 rounded-xl shadow-md mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-blue-700">問題 <span id="question-number"></span>/100</h2>
+                    <div id="progress-bar-container" class="w-1/2 bg-gray-200 rounded-full h-2.5">
+                        <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+                <p id="question-text" class="text-lg leading-relaxed"></p>
+            </div>
+
+            <div id="options-container" class="grid grid-cols-1 gap-4">
+                <!-- Option buttons will be generated here by JS -->
+            </div>
+
+            <div id="feedback-container" class="hidden mt-6">
+                <div id="feedback-result" class="text-2xl font-bold mb-4"></div>
+                <div id="explanation" class="bg-blue-50 p-4 rounded-lg explanation">
+                    <h3 class="font-bold text-lg mb-2 text-blue-800">解説</h3>
+                    <p id="explanation-text" class="text-gray-700"></p>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <button id="next-btn" class="bg-gray-800 text-white font-bold py-3 px-12 rounded-lg shadow-lg hover:bg-gray-900 transition-transform transform hover:scale-105 hidden">
+                    次の問題へ
+                </button>
+            </div>
+        </div>
+
+        <div id="result-screen" class="hidden text-center bg-white p-8 rounded-xl shadow-lg">
+            <h2 class="text-3xl font-bold text-blue-600 mb-4">結果発表</h2>
+            <p class="text-xl mb-6">お疲れ様でした！あなたのスコアは...</p>
+            <p class="text-6xl font-extrabold text-gray-800 mb-8"><span id="score"></span> / 100</p>
+            <p id="result-message" class="text-lg font-medium mb-8"></p>
+            <button id="restart-btn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105">
+                もう一度挑戦する
+            </button>
+        </div>
+    </div>
+
+<script>
+    // --- Quiz Data ---
+    const quizData = [
+        {
+            question: "広く多くの人が利用できるように公開されたデータを何というか。",
+            options: ["クローズドデータ", "オープンデータ", "ビッグデータ", "CSVデータ", "XMLデータ"],
+            answer: 1,
+            explanation: "オープンデータは、国や地方公共団体、事業者などが保有する公共性の高いデータを、誰もが利用しやすい形で公開したものです。"
+        },
+        {
+            question: "データをカンマ（,）で区切って保存したテキストファイルの形式を何というか。",
+            options: ["XML形式", "JSON形式", "xlsx形式", "CSV形式", "HTML形式"],
+            answer: 3,
+            explanation: "CSV (Comma-Separated Values) 形式は、多くの表計算ソフトやデータベースソフトで扱うことができる汎用的なデータ形式です。"
+        },
+        {
+            question: "情報の種類を示すタグでデータを挟んで記録する、構造化されたデータ形式は何か。",
+            options: ["CSV形式", "テキスト形式", "XML形式", "JSON形式", "PDF形式"],
+            answer: 2,
+            explanation: "XML (eXtensible Markup Language) 形式は、データの意味や構造をタグを使って記述できるため、データ交換などによく利用されます。"
+        },
+        {
+            question: "複数のデータテーブルを関連付ける際に、共通の項目として使用されるものを何というか。",
+            options: ["レコード", "フィールド", "リレーションシップ", "主キー", "結合キー"],
+            answer: 4,
+            explanation: "結合キー（共通キー）を用いて、異なるテーブルのレコードを結びつけ、新しい情報を作り出すことができます。例えば「時刻」や「商品ID」などが使われます。"
+        },
+        {
+            question: "測定値のばらつきが小さい状態を何というか。",
+            options: ["正確である", "精密である", "誤差が小さい", "外れ値がない", "信頼性が高い"],
+            answer: 1,
+            explanation: "「精密さ（精度）」は、測定値のばらつきの度合いを示します。ばらつきが小さいほど精密であると言えます。"
+        },
+        {
+            question: "測定値の平均と真の値との差が小さい状態を何というか。",
+            options: ["正確である", "精密である", "誤差が小さい", "欠損値がない", "再現性が高い"],
+            answer: 0,
+            explanation: "「正確さ」は、測定値がどれだけ真の値に近いかを示します。平均値が真の値に近いほど正確であると言えます。"
+        },
+        {
+            question: "他の測定値から大きく異なった特徴を示す値を何というか。",
+            options: ["異常値", "欠損値", "誤差", "外れ値", "ノイズ"],
+            answer: 3,
+            explanation: "外れ値は、測定ミスや記録ミス、あるいは特異な事象によって発生することがあります。統計処理の際には、その原因を考慮して取り除くか判断します。"
+        },
+        {
+            question: "観測機器の故障や回答の記入漏れなどで、取得できなかったデータを何というか。",
+            options: ["異常値", "欠損値", "外れ値", "無効データ", "エラー値"],
+            answer: 1,
+            explanation: "欠損値があると正しい分析ができないため、そのレコードを削除したり、前後の値から類推して補完したりする処理が必要になります。"
+        },
+        {
+            question: "文章（テキストデータ）を単語や文節に分割し、その出現頻度や関係性を分析して有益な情報を取り出す技術を何というか。",
+            options: ["画像認識", "音声認識", "自然言語処理", "テキストマイニング", "データクレンジング"],
+            answer: 3,
+            explanation: "テキストマイニングは、アンケートの自由回答やSNSの投稿など、大量のテキストデータから顧客の意見や評判などを抽出するのに利用されます。"
+        },
+        {
+            question: "キー（Key）とバリュー（Value）のペアでデータを管理するデータベースの形式を何というか。",
+            options: ["リレーショナルデータベース", "階層型データベース", "キーバリュー型データベース", "オブジェクトデータベース", "グラフデータベース"],
+            answer: 2,
+            explanation: "キーバリュー型データベースは、構造が単純で拡張しやすいため、ビッグデータの管理などに適しています。JSON形式が代表例です。"
+        },
+        {
+            question: "表計算ソフトで、セルに入力した式を他のセルにコピーした際に、参照するセルの位置が自動的に変更される参照方式を何というか。",
+            options: ["絶対参照", "相対参照", "混合参照", "動的参照", "固定参照"],
+            answer: 1,
+            explanation: "相対参照は、数式をコピーした際に、コピー先との位置関係に応じてセル番地が自動的に変わる便利な機能です。"
+        },
+        {
+            question: "表計算ソフトで、セルをコピーしても参照するセルを固定したい場合に使用する記号は何か。",
+            options: ["#", "@", "&", "!", "$"],
+            answer: 4,
+            explanation: "絶対参照を使いたい場合は、行番号や列番号の前に`$`を付けます（例: `$A$1`）。これにより、数式をどこにコピーしても参照先が固定されます。"
+        },
+        {
+            question: "表計算ソフトで、指定した範囲の数値の合計を求める関数は何か。",
+            options: ["AVERAGE", "COUNT", "MAX", "SUM", "TOTAL"],
+            answer: 3,
+            explanation: "`=SUM(範囲)`と記述することで、指定した範囲内の数値の合計値を計算できます。"
+        },
+        {
+            question: "表計算ソフトのIF関数 `=IF(A1>80, \"合格\", \"不合格\")` で、セルA1の値が75の場合、何が表示されるか。",
+            options: ["合格", "不合格", "80", "75", "エラー"],
+            answer: 1,
+            explanation: "IF関数は、論理式が真（True）か偽（False）かで結果を分岐させます。A1(75)は80より大きくないので、偽の場合の値である「不合格」が表示されます。"
+        },
+        {
+            question: "指定した範囲の中で、ある検索条件に一致するセルの個数を数える関数は何か。",
+            options: ["COUNT", "SUM", "COUNTIF", "SUMIF", "VLOOKUP"],
+            answer: 2,
+            explanation: "`=COUNTIF(範囲, 検索条件)`は、例えば「アンケート結果の中から『はい』と答えた人の数を数える」といった場合に利用できます。"
+        },
+        {
+            question: "収集したデータを表やグラフにまとめて視覚的に表現し、特徴や傾向を把握しやすくすることを何というか。",
+            options: ["データ分析", "データ処理", "情報の可視化", "統計処理", "データマイニング"],
+            answer: 2,
+            explanation: "情報の可視化により、数値の羅列だけでは分かりにくいデータの傾向やパターン、外れ値などを直感的に理解することができます。"
+        },
+        {
+            question: "データを一定のルール（昇順、降順など）で並べ替えることを何というか。",
+            options: ["抽出", "フィルタリング", "集計", "整列（ソート）", "検索"],
+            answer: 3,
+            explanation: "データをソートすることで、最大値や最小値を見つけやすくしたり、データの傾向を把握しやすくしたりできます。"
+        },
+        {
+            question: "データの中から、特定の条件に合うものだけを取り出す操作を何というか。",
+            options: ["並べ替え", "ソート", "抽出（フィルタリング）", "集計", "結合"],
+            answer: 2,
+            explanation: "抽出（フィルタリング）機能を使うと、膨大なデータの中から必要な情報だけを表示させることができます。"
+        },
+        {
+            question: "データ全体の代表値として、すべての数値を合計してデータの個数で割った値を何というか。",
+            options: ["中央値", "最頻値", "平均値", "最大値", "合計値"],
+            answer: 2,
+            explanation: "平均値は最も一般的に使われる代表値ですが、外れ値の影響を受けやすいという特徴があります。"
+        },
+        {
+            question: "データを大きさの順に並べたときに、中央に位置する値を何というか。",
+            options: ["中央値", "最頻値", "平均値", "中間値", "代表値"],
+            answer: 0,
+            explanation: "中央値（メジアン）は、外れ値の影響を受けにくいため、データの分布に偏りがある場合に平均値よりも実態をよく表すことがあります。"
+        },
+        {
+            question: "データの中で、最も出現する頻度が高い値を何というか。",
+            options: ["中央値", "最頻値", "平均値", "モード", "頻出値"],
+            answer: 1,
+            explanation: "最頻値（モード）は、アンケートの回答など、質的データの代表値を表すのによく用いられます。"
+        },
+        {
+            question: "データを小さい順に並べ、データ全体を4等分したときの区切り値のうち、下から25%の位置にある値を何というか。",
+            options: ["中央値", "第2四分位数", "第1四分位数", "最小値", "第3四分位数"],
+            answer: 2,
+            explanation: "第1四分位数は、データの下位25%がどの範囲に分布しているかを示す指標です。"
+        },
+        {
+            question: "データの分布の様子を、最小値、第1四分位数、中央値、第3四分位数、最大値の5つの数値で表現したグラフを何というか。",
+            options: ["ヒストグラム", "散布図", "折れ線グラフ", "棒グラフ", "箱ひげ図"],
+            answer: 4,
+            explanation: "箱ひげ図は、データの分布の広がりや中央値の位置を視覚的に捉えるのに適しており、複数のデータ群を比較する際に便利です。"
+        },
+        {
+            question: "データの散らばり具合を示す指標で、各データと平均値との差（偏差）の2乗の平均値を何というか。",
+            options: ["標準偏差", "分散", "範囲", "四分位範囲", "変動係数"],
+            answer: 1,
+            explanation: "分散は、データの散らばりが大きいほど大きな値になります。ただし、単位が元のデータと異なる（2乗になる）ため、解釈が難しい場合があります。"
+        },
+        {
+            question: "データの散らばり具合を示す指標で、分散の正の平方根を何というか。",
+            options: ["標準偏差", "分散", "偏差値", "平均偏差", "絶対偏差"],
+            answer: 0,
+            explanation: "標準偏差は、元のデータと同じ単位を持つため、散らばりの度合いを直感的に理解しやすい指標として広く用いられます。"
+        },
+        {
+            question: "平均が50、標準偏差が10になるように正規化した指標で、学力テストなどで個人の成績の位置を示すのによく使われるものは何か。",
+            options: ["Z値", "t値", "偏差値", "標準得点", "パーセンタイル"],
+            answer: 2,
+            explanation: "偏差値は、集団内での相対的な位置を示すための指標です。平均点と同じ得点なら偏差値は50になります。"
+        },
+        {
+            question: "性別や血液型のように、分類を区別することだけに意味があるデータの尺度水準は何か。",
+            options: ["名義尺度", "順序尺度", "間隔尺度", "比率尺度", "カテゴリ尺度"],
+            answer: 0,
+            explanation: "名義尺度は、数値化されていてもその数値の大小や計算には意味がありません。質的データに分類されます。"
+        },
+        {
+            question: "成績評価（5段階）や服のサイズ（S, M, L）のように、順序に意味はあるが、その間隔が等しいとは限らないデータの尺度水準は何か。",
+            options: ["名義尺度", "順序尺度", "間隔尺度", "比率尺度", "ランキング尺度"],
+            answer: 1,
+            explanation: "順序尺度も質的データであり、平均値を求めるなどの計算は意味をなしません。"
+        },
+        {
+            question: "西暦や摂氏温度のように、目盛りの間隔が等しく、差に意味があるが、0が絶対的な原点を意味しないデータの尺度水準は何か。",
+            options: ["名義尺度", "順序尺度", "間隔尺度", "比率尺度", "絶対尺度"],
+            answer: 2,
+            explanation: "間隔尺度は、足し算や引き算には意味がありますが、0℃が「温度がない」状態ではないため、掛け算や割り算（比率）には意味がありません。量的データです。"
+        },
+        {
+            question: "身長や質量のように、間隔が等しく、かつ絶対的な原点（0）が存在し、比率にも意味があるデータの尺度水準は何か。",
+            options: ["名義尺度", "順序尺度", "間隔尺度", "比率尺度", "比例尺度"],
+            answer: 3,
+            explanation: "比率尺度（比例尺度）は、四則演算すべてに意味がある最も情報量の多い尺度です。量的データに分類されます。"
+        },
+        {
+            question: "一定の確率で2つの状態のうち一方が起こる試行を繰り返したときに得られる分布を何というか。",
+            options: ["正規分布", "t分布", "カイ二乗分布", "二項分布", "ポアソン分布"],
+            answer: 3,
+            explanation: "二項分布は、例えば「コインを10回投げて表が出る回数」の分布など、成功か失敗かの2択の結果になる試行の分布を表します。"
+        },
+        {
+            question: "確率的に期待される平均的な値のことを何というか。",
+            options: ["平均値", "期待値", "最頻値", "中央値", "確率"],
+            answer: 1,
+            explanation: "期待値は、確率変数がとるであろう値の平均を表します。例えば、サイコロを1回振ったときの目の期待値は3.5です。"
+        },
+        {
+            question: "平均値の周りを左右対称な釣り鐘型で表現される、統計学で最も重要な確率分布は何か。",
+            options: ["正規分布", "一様分布", "指数分布", "二項分布", "t分布"],
+            answer: 0,
+            explanation: "正規分布は、身長や体重など、自然界や社会現象における多くのデータの分布によく当てはまることが知られています。"
+        },
+        {
+            question: "平均が0、標準偏差が1になるように正規化された正規分布を特に何というか。",
+            options: ["標準正規分布", "一般正規分布", "t分布", "Z分布", "基準分布"],
+            answer: 0,
+            explanation: "どのような正規分布でも、標準化（Z値を計算）することで標準正規分布に変換でき、確率の計算などが容易になります。"
+        },
+        {
+            question: "調査対象全体の集団を何というか。",
+            options: ["標本（サンプル）", "母集団", "データセット", "部分集合", "全体集合"],
+            answer: 1,
+            explanation: "母集団は、調査や研究の対象となるすべての要素の集まりです。例えば「日本の有権者全体」などです。"
+        },
+        {
+            question: "母集団から無作為に選び出された、調査対象となる部分的な集団を何というか。",
+            options: ["標本（サンプル）", "母集団", "抽出データ", "観測対象", "サブセット"],
+            answer: 0,
+            explanation: "母集団全体を調査することが困難な場合、標本を調査し、その結果から母集団全体の性質を推測します。"
+        },
+        {
+            question: "母集団について立てた仮説が正しいといえるかを、標本データを用いて統計的に判断する手続きを何というか。",
+            options: ["推定", "分析", "検定", "回帰", "シミュレーション"],
+            answer: 2,
+            explanation: "統計的仮説検定は、標本から得られた結果が、偶然によるものか、それとも意味のある差（有意な差）なのかを判断するために行われます。"
+        },
+        {
+            question: "統計的仮説検定において、否定したい（棄却を目指す）仮説を何というか。",
+            options: ["対立仮説", "帰無仮説", "研究仮説", "作業仮説", "統計仮説"],
+            answer: 1,
+            explanation: "帰無仮説は「差がない」「効果がない」といった内容で設定され、この仮説が非常に起こりにくいことを示すことで、主張したい対立仮説を採択します。"
+        },
+        {
+            question: "統計的仮説検定において、主張したい内容を表す仮説を何というか。",
+            options: ["対立仮説", "帰無仮説", "基本仮説", "証明仮説", "第一仮説"],
+            answer: 0,
+            explanation: "対立仮説は「差がある」「効果がある」といった内容で設定され、帰無仮説が棄却されることによって間接的に支持されます。"
+        },
+        {
+            question: "検定において、「滅多に起こらない」と判断するための基準となる確率の値を何というか。",
+            options: ["p値", "信頼度", "有意水準", "臨界値", "検出力"],
+            answer: 2,
+            explanation: "有意水準は、一般的に5%（0.05）や1%（0.01）に設定されます。これは、第1種の過誤（本当は差がないのに、差があると判断してしまう誤り）を犯す確率の上限を意味します。"
+        },
+        {
+            question: "検定の結果、帰無仮説が棄却された場合、その結果は統計的にどうであると表現されるか。",
+            options: ["有意差はない", "有意である", "信頼できる", "正確である", "無意味である"],
+            answer: 1,
+            explanation: "「統計的に有意である」とは、観測された差や関連が、単なる偶然とは考えにくく、意味のあるものである可能性が高いことを示します。"
+        },
+        {
+            question: "検定において、「AはBと異なる」という仮説を検証する場合、AがBより大きい場合と小さい場合の両方を考慮する検定を何というか。",
+            options: ["片側検定", "両側検定", "t検定", "Z検定", "カイ二乗検定"],
+            answer: 1,
+            explanation: "両側検定では、有意水準を両端に半分ずつ割り振って棄却域を設定します。例えば有意水準5%なら、上側2.5%と下側2.5%が棄却域となります。"
+        },
+        {
+            question: "母集団の分散が分かっている場合に、標本平均と母平均の差を検定するために用いられる手法は何か。",
+            options: ["t検定", "Z検定", "F検定", "カイ二乗検定", "分散分析"],
+            answer: 1,
+            explanation: "Z検定は、母集団が正規分布に従い、その分散が既知であるという条件のもとで使用されます。"
+        },
+        {
+            question: "母集団の分散が分かっていない場合に、標本データから計算した不偏分散を用いて平均値の差を検定する手法は何か。",
+            options: ["t検定", "Z検定", "F検定", "カイ二乗検定", "ウェルチの検定"],
+            answer: 0,
+            explanation: "t検定は、母分散が未知の場合に広く用いられる検定方法です。t分布という確率分布を利用します。"
+        },
+        {
+            question: "時間とともに変動するデータを、時間の経過順に並べたデータを何というか。",
+            options: ["時系列データ", "クロスセクションデータ", "パネルデータ", "横断データ", "縦断データ"],
+            answer: 0,
+            explanation: "時系列データは、株価の推移、毎日の気温、月ごとの売上高など、時間の流れに沿って観測されたデータです。"
+        },
+        {
+            question: "時系列データの細かな変動を取り除き、全体的な傾向を滑らかにする手法の一つで、一定期間の平均値を計算していく方法を何というか。",
+            options: ["回帰分析", "移動平均法", "指数平滑法", "季節調整", "トレンド除去"],
+            answer: 1,
+            explanation: "移動平均法は、データの周期的な変動や不規則な変動をならして、長期的な傾向（トレンド）を把握しやすくするために用いられます。"
+        },
+        {
+            question: "2つの変数間の関係を、関数（数式モデル）を使って表現し、一方の値からもう一方の値を予測する分析手法を何というか。",
+            options: ["相関分析", "回帰分析", "因子分析", "クラスター分析", "主成分分析"],
+            answer: 1,
+            explanation: "回帰分析では、関係性を最もよく表す直線（回帰直線）や曲線を求めます。例えば、広告費から売上を予測するモデルなどが考えられます。"
+        },
+        {
+            question: "2つの変数の関係を表すグラフで、横軸と縦軸にそれぞれの変数をとり、データを点としてプロットしたものを何というか。",
+            options: ["折れ線グラフ", "棒グラフ", "円グラフ", "ヒストグラム", "散布図"],
+            answer: 4,
+            explanation: "散布図を作成することで、2つの変数の間にどのような関係（正の相関、負の相関、無相関など）があるかを視覚的に確認できます。"
+        },
+        {
+            question: "2つの変数の間の直線的な関係の強さを示す指標で、-1から1までの値をとるものは何か。",
+            options: ["共分散", "決定係数", "相関係数", "標準偏差", "回帰係数"],
+            answer: 2,
+            explanation: "相関係数は、1に近いほど強い正の相関、-1に近いほど強い負の相関、0に近いほど相関がない（無相関）ことを示します。"
+        },
+        {
+            question: "相関係数が0.8であった。どのような関係があると考えられるか。",
+            options: ["強い正の相関", "弱い正の相関", "相関なし", "弱い負の相関", "強い負の相関"],
+            answer: 0,
+            explanation: "一般的に、相関係数の絶対値が0.7以上の場合に「強い相関がある」と判断されます。正の値なので、一方が増えるともう一方も増える傾向があることを示します。"
+        },
+        {
+            question: "「相関関係がある」ことは、必ずしも「因果関係がある」ことを意味しない。この考えを示す例として最も適切なものはどれか。",
+            options: ["気温が上がると、アイスクリームの売上が増える。", "勉強時間が増えると、テストの点数が上がる。", "身長が高い人ほど、体重が重い傾向がある。", "都市の消防士の数が多いほど、火災の発生件数も多い。", "運動すると、消費カロリーが増える。"],
+            answer: 3,
+            explanation: "消防士の数と火災件数には正の相関が見られますが、原因は「都市の規模が大きい」という第三の要因（交絡因子）です。消防士が多いから火事が増えるわけではありません。これを疑似相関といいます。"
+        },
+        {
+            question: "観測データと予測モデルとの差（残差）の2乗の合計が最小になるように、モデルのパラメータを決定する方法を何というか。",
+            options: ["最尤法", "最小二乗法", "モーメント法", "ベイズ推定", "勾配降下法"],
+            answer: 1,
+            explanation: "最小二乗法は、回帰分析において回帰直線を求める際に用いられる最も基本的な手法です。"
+        },
+        {
+            question: "標本データから、母集団のパラメータ（母平均など）が含まれるであろう範囲を、確率的な信頼度とともに示す推定方法を何というか。",
+            options: ["点推定", "区間推定", "仮説検定", "回帰分析", "ベイズ推定"],
+            answer: 1,
+            explanation: "区間推定では、「母平均は95%の確率でこの範囲にある」といった形で、推定の不確実性を幅で表現します。"
+        },
+        {
+            question: "区間推定において、推定された区間が真のパラメータをどのくらいの確率で含んでいるかを示す値を何というか。",
+            options: ["有意水準", "信頼度（信頼係数）", "p値", "検出力", "信頼区間"],
+            answer: 1,
+            explanation: "信頼度は、通常95%や99%が用いられます。信頼度95%とは、同じ方法で100回標本抽出と区間推定を行った場合、そのうち約95回は真の母平均が区間内に含まれる、ということを意味します。"
+        },
+        {
+            question: "アンケート結果など、2つのカテゴリカル変数の関係を見るために、データを縦と横の項目で行列形式に集計した表を何というか。",
+            options: ["度数分布表", "分割表（クロス集計表）", "相関行列", "ヒストグラム", "幹葉図"],
+            answer: 1,
+            explanation: "クロス集計表を作成することで、「性別と支持政党」や「年代と好きなテレビ番組」といった、2つの質的データの関連性を分析することができます。"
+        },
+        {
+            question: "クロス集計表のデータを用いて、2つの変数が独立である（関連がない）かどうかを検定する手法は何か。",
+            options: ["t検定", "Z検定", "F検定", "カイ二乗検定", "相関分析"],
+            answer: 3,
+            explanation: "カイ二乗検定は、観測された度数（実測度数）と、変数間に関連がない場合に期待される度数（期待度数）との差を評価します。"
+        },
+        {
+            question: "現実の問題を単純化・抽象化して、その本質的な部分だけを取り出したものを何というか。",
+            options: ["シミュレーション", "モデル", "アルゴリズム", "データ", "システム"],
+            answer: 1,
+            explanation: "モデル化は、複雑な現実世界の現象を、分析や予測が可能な形に単純化するプロセスです。地図や数式、模型などがモデルにあたります。"
+        },
+        {
+            question: "作成したモデルを使って、模擬的な実験や動作を行い、結果を予測したり検証したりすることを何というか。",
+            options: ["シミュレーション", "モデル化", "プログラミング", "データ分析", "仮説検定"],
+            answer: 0,
+            explanation: "シミュレーションは、実際に行うのが困難または危険な実験（例：天体の動き、経済予測、災害時の避難行動）をコンピュータ上で行うのに役立ちます。"
+        },
+        {
+            question: "モデルの種類のうち、時間の経過が他の要素に影響を与えるモデルを何というか。",
+            options: ["静的モデル", "動的モデル", "確定的モデル", "確率的モデル", "物理モデル"],
+            answer: 1,
+            explanation: "動的モデルは、時間の経過に伴うシステムの振る舞いを分析するのに使われます。天気のシミュレーションや人口の増減モデルなどがこれにあたります。"
+        },
+        {
+            question: "モデルの種類のうち、サイコロの目のように、結果が確率的に変動する要素を含むモデルを何というか。",
+            options: ["静的モデル", "動的モデル", "確定的モデル", "確率的モデル", "論理モデル"],
+            answer: 3,
+            explanation: "確率的モデルは、不確実性を含む現象を扱うのに適しています。待ち行列のシミュレーションや感染症の流行予測などが例です。"
+        },
+        {
+            question: "乱数を用いて確率的なシミュレーションを行い、近似解を求める手法を総称して何というか。",
+            options: ["最小二乗法", "モンテカルロ法", "ニュートン法", "オイラー法", "ラグランジュ法"],
+            answer: 1,
+            explanation: "モンテカルロ法は、多数の試行をランダムに行うことで、確率的な問題の近似値を求めます。円周率の計算や金融商品の価格評価など、幅広い分野で応用されています。"
+        },
+        {
+            question: "表計算ソフトで、0以上1未満の一様な実数の乱数を発生させる関数は何か。",
+            options: ["RANDOM()", "RAND()", "RANDBETWEEN()", "RND()", "NORMAL()"],
+            answer: 1,
+            explanation: "`=RAND()`は、引数なしで使用し、再計算のたびに新しい0以上1未満の乱数を返します。"
+        },
+        {
+            question: "表計算ソフトで、`=INT(RAND()*6)+1`という式は何を生成するか。",
+            options: ["0から6までの整数", "1から6までの整数", "0から5までの整数", "1から7までの整数", "0から6までの実数"],
+            answer: 1,
+            explanation: "`RAND()*6`で0以上6未満の実数が得られ、`INT()`で整数部分（0～5）を取り出し、最後に1を加えることで、1から6までの整数（サイコロの目など）をシミュレートできます。"
+        },
+        {
+            question: "ある薬の効果を調べるため、同じ患者グループの投薬前と投薬後で数値を比較する。この場合に用いるべきt検定はどれか。",
+            options: ["対応のあるt検定", "対応のないt検定（等分散を仮定）", "対応のないt検定（ウェルチの検定）", "Z検定", "カイ二乗検定"],
+            answer: 0,
+            explanation: "「対応のある」とは、比較する2つのデータ群が同じ対象から得られたものであることを意味します。この場合、個人差の影響を除外して比較できます。"
+        },
+        {
+            question: "男子生徒と女子生徒のテストの平均点に差があるか調べる。この場合に用いるべきt検定はどれか。",
+            options: ["対応のあるt検定", "対応のないt検定", "Z検定", "F検定", "相関分析"],
+            answer: 1,
+            explanation: "「対応のない」とは、比較する2つのデータ群が、互いに独立した異なる対象から得られたものであることを意味します。"
+        },
+        {
+            question: "ある現象をシミュレーションする際に、最初の状態として設定する値を何というか。",
+            options: ["パラメータ", "変数", "定数", "初期条件", "境界条件"],
+            answer: 3,
+            explanation: "初期条件の設定はシミュレーションの結果に大きな影響を与えます。例えば、感染症のシミュレーションでは「最初の感染者数」が初期条件になります。"
+        },
+        {
+            question: "シミュレーションにおいて、時間の経過を一定の微小な間隔で区切って計算を進めていく。この時間の間隔を何というか。",
+            options: ["シミュレーション期間", "ステップ数", "時間間隔（タイムステップ）", "更新頻度", "サンプリング周期"],
+            answer: 2,
+            explanation: "時間間隔を小さくするほど計算の精度は上がりますが、計算にかかる時間は長くなります。"
+        },
+        {
+            question: "問題解決のプロセスにおいて、収集したデータを分析しやすくするために、不要なデータを除いたり、形式を整えたりする作業を何というか。",
+            options: ["データ収集", "データ分析", "データ可視化", "データクレンジング", "データマイニング"],
+            answer: 3,
+            explanation: "データクレンジング（データクリーニング）は、データの品質を高めるための重要な前処理です。外れ値や欠損値の処理もこれに含まれます。"
+        },
+        {
+            question: "ある都市の「人口」と「コンビニの店舗数」には、どのような関係がある可能性が最も高いか。",
+            options: ["強い正の相関", "弱い正の相関", "相関なし", "弱い負の相関", "強い負の相関"],
+            answer: 0,
+            explanation: "一般的に、人口が多い都市ほど、それを支えるためのコンビニの店舗数も多くなる傾向があるため、強い正の相関が予想されます。"
+        },
+        {
+            question: "ある学校の「スマートフォンの利用時間」と「学業成績」には、どのような関係がある可能性が考えられるか。",
+            options: ["強い正の相関", "弱い正の相関", "相関なし", "負の相関", "因果関係はない"],
+            answer: 3,
+            explanation: "スマートフォンの利用時間が長すぎると勉強時間が減る可能性があるため、負の相関（利用時間が長いほど成績が低い傾向）が見られる可能性があります。ただし、これはあくまで傾向であり、因果関係を断定するものではありません。"
+        },
+        {
+            question: "回帰分析で得られた回帰直線が `y = 2x + 5` であった。xが10のとき、yの予測値はいくつか。",
+            options: ["10", "17", "20", "25", "52"],
+            answer: 3,
+            explanation: "回帰式に x = 10 を代入します。y = 2 * 10 + 5 = 20 + 5 = 25 となります。"
+        },
+        {
+            question: "統計的仮説検定において、帰無仮説が正しいにもかかわらず、それを誤って棄却してしまう誤りを何というか。",
+            options: ["第1種の過誤", "第2種の過誤", "標準誤差", "系統誤差", "偶然誤差"],
+            answer: 0,
+            explanation: "第1種の過誤は「あわてものの誤り」とも呼ばれます。この誤りを犯す確率が有意水準αです。"
+        },
+        {
+            question: "統計的仮説検定において、対立仮説が正しいにもかかわらず、帰無仮説を誤って棄却しない（採択してしまう）誤りを何というか。",
+            options: ["第1種の過誤", "第2種の過誤", "バイアス", "偽陽性", "偽陰性"],
+            answer: 1,
+            explanation: "第2種の過誤は「ぼんやりものの誤り」とも呼ばれ、本当は存在する差や効果を見逃してしまうことを意味します。"
+        },
+        {
+            question: "あるコインを100回投げたところ、表が65回出た。このコインは偏っていると言えるかを検定したい。このときの帰無仮説として最も適切なものはどれか。",
+            options: ["表が出る確率は50%ではない", "表が出る確率は50%である", "表が出る確率は65%である", "このコインは偏っている", "このコインは偏っていない"],
+            answer: 1,
+            explanation: "検定ではまず「差がない」「偏りがない」という帰無仮説を設定します。この場合、「コインに偏りはない（表が出る確率は50%である）」が帰無仮説となります。"
+        },
+        {
+            question: "母集団の平均（母平均）を推定する際、標本から計算した平均（標本平均）をそのまま用いる推定方法を何というか。",
+            options: ["区間推定", "点推定", "仮説検定", "最尤推定", "ベイズ推定"],
+            answer: 1,
+            explanation: "点推定は、ただ一つの値で母数を推定する方法です。しかし、その値が真の値と一致する保証はなく、誤差の大きさが不明であるという欠点があります。"
+        },
+        {
+            question: "あるラーメン店の来客数をシミュレーションしたい。来客の間隔が確率的に変動する場合、このモデルは何に分類されるか。",
+            options: ["静的モデル", "動的モデル", "確定的モデル", "物理モデル", "確率的モデル"],
+            answer: 4,
+            explanation: "来客の間隔が一定でなく、確率的にばらつくため、確率的モデル（かつ動的モデル）となります。このような問題は待ち行列理論で扱われます。"
+        },
+        {
+            question: "ある地域の人口が毎年1%ずつ減少するというモデルは、何に分類されるか。",
+            options: ["静的モデル", "確率的モデル", "確定的モデル", "物理モデル", "図的モデル"],
+            answer: 2,
+            explanation: "減少率が一定で確率的な変動要因を含まないため、確定的モデル（かつ動的モデル）となります。"
+        },
+        {
+            question: "問題解決のプロセスにおいて、最終的に得られた解決策が本当に効果的であったかを評価し、次の改善につなげる段階を何というか。",
+            options: ["問題の発見", "情報の収集", "情報の分析", "解決策の立案と実行", "評価と改善"],
+            answer: 4,
+            explanation: "問題解決は一度で終わるものではなく、評価と改善のサイクル（PDCAサイクルなど）を回すことで、より良い解決策へと洗練させていくことが重要です。"
+        }
+    ];
+
+
+
+    // --- DOM Elements ---
+    const startScreen = document.getElementById('start-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const resultScreen = document.getElementById('result-screen');
+    
+    const startBtn = document.getElementById('start-btn');
+    const questionNumberEl = document.getElementById('question-number');
+    const questionTextEl = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const feedbackContainer = document.getElementById('feedback-container');
+    const feedbackResultEl = document.getElementById('feedback-result');
+    const explanationEl = document.getElementById('explanation');
+    const explanationTextEl = document.getElementById('explanation-text');
+    const nextBtn = document.getElementById('next-btn');
+    const restartBtn = document.getElementById('restart-btn');
+    const scoreEl = document.getElementById('score');
+    const resultMessageEl = document.getElementById('result-message');
+    const progressBar = document.getElementById('progress-bar');
+
+
+    // --- Variables ---
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let shuffledQuizData = [];
+
+    // --- Event Listeners ---
+    startBtn.addEventListener('click', startQuiz);
+    nextBtn.addEventListener('click', nextQuestion);
+    restartBtn.addEventListener('click', startQuiz);
+
+    // --- Functions ---
+
+    // Function to start the quiz
+    function startQuiz() {
+        startScreen.classList.add('hidden');
+        resultScreen.classList.add('hidden');
+        quizScreen.classList.remove('hidden');
+        
+        currentQuestionIndex = 0;
+        score = 0;
+        // Shuffle quiz data for a new order each time
+        shuffledQuizData = [...quizData].sort(() => Math.random() - 0.5);
+        displayQuestion();
+    }
+
+    // Function to display a question
+    function displayQuestion() {
+        resetState();
+        const currentQuestion = shuffledQuizData[currentQuestionIndex];
+        questionNumberEl.textContent = currentQuestionIndex + 1;
+        questionTextEl.innerHTML = `Q${currentQuestionIndex + 1}. ${currentQuestion.question}`;
+        
+        currentQuestion.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.innerHTML = `<span class="bg-blue-100 text-blue-800 font-bold rounded-full w-8 h-8 flex items-center justify-center mr-4">${index + 1}</span> ${option}`;
+            button.classList.add('option-btn', 'w-full', 'p-4', 'text-left', 'bg-white', 'border-2', 'border-gray-300', 'rounded-lg', 'flex', 'items-center', 'text-lg');
+            button.dataset.index = index;
+            button.addEventListener('click', selectAnswer);
+            optionsContainer.appendChild(button);
+        });
+
+        updateProgressBar();
+    }
+    
+    // Function to reset the state for the next question
+    function resetState() {
+        feedbackContainer.classList.add('hidden');
+        nextBtn.classList.add('hidden');
+        while (optionsContainer.firstChild) {
+            optionsContainer.removeChild(optionsContainer.firstChild);
+        }
+    }
+
+    // Function to handle answer selection
+    function selectAnswer(e) {
+        const selectedBtn = e.currentTarget;
+        const selectedIndex = parseInt(selectedBtn.dataset.index);
+        const correctIndex = shuffledQuizData[currentQuestionIndex].answer;
+
+        if (selectedIndex === correctIndex) {
+            feedbackResultEl.textContent = "正解！";
+            feedbackResultEl.className = "text-2xl font-bold mb-4 text-green-600";
+            score++;
+        } else {
+            feedbackResultEl.textContent = "不正解...";
+            feedbackResultEl.className = "text-2xl font-bold mb-4 text-red-600";
+        }
+        
+        explanationTextEl.textContent = shuffledQuizData[currentQuestionIndex].explanation;
+        feedbackContainer.classList.remove('hidden');
+
+        // Update styles for all buttons
+        Array.from(optionsContainer.children).forEach(button => {
+            const btnIndex = parseInt(button.dataset.index);
+            if (btnIndex === correctIndex) {
+                button.classList.add('correct');
+            } else if (btnIndex === selectedIndex) {
+                button.classList.add('incorrect');
+            }
+            button.disabled = true;
+        });
+
+        if (shuffledQuizData.length > currentQuestionIndex + 1) {
+            nextBtn.textContent = "次の問題へ";
+            nextBtn.classList.remove('hidden');
+        } else {
+            nextBtn.textContent = "結果を見る";
+            nextBtn.classList.remove('hidden');
+        }
+    }
+    
+    // Function to move to the next question or show results
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < shuffledQuizData.length) {
+            displayQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    // Function to show the final results
+    function showResult() {
+        quizScreen.classList.add('hidden');
+        resultScreen.classList.remove('hidden');
+        scoreEl.textContent = score;
+        
+        let message = "";
+        if (score >= 95) {
+            message = "素晴らしい！完璧です。問題解決の達人ですね！";
+        } else if (score >= 80) {
+            message = "高得点！素晴らしい理解度です。この調子で頑張りましょう。";
+        } else if (score >= 60) {
+            message = "合格ラインです。苦手な部分を解説で復習しましょう。";
+        } else if (score >= 40) {
+            message = "もう少しです。間違えた問題を中心に、もう一度挑戦してみましょう。";
+        } else {
+            message = "基礎からもう一度復習が必要です。繰り返し学習が力になります。";
+        }
+        resultMessageEl.textContent = message;
+    }
+
+    // Function to update the progress bar
+    function updateProgressBar() {
+        const progressPercentage = ((currentQuestionIndex + 1) / shuffledQuizData.length) * 100;
+        progressBar.style.width = `${progressPercentage}%`;
+    }
+
+</script>
+
+</body>
+</html>

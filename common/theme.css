@@ -1,0 +1,78 @@
+/* ============================================================
+   Aitarch 共通テーマ定義
+   ============================================================ */
+
+/* CSS変数 (テーマカラー・メインテキスト色) */
+.theme-ai-life   { --theme-color: #60a5fa; --text-color: #bfdbfe; }
+.theme-ai-invest { --theme-color: #f59e0b; --text-color: #fef3c7; }
+.theme-info-test { --theme-color: #4ade80; --text-color: #bbf7d0; }
+.theme-ai-agent  { --theme-color: #a78bfa; --text-color: #e9d5ff; }
+
+/* === ダーク背景 body (カテゴリ別) === */
+body.theme-ai-life {
+  background: linear-gradient(135deg, #0d1b3e 0%, #1e2d6b 100%) !important;
+  min-height: 100vh;
+}
+body.theme-ai-invest {
+  background: linear-gradient(135deg, #0c0c14 0%, #1e180a 100%) !important;
+  min-height: 100vh;
+}
+body.theme-info-test {
+  background: linear-gradient(135deg, #051a0d 0%, #0a2e18 100%) !important;
+  min-height: 100vh;
+}
+body.theme-ai-agent {
+  background: linear-gradient(135deg, #0f0520 0%, #1e0a40 100%) !important;
+  min-height: 100vh;
+}
+
+/* === サイドバー: 明るい白ガラス背景 === */
+#sidebar-container {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* サイドバーテキスト: テーマ別の濃色 */
+body.theme-ai-life #sidebar-container,
+body.theme-ai-life #sidebar-container h2,
+body.theme-ai-life #sidebar-container p,
+body.theme-ai-life #sidebar-container a { color: #0d1b3e !important; }
+
+body.theme-ai-invest #sidebar-container,
+body.theme-ai-invest #sidebar-container h2,
+body.theme-ai-invest #sidebar-container p,
+body.theme-ai-invest #sidebar-container a { color: #1c1a0e !important; }
+
+body.theme-info-test #sidebar-container,
+body.theme-info-test #sidebar-container h2,
+body.theme-info-test #sidebar-container p,
+body.theme-info-test #sidebar-container a { color: #052e16 !important; }
+
+body.theme-ai-agent #sidebar-container,
+body.theme-ai-agent #sidebar-container h2,
+body.theme-ai-agent #sidebar-container p,
+body.theme-ai-agent #sidebar-container a { color: #1e0a40 !important; }
+
+/* 記事リスト: ホバー・アクティブ (テーマ別) */
+.article-list a {
+  transition: all 0.2s ease-in-out;
+}
+.article-list a:hover,
+.article-list a.active {
+  transform: translateX(5px);
+}
+
+body.theme-ai-life .article-list a:hover,
+body.theme-ai-life .article-list a.active { background-color: #3b82f6; color: white !important; }
+
+body.theme-ai-invest .article-list a:hover,
+body.theme-ai-invest .article-list a.active { background-color: #d97706; color: white !important; }
+
+body.theme-info-test .article-list a:hover,
+body.theme-info-test .article-list a.active { background-color: #16a34a; color: white !important; }
+
+body.theme-ai-agent .article-list a:hover,
+body.theme-ai-agent .article-list a.active { background-color: #7c3aed; color: white !important; }
+
+.article-list a.active { font-weight: bold; }

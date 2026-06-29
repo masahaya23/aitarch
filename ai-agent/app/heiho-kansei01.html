@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>鬼の平方完成特訓ゲーム</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;font-family:'Noto Sans JP',sans-serif;
+}
+canvas{display:block;cursor:crosshair;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,0.35);}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+const C=document.getElementById('c');
+const ctx=C.getContext('2d');
+const W=480,H=640;
+C.width=W;C.height=H;
+
+const Q_H=150;
+const CANNON_Y=H-72;
+const BLOCK_W=82,BLOCK_H=52;
+const COL_X=[48,144,240,336,432];
+const MISSILE_SPD=11;
+const COLORS=['#FF6B9D','#FF9A3C','#4ECDC4','#45B26B','#A78BFA'];
+const BORDERS=['#C5004A','#C06000','#00968E','#2A7D4B','#7C3AED'];
+
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const shuf=a=>{const r=[...a];for(let i=r.length-1;i>0;i--){const j=rnd(0,i);[r[i],r[j]]=[r[j],r[i]];}return r;};
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){const t=b;b=a%b;a=t;}return a||1;}
+function mkF(n,d){if(!d)return{n:0,d:1};const g=gcd(Math.abs(n),Math.abs(d));let nn=n/g,dd=d/g;if(dd<0){nn=-nn;dd=-dd;}return{n:nn,d:dd};}
+function fStr(f){return f.d===1?String(f.n):`${f.n}/${f.d}`;}
+
+// a(x+p)²+q のフォーマット（p,qはfrac）
+function fmtAns(a,p,q){
+  let sq;
+  if(p.n===0){sq='x²';}
+  else{
+    const inner=p.n>0?`x+${fStr(p)}`:`x-${fStr({n:-p.n,d:p.d})}`;
+    sq=`(${inner})²`;
+  }
+  let s=a===1?sq:`${a}${sq}`;
+  if(q.n===0)return s;
+  return q.n>0?`${s}+${fStr(q)}`:`${s}-${fStr({n:-q.n,d:q.d})}`;
+}
+
+// ax²+bx のフォーマット
+function fmtExpr(a,b){
+  let s=a===1?'x²':`${a}x²`;
+  if(b>0)s+=`+${b}x`;else if(b<0)s+=`${b}x`;
+  return s;
+}
+
+// 誤答生成
+function genWrongs(a,p,q,n){
+  const cor=fmtAns(a,p,q);
+  const used=new Set([cor]);const res=[];let tries=0;
+  while(res.length<n&&tries<300){
+    tries++;
+    const dp=rnd(-3,3),dq=rnd(-4,4);
+    if(!dp&&!dq)continue;
+    const wp=mkF(p.n+dp*p.d,p.d);
+    const wq=mkF(q.n+dq*q.d,q.d);
+    const w=fmtAns(a,wp,wq);
+    if(!used.has(w)){used.add(w);res.push(w);}
+  }
+  return res;
+}
+
+// 問題生成: ax²+bx を平方完成
+// p=b/(2a), q=-b²/(4a)
+function genQ(level){
+  let a,b;
+  if(level<=1){
+    // a=1, b偶数 → 整数解
+    a=1;b=rnd(-4,4)*2;if(!b)b=4;
+  }else if(level===2){
+    // a=2,3, b=2a倍数 → 整数解
+    a=rnd(2,3);b=2*a*rnd(-3,3);if(!b)b=2*a;
+  }else{
+    // a=2〜4, bは任意 → 分数が出る
+    a=rnd(2,4);b=rnd(-6,6);if(!b)b=a;
+  }
+  const p=mkF(b,2*a);
+  const q=mkF(-b*b,4*a);
+  const correct=fmtAns(a,p,q);
+  return{expr:fmtExpr(a,b),correct,choices:shuf([correct,...genWrongs(a,p,q,4)])};
+}
+
+let G,mouseX=W/2;
+const keys={};
+let lastInput='mouse';
+
+function init(){
+  G={phase:'playing',score:0,lives:5,level:1,qCount:0,
+    playerX:W/2,missiles:[],blocks:[],particles:[],
+    flash:{t:0,col:''},q:null};
+  nextQ();
+}
+
+function nextQ(){
+  G.qCount++;
+  if(G.qCount>1&&(G.qCount-1)%5===0)G.level=Math.min(G.level+1,3);
+  G.q=genQ(G.level);
+  G.phase='playing';G.missiles=[];
+  const base=0.4+G.level*0.15+G.qCount*0.015;
+  G.blocks=G.q.choices.map((text,i)=>({
+    x:COL_X[i],y:Q_H-BLOCK_H/2-i*26,text,
+    isCorrect:text===G.q.correct,alive:true,
+    spd:base*(0.8+Math.random()*0.4),ci:i
+  }));
+}
+
+C.addEventListener('mousemove',e=>{
+  const r=C.getBoundingClientRect();
+  mouseX=(e.clientX-r.left)*(W/r.width);lastInput='mouse';
+});
+C.addEventListener('click',()=>{
+  if(G.phase==='gameover'){init();return;}
+  if(G.phase==='playing')fire();
+});
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space'){e.preventDefault();if(G.phase==='playing')fire();}
+  if(e.code==='Enter'&&G.phase==='gameover')init();
+  if(e.code==='ArrowLeft'||e.code==='ArrowRight'){e.preventDefault();keys[e.code]=true;lastInput='key';}
+});
+document.addEventListener('keyup',e=>{keys[e.code]=false;});
+function fire(){G.missiles.push({x:G.playerX,y:CANNON_Y-28});}
+
+function burst(x,y,col,n){
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2,s=Math.random()*5+2;
+    G.particles.push({x,y,col,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:40+rnd(0,20),sz:Math.random()*5+2});
+  }
+}
+
+function update(){
+  if(G.phase==='gameover'||G.phase==='transition'){
+    G.particles=G.particles.filter(p=>p.life>0);
+    G.particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.15;p.life--;});
+    if(G.flash.t>0)G.flash.t--;return;
+  }
+  if(lastInput==='key'){
+    if(keys['ArrowLeft'])G.playerX=Math.max(30,G.playerX-7);
+    if(keys['ArrowRight'])G.playerX=Math.min(W-30,G.playerX+7);
+    mouseX=G.playerX;
+  }else{G.playerX+=(mouseX-G.playerX)*0.12;G.playerX=Math.max(30,Math.min(W-30,G.playerX));}
+
+  G.missiles=G.missiles.filter(m=>m.y>Q_H-4);
+  G.missiles.forEach(m=>m.y-=MISSILE_SPD);
+
+  for(const b of G.blocks){
+    if(!b.alive)continue;
+    b.y+=b.spd;
+    if(G.phase!=='playing')break;
+    for(let mi=G.missiles.length-1;mi>=0;mi--){
+      const m=G.missiles[mi];
+      if(Math.abs(m.x-b.x)<BLOCK_W/2-2&&Math.abs(m.y-b.y)<BLOCK_H/2+2){
+        G.missiles.splice(mi,1);b.alive=false;
+        if(b.isCorrect){
+          burst(b.x,b.y,COLORS[b.ci],30);
+          G.score+=100*G.level;G.flash={t:26,col:'rgba(80,255,140,0.22)'};
+          G.phase='transition';setTimeout(nextQ,700);
+        }else{
+          burst(b.x,b.y,'#ff4444',18);G.lives--;
+          G.flash={t:20,col:'rgba(255,0,0,0.2)'};
+          if(G.lives<=0)G.phase='gameover';
+        }
+        break;
+      }
+    }
+    if(b.isCorrect&&b.alive&&b.y>CANNON_Y+12){
+      b.alive=false;G.lives--;burst(b.x,CANNON_Y,'#ff6600',18);
+      G.flash={t:30,col:'rgba(255,80,0,0.22)'};
+      if(G.lives<=0)G.phase='gameover';
+      else{G.phase='transition';setTimeout(nextQ,680);}
+    }
+    if(!b.isCorrect&&b.y>H+20)b.alive=false;
+  }
+  G.particles=G.particles.filter(p=>p.life>0);
+  G.particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.15;p.life--;});
+  if(G.flash.t>0)G.flash.t--;
+}
+
+function rrect(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+
+function draw(){
+  // 背景
+  const bg=ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#fdf4ff');bg.addColorStop(1,'#ede9fe');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+
+  // ドット装飾
+  ctx.fillStyle='rgba(167,139,250,0.07)';
+  for(let x=24;x<W;x+=48)for(let y=Q_H+24;y<CANNON_Y;y+=48){
+    ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();
+  }
+
+  if(G.flash.t>0){ctx.fillStyle=G.flash.col;ctx.fillRect(0,0,W,H);}
+
+  // 問題エリア
+  const qg=ctx.createLinearGradient(0,0,0,Q_H);
+  qg.addColorStop(0,'#7c3aed');qg.addColorStop(1,'#a855f7');
+  ctx.fillStyle=qg;ctx.fillRect(0,0,W,Q_H);
+  ctx.strokeStyle='#e879f9';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(0,Q_H);ctx.lineTo(W,Q_H);ctx.stroke();
+
+  // HUD
+  ctx.textAlign='left';ctx.font=`bold 12px 'Noto Sans JP',sans-serif`;ctx.fillStyle='#ffe8ff';
+  ctx.fillText(`SCORE ${G.score}`,10,20);
+  ctx.textAlign='center';ctx.fillText(`LEVEL ${G.level}`,W/2,20);
+  ctx.textAlign='right';ctx.font='14px sans-serif';ctx.fillStyle='#ffdd88';
+  ctx.fillText('❤'.repeat(Math.max(0,G.lives)),W-10,20);
+
+  ctx.textAlign='center';ctx.font=`bold 13px 'Noto Sans JP',sans-serif`;
+  ctx.fillStyle='rgba(255,240,255,0.88)';
+  ctx.fillText('👹 鬼の平方完成特訓ゲーム',W/2,40);
+
+  if(G.q){
+    ctx.font=`12px 'Noto Sans JP',sans-serif`;ctx.fillStyle='#ddd6fe';
+    ctx.fillText('▼ 平方完成した式を撃ち落とせ！',W/2,64);
+    ctx.save();
+    ctx.font=`bold 30px 'Noto Sans JP',sans-serif`;ctx.fillStyle='#fff';
+    ctx.shadowColor='#f0abfc';ctx.shadowBlur=16;
+    ctx.fillText(G.q.expr,W/2,104);ctx.restore();
+    ctx.font=`10px 'Noto Sans JP',sans-serif`;ctx.fillStyle='rgba(255,255,255,0.42)';
+    ctx.fillText('クリック/スペース：発射　←→：移動',W/2,130);
+  }
+
+  // 落下ブロック
+  for(const b of G.blocks){
+    if(!b.alive||b.y+BLOCK_H/2<Q_H)continue;
+    const bx=b.x-BLOCK_W/2,by=b.y-BLOCK_H/2;
+    ctx.save();ctx.shadowColor='rgba(0,0,0,0.18)';ctx.shadowBlur=8;ctx.shadowOffsetY=3;
+    ctx.fillStyle=COLORS[b.ci];rrect(bx,by,BLOCK_W,BLOCK_H,10);ctx.fill();ctx.restore();
+    ctx.strokeStyle=BORDERS[b.ci];ctx.lineWidth=2.5;rrect(bx,by,BLOCK_W,BLOCK_H,10);ctx.stroke();
+
+    ctx.textAlign='center';ctx.fillStyle='#fff';
+    const txt=b.text;
+    let fs=13;ctx.font=`bold ${fs}px 'Noto Sans JP',sans-serif`;
+    while(ctx.measureText(txt).width>BLOCK_W-10&&fs>8){fs--;ctx.font=`bold ${fs}px 'Noto Sans JP',sans-serif`;}
+
+    if(ctx.measureText(txt).width<=BLOCK_W-10){
+      ctx.fillText(txt,b.x,b.y+5);
+    }else{
+      const sp=txt.indexOf(')²');
+      ctx.font=`bold 10px 'Noto Sans JP',sans-serif`;
+      if(sp>0){
+        ctx.fillText(txt.substring(0,sp+2),b.x,b.y-4);
+        ctx.fillText(txt.substring(sp+2),b.x,b.y+11);
+      }else{
+        ctx.font=`bold 9px 'Noto Sans JP',sans-serif`;
+        ctx.fillText(txt,b.x,b.y+5);
+      }
+    }
+  }
+
+  // ミサイル
+  for(const m of G.missiles){
+    ctx.save();ctx.shadowColor='#ff6600';ctx.shadowBlur=10;
+    ctx.fillStyle='#ffd700';ctx.fillRect(m.x-3,m.y-14,6,16);
+    ctx.fillStyle='#ff4500';
+    ctx.beginPath();ctx.moveTo(m.x,m.y-21);ctx.lineTo(m.x-3,m.y-14);ctx.lineTo(m.x+3,m.y-14);ctx.closePath();ctx.fill();
+    ctx.restore();
+  }
+
+  // パーティクル
+  ctx.save();
+  for(const p of G.particles){
+    ctx.globalAlpha=Math.min(p.life/30,1);
+    ctx.fillStyle=p.col;ctx.beginPath();ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=1;ctx.restore();
+
+  // 砲台
+  const px=G.playerX,py=CANNON_Y;
+  ctx.save();ctx.shadowColor='rgba(0,0,0,0.15)';ctx.shadowBlur=6;
+  ctx.fillStyle='#7c3aed';rrect(px-28,py+9,56,20,6);ctx.fill();ctx.restore();
+  ctx.save();ctx.shadowColor='rgba(124,58,237,0.5)';ctx.shadowBlur=20;
+  ctx.fillStyle='#8b5cf6';ctx.beginPath();ctx.arc(px,py+6,22,0,Math.PI*2);ctx.fill();ctx.restore();
+  ctx.strokeStyle='#c4b5fd';ctx.lineWidth=2;ctx.beginPath();ctx.arc(px,py+6,22,0,Math.PI*2);ctx.stroke();
+  ctx.save();ctx.shadowColor='rgba(196,181,253,0.8)';ctx.shadowBlur=8;
+  ctx.fillStyle='#a78bfa';ctx.fillRect(px-5,py-22,10,32);ctx.restore();
+  ctx.fillStyle='#c4b5fd';ctx.beginPath();ctx.arc(px,py-22,5,Math.PI,0);ctx.fill();
+
+  // 地面
+  ctx.fillStyle='rgba(124,58,237,0.07)';ctx.fillRect(0,H-25,W,25);
+  ctx.strokeStyle='rgba(167,139,250,0.35)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(0,H-25);ctx.lineTo(W,H-25);ctx.stroke();
+
+  // ゲームオーバー
+  if(G.phase==='gameover'){
+    ctx.fillStyle='rgba(253,244,255,0.94)';ctx.fillRect(0,0,W,H);
+    ctx.textAlign='center';
+    ctx.font=`bold 15px 'Noto Sans JP',sans-serif`;ctx.fillStyle='#7c3aed';
+    ctx.fillText('👹 鬼の平方完成特訓ゲーム',W/2,H/2-95);
+    ctx.save();ctx.font=`900 44px 'Noto Sans JP',sans-serif`;ctx.fillStyle='#e11d48';
+    ctx.shadowColor='#fb7185';ctx.shadowBlur=20;ctx.fillText('GAME OVER',W/2,H/2-32);ctx.restore();
+    ctx.font=`bold 22px 'Noto Sans JP',sans-serif`;ctx.fillStyle='#7c3aed';
+    ctx.fillText(`SCORE: ${G.score}`,W/2,H/2+22);
+    ctx.font=`13px 'Noto Sans JP',sans-serif`;ctx.fillStyle='#9ca3af';
+    ctx.fillText('クリックまたはEnterでリスタート',W/2,H/2+68);
+  }
+}
+
+function loop(){update();draw();requestAnimationFrame(loop);}
+init();requestAnimationFrame(loop);
+</script>
+</body>
+</html>

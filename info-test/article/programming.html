@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>情報Ⅰ プログラミング分野 100問ドリル</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', 'Inter', sans-serif;
+        }
+        .quiz-container {
+            max-width: 800px;
+            margin: 2rem auto;
+        }
+        .option-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .correct {
+            background-color: #d1fae5 !important;
+            border-color: #10b981 !important;
+        }
+        .incorrect {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+        }
+        .explanation {
+            border-left: 4px solid #60a5fa;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="quiz-container p-4 sm:p-6 md:p-8">
+        <div id="start-screen" class="text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold text-blue-600 mb-4">情報Ⅰ プログラミング分野</h1>
+            <h2 class="text-xl sm:text-2xl font-semibold mb-8">共通テスト対策 100問ドリル</h2>
+            <p class="mb-8 text-gray-600">提供された資料に基づいて作成された100問のクイズです。<br>準備ができたら下のボタンを押して開始してください。</p>
+            <button id="start-btn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105">
+                クイズを開始
+            </button>
+        </div>
+
+        <div id="quiz-screen" class="hidden">
+            <div class="bg-white p-6 rounded-xl shadow-md mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-blue-700">問題 <span id="question-number"></span>/100</h2>
+                    <div id="progress-bar-container" class="w-1/2 bg-gray-200 rounded-full h-2.5">
+                        <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+                <p id="question-text" class="text-lg leading-relaxed"></p>
+            </div>
+
+            <div id="options-container" class="grid grid-cols-1 gap-4">
+                <!-- Option buttons will be generated here by JS -->
+            </div>
+
+            <div id="feedback-container" class="hidden mt-6">
+                <div id="feedback-result" class="text-2xl font-bold mb-4"></div>
+                <div id="explanation" class="bg-blue-50 p-4 rounded-lg explanation">
+                    <h3 class="font-bold text-lg mb-2 text-blue-800">解説</h3>
+                    <p id="explanation-text" class="text-gray-700"></p>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <button id="next-btn" class="bg-gray-800 text-white font-bold py-3 px-12 rounded-lg shadow-lg hover:bg-gray-900 transition-transform transform hover:scale-105 hidden">
+                    次の問題へ
+                </button>
+            </div>
+        </div>
+
+        <div id="result-screen" class="hidden text-center bg-white p-8 rounded-xl shadow-lg">
+            <h2 class="text-3xl font-bold text-blue-600 mb-4">結果発表</h2>
+            <p class="text-xl mb-6">お疲れ様でした！あなたのスコアは...</p>
+            <p class="text-6xl font-extrabold text-gray-800 mb-8"><span id="score"></span> / 100</p>
+            <p id="result-message" class="text-lg font-medium mb-8"></p>
+            <button id="restart-btn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105">
+                もう一度挑戦する
+            </button>
+        </div>
+    </div>
+
+<script>
+    // --- Quiz Data ---
+    const quizData = [
+        {
+            question: "問題を解決するための方法や手順のことを何というか。",
+            options: ["プログラミング", "フローチャート", "アルゴリズム", "プログラム", "ソースコード"],
+            answer: 2,
+            explanation: "アルゴリズムは、特定の問題を解決するための、明確に定義された手順の集合です。"
+        },
+        {
+            question: "アルゴリズムをコンピュータが実行できるように、プログラミング言語を用いて記述したものを何というか。",
+            options: ["フローチャート", "設計図", "仕様書", "プログラム", "アルゴリズム"],
+            answer: 3,
+            explanation: "プログラムは、コンピュータに対する命令の集まりであり、アルゴリズムを具体的な形で表現したものです。"
+        },
+        {
+            question: "フローチャートにおいて、処理の開始と終了を表す記号はどれか。",
+            options: ["四角形", "ひし形", "平行四辺形", "矢印", "角の丸い四角形（端子）"],
+            answer: 4,
+            explanation: "フローチャートでは、角の丸い四角形（端子記号）を使って処理の開始と終了を示します。"
+        },
+        {
+            question: "フローチャートにおいて、条件による分岐を表す記号はどれか。",
+            options: ["四角形", "ひし形", "平行四辺形", "円", "矢印"],
+            answer: 1,
+            explanation: "ひし形の記号は判断を表し、条件が真（Yes）か偽（No）かによって処理の流れが分岐します。"
+        },
+        {
+            question: "0と1のビット列で構成され、コンピュータが直接実行できる言語は何か。",
+            options: ["高級言語", "アセンブリ言語", "Python", "機械語", "ビジュアルプログラミング言語"],
+            answer: 3,
+            explanation: "機械語は、CPUが直接解釈して実行できる唯一の言語です。低級言語に分類されます。"
+        },
+        {
+            question: "人間の言葉に近い文法で記述でき、特定のCPUに依存しないプログラミング言語を総称して何というか。",
+            options: ["機械語", "低級言語", "高級言語", "アセンブリ言語", "ソースコード"],
+            answer: 2,
+            explanation: "高級言語（Python, Java, Cなど）は、人間にとって分かりやすく、機械語への翻訳（コンパイルやインタプリタ）を経て実行されます。"
+        },
+        {
+            question: "プログラムを1行ずつ機械語に翻訳しながら実行する言語の方式を何というか。",
+            options: ["コンパイラ型", "インタプリタ型", "アセンブラ型", "手続き型", "オブジェクト指向型"],
+            answer: 1,
+            explanation: "インタプリタ型言語は、実行時に逐次翻訳するため、開発中の動作確認が容易です。PythonやJavaScriptがこれにあたります。"
+        },
+        {
+            question: "プログラム作成の工程で、プログラム中の誤り（バグ）を見つけて修正する作業を何というか。",
+            options: ["設計", "コーディング", "コンパイル", "デバッグ", "テスト"],
+            answer: 3,
+            explanation: "デバッグは、プログラムが意図した通りに動作しない原因（バグ）を特定し、取り除く重要な作業です。"
+        },
+        {
+            question: "プログラミング言語の文法上の誤りによって発生するエラーはどれか。",
+            options: ["実行時エラー", "論理エラー", "構文エラー", "システムエラー", "ハードウェアエラー"],
+            answer: 2,
+            explanation: "構文エラー（Syntax Error）は、言語のルールに従っていない記述がある場合に、翻訳（コンパイルやインタプリタ）の段階で検出されます。"
+        },
+        {
+            question: "プログラムは実行できるが、意図した通りの結果にならないエラーはどれか。",
+            options: ["実行時エラー", "論理エラー", "構文エラー", "コンパイルエラー", "シンタックスエラー"],
+            answer: 1,
+            explanation: "論理エラー（Logic Error）は、アルゴリズムの設計ミスなどが原因で発生し、発見が最も困難なエラーです。"
+        },
+        {
+            question: "プログラムの実行中に、0での割り算など、実行不可能な処理が原因でプログラムが異常終了するエラーはどれか。",
+            options: ["実行時エラー", "論理エラー", "構文エラー", "文法エラー", "設計ミス"],
+            answer: 0,
+            explanation: "実行時エラー（Runtime Error）は、プログラムの実行中に発生する問題で、不正なメモリアクセスなども原因となります。"
+        },
+        {
+            question: "プログラムの基本構造のうち、処理を上から下に順番に実行する構造を何というか。",
+            options: ["選択構造", "反復構造", "順次構造", "分岐構造", "ループ構造"],
+            answer: 2,
+            explanation: "順次構造は、記述された命令を上から順番に一つずつ実行していく、最も基本的なプログラム構造です。"
+        },
+        {
+            question: "プログラムの基本構造のうち、条件が成り立つかどうかで処理の流れを変える構造を何というか。",
+            options: ["選択構造", "反復構造", "順次構造", "逐次構造", "ループ構造"],
+            answer: 0,
+            explanation: "選択構造（分岐構造）は、`if`文などを用いて、条件に応じて実行する処理を切り替えます。"
+        },
+        {
+            question: "プログラムの基本構造のうち、特定の処理を繰り返し実行する構造を何というか。",
+            options: ["選択構造", "反復構造", "順次構造", "分岐構造", "条件構造"],
+            answer: 1,
+            explanation: "反復構造（ループ構造）は、`for`文や`while`文などを用いて、同じ処理を何度も実行します。"
+        },
+        {
+            question: "Pythonにおいて、文字列を画面に表示するための組み込み関数はどれか。",
+            options: ["input()", "print()", "str()", "int()", "len()"],
+            answer: 1,
+            explanation: "`print()`関数は、引数に指定したデータ（文字列や数値など）を標準出力（通常は画面）に出力します。"
+        },
+        {
+            question: "Pythonにおいて、キーボードからの入力を受け取るための組み込み関数はどれか。",
+            options: ["input()", "print()", "get()", "read()", "type()"],
+            answer: 0,
+            explanation: "`input()`関数は、キーボードから入力された内容を文字列として返します。"
+        },
+        {
+            question: "Pythonにおいて、`#`から始まる行は何を意味するか。",
+            options: ["エラー", "関数の定義", "文字列", "コメント", "プログラムの終了"],
+            answer: 3,
+            explanation: "`#`以降の文字列はコメントと見なされ、プログラムの実行時には無視されます。プログラムの説明などを記述するのに使います。"
+        },
+        {
+            question: "Pythonにおいて、if文やfor文などのブロック（処理のかたまり）を表すために用いられるものは何か。",
+            options: ["波括弧 {}", "丸括弧 ()", "字下げ（インデント）", "セミコロン ;", "キーワード begin/end"],
+            answer: 2,
+            explanation: "Pythonでは、字下げ（インデント）によってコードのブロックを表現します。同じブロックに属する文は、同じ深さで字下げする必要があります。"
+        },
+        {
+            question: "Pythonの比較演算子で、「等しい」を表すものはどれか。",
+            options: ["=", "==", "!=", "<>", "is"],
+            answer: 1,
+            explanation: "`=`は代入演算子です。比較演算子として「等しい」を表すには`==`を使用します。"
+        },
+        {
+            question: "Pythonの論理演算子で、「AかつB」を表すものはどれか。",
+            options: ["or", "not", "and", "&&", "&"],
+            answer: 2,
+            explanation: "`and`演算子は、両方の条件が真（True）の場合にのみ、全体として真（True）を返します。"
+        },
+        {
+            question: "プログラム中で、データ（数値や文字列など）を一時的に記憶しておくための領域に付けられた名前を何というか。",
+            options: ["定数", "関数", "変数", "配列", "引数"],
+            answer: 2,
+            explanation: "変数は、データを格納する「箱」のようなもので、プログラムの実行中に値を変更することができます。"
+        },
+        {
+            question: "Pythonの`for i in range(5):`という記述において、変数`i`はどのような値をとるか。",
+            options: ["0から5まで", "1から5まで", "0から4まで", "1から4まで", "5のみ"],
+            answer: 2,
+            explanation: "`range(n)`は0からn-1までの整数のシーケンスを生成します。したがって、`range(5)`は0, 1, 2, 3, 4を順に生成します。"
+        },
+        {
+            question: "Pythonの`while`文はどのような条件の間、処理を繰り返すか。",
+            options: ["条件が偽(False)の間", "条件が真(True)の間", "指定した回数だけ", "エラーが発生するまで", "無限に"],
+            answer: 1,
+            explanation: "`while`文は、指定された条件式が真（True）である限り、そのブロック内の処理を繰り返し実行します。"
+        },
+        {
+            question: "複数のデータを一つの名前でまとめて管理するためのデータ構造はどれか。",
+            options: ["変数", "定数", "関数", "配列（リスト）", "モジュール"],
+            answer: 3,
+            explanation: "配列（Pythonではリスト）を使うと、多数のデータを効率的に扱うことができます。各データは添字（インデックス）で区別されます。"
+        },
+        {
+            question: "配列`a = [10, 20, 30, 40]`において、`a[2]`が示す値は何か。",
+            options: ["10", "20", "30", "40", "エラー"],
+            answer: 2,
+            explanation: "配列の添字（インデックス）は0から始まります。したがって、`a[0]`が10、`a[1]`が20、`a[2]`が30となります。"
+        },
+        {
+            question: "特定の処理をひとまとまりにし、名前を付けて再利用できるようにしたものを何というか。",
+            options: ["変数", "配列", "モジュール", "関数", "クラス"],
+            answer: 3,
+            explanation: "関数は、一連の処理を部品化する仕組みです。同じ処理を何度も書く必要がなくなり、プログラムが整理され、見通しが良くなります。"
+        },
+        {
+            question: "関数を呼び出す際に、関数に渡す値を何というか。",
+            options: ["戻り値", "返り値", "引数", "変数", "仮引数"],
+            answer: 2,
+            explanation: "引数（ひきすう）は、関数に情報を渡し、処理内容を変化させるために使います。呼び出し側で指定するものを実引数といいます。"
+        },
+        {
+            question: "関数が処理を終えた後、呼び出し元に返す値を何というか。",
+            options: ["戻り値（返り値）", "引数", "実引数", "仮引数", "グローバル変数"],
+            answer: 0,
+            explanation: "戻り値（返り値）は、関数の計算結果などを呼び出し元に伝えるために使われます。Pythonでは`return`文で指定します。"
+        },
+        {
+            question: "関数の中で宣言され、その関数の中でしか利用できない変数を何というか。",
+            options: ["グローバル変数", "ローカル変数", "定数", "引数", "静的変数"],
+            answer: 1,
+            explanation: "ローカル変数は、その変数が宣言された特定のスコープ（範囲）、通常は関数内でのみ有効です。"
+        },
+        {
+            question: "プログラムのどこからでも参照できる変数を何というか。",
+            options: ["グローバル変数", "ローカル変数", "インスタンス変数", "クラス変数", "仮引数"],
+            answer: 0,
+            explanation: "グローバル変数は、プログラムの最上位レベルで宣言され、どの関数からでもアクセスできますが、多用するとプログラムが複雑になるため注意が必要です。"
+        },
+        {
+            question: "配列の要素を先頭から順番に調べて、目的の値を探す探索アルゴリズムは何か。",
+            options: ["二分探索", "線形探索", "ハッシュ探索", "幅優先探索", "深さ優先探索"],
+            answer: 1,
+            explanation: "線形探索（リニアサーチ）は、最も基本的な探索方法ですが、データ数が多いと時間がかかるという欠点があります。"
+        },
+        {
+            question: "あらかじめデータが整列されていることを前提として、探索範囲を半分に絞り込みながら目的の値を探す、効率的な探索アルゴリズムは何か。",
+            options: ["二分探索", "線形探索", "全探索", "逐次探索", "ランダム探索"],
+            answer: 0,
+            explanation: "二分探索（バイナリサーチ）は、中央の値と探索値を比較し、大小関係に応じて探索範囲を半分にする操作を繰り返します。非常に高速な探索が可能です。"
+        },
+        {
+            question: "データ数がN個のとき、線形探索の最大比較回数は何回か。",
+            options: ["1回", "2回", "log2(N)回", "N/2回", "N回"],
+            answer: 4,
+            explanation: "線形探索では、最悪の場合（データが末尾にあるか、存在しない場合）、全てのデータを調べる必要があるため、比較回数はN回となります。"
+        },
+        {
+            question: "データ数がN個のとき、二分探索の最大比較回数はおよそ何回か。",
+            options: ["N回", "N/2回", "log2(N)回", "2回", "1回"],
+            answer: 2,
+            explanation: "二分探索は、1回の比較で探索範囲が半分になるため、比較回数はデータの対数（底は2）に比例します。データ数が膨大でも比較回数は非常に少なくなります。"
+        },
+        {
+            question: "データを昇順または降順に並べ替えることを何というか。",
+            options: ["探索", "整列（ソート）", "挿入", "削除", "マージ"],
+            answer: 1,
+            explanation: "整列（ソート）は、データを特定の順序に並べ替える操作で、その後の探索などを効率化するために重要です。"
+        },
+        {
+            question: "隣り合うデータを比較して、大小関係が逆であれば交換する操作を繰り返す整列アルゴリズムは何か。",
+            options: ["選択法", "挿入法", "交換法（バブルソート）", "クイックソート", "マージソート"],
+            answer: 2,
+            explanation: "交換法（バブルソート）は、最も単純なソートアルゴリズムの一つです。泡が水面に上がっていく様子に似ていることから名付けられました。"
+        },
+        {
+            question: "未整列の部分から最小値（または最大値）を探し出し、整列済みの部分の末尾に追加していく整列アルゴリズムは何か。",
+            options: ["選択法", "挿入法", "交換法（バブルソート）", "ヒープソート", "シェルソート"],
+            answer: 0,
+            explanation: "選択法は、データ全体から最小値を選んで先頭の要素と交換し、次に残りの部分から最小値を選んで2番目の要素と交換する、という処理を繰り返します。"
+        },
+        {
+            question: "データ数がN個のとき、選択ソートの比較回数はおよそ何回に比例するか。",
+            options: ["N", "log(N)", "N*log(N)", "Nの2乗", "Nの3乗"],
+            answer: 3,
+            explanation: "選択ソートやバブルソートでは、比較回数は N * (N-1) / 2 となり、およそNの2乗に比例します。"
+        },
+        {
+            question: "関連するデータ（属性）と手続き（操作）を一つの「モノ」としてまとめる考え方に基づくプログラミング手法を何というか。",
+            options: ["手続き型プログラミング", "関数型プログラミング", "オブジェクト指向プログラミング", "論理型プログラミング", "構造化プログラミング"],
+            answer: 2,
+            explanation: "オブジェクト指向プログラミングは、現実世界のモノをモデル化した「オブジェクト」の相互作用としてプログラムを構築します。"
+        },
+        {
+            question: "オブジェクト指向において、オブジェクトの設計図にあたるものを何というか。",
+            options: ["インスタンス", "メソッド", "プロパティ", "クラス", "モジュール"],
+            answer: 3,
+            explanation: "クラスは、オブジェクトが持つべきデータ（プロパティ）と操作（メソッド）を定義した「型」や「設計図」です。"
+        },
+        {
+            question: "オブジェクト指向において、クラスに基づいて実際にメモリ上に生成された実体を何というか。",
+            options: ["インスタンス（オブジェクト）", "メソッド", "プロパティ", "クラス", "継承"],
+            answer: 0,
+            explanation: "クラスという設計図から、具体的なモノ（インスタンス）を生成します。このプロセスをインスタンス化といいます。"
+        },
+        {
+            question: "オブジェクトが持つデータや属性のことを何というか。",
+            options: ["インスタンス", "メソッド", "プロパティ", "クラス", "コンストラクタ"],
+            answer: 2,
+            explanation: "プロパティは、オブジェクトの状態を表すデータです。例えば、「自動車」クラスのオブジェクトなら「色」や「車種」がプロパティにあたります。"
+        },
+        {
+            question: "オブジェクトに対して行える操作や振る舞いのことを何というか。",
+            options: ["インスタンス", "メソッド", "プロパティ", "クラス", "ポリモーフィズム"],
+            answer: 1,
+            explanation: "メソッドは、オブジェクトが持つプロパティを操作するための手続き（関数）です。「自動車」クラスなら「発進する」「停止する」がメソッドにあたります。"
+        },
+        {
+            question: "ある状態から別の状態へ変化する様子を、図や表で表現する設計手法はどれか。",
+            options: ["フローチャート", "クラス図", "状態遷移図・状態遷移表", "シーケンス図", "ユースケース図"],
+            answer: 2,
+            explanation: "状態遷移図や状態遷移表は、システムの振る舞いを「状態」と、状態を変化させるきっかけとなる「イベント」でモデル化します。自動販売機などが良い例です。"
+        },
+        {
+            question: "システムの構造を、クラスとその関連性によって静的に表現するUMLの図はどれか。",
+            options: ["アクティビティ図", "クラス図", "状態遷移図", "シーケンス図", "オブジェクト図"],
+            answer: 1,
+            explanation: "クラス図は、システムを構成するクラス、各クラスの属性や操作、クラス間の関係（継承、関連など）を視覚的に表現します。"
+        },
+        {
+            question: "CSV形式のファイルとは、どのようなファイルか。",
+            options: ["画像を圧縮したファイル", "音声データを記録したファイル", "プログラムのソースコードファイル", "データをカンマで区切ったテキストファイル", "暗号化されたファイル"],
+            answer: 3,
+            explanation: "CSV (Comma-Separated Values) は、表形式のデータを保存するための汎用的なフォーマットで、多くの表計算ソフトやデータベースソフトで利用できます。"
+        },
+        {
+            question: "Pythonでファイルを開くために使う組み込み関数はどれか。",
+            options: ["read()", "write()", "close()", "open()", "file()"],
+            answer: 3,
+            explanation: "`open()`関数は、指定したファイルを開き、操作するためのファイルオブジェクトを返します。"
+        },
+        {
+            question: "Pythonの文字列メソッドで、指定した区切り文字で文字列を分割し、リストとして返すものはどれか。",
+            options: ["join()", "split()", "replace()", "find()", "strip()"],
+            answer: 1,
+            explanation: "`split()`メソッドは、CSVファイルから読み込んだ1行の文字列を、カンマで区切って各データに分割する際などによく使われます。"
+        },
+        {
+            question: "Pythonでグラフを描画するためによく使われる外部モジュール（ライブラリ）はどれか。",
+            options: ["tkinter", "random", "math", "matplotlib", "datetime"],
+            answer: 3,
+            explanation: "matplotlibは、折れ線グラフ、棒グラフ、散布図など、様々な種類のグラフを高品質に描画するための強力なライブラリです。"
+        },
+        {
+            question: "PythonでGUI（グラフィカルユーザインタフェース）アプリケーションを作成するための標準モジュールはどれか。",
+            options: ["tkinter", "pygame", "kivy", "matplotlib", "requests"],
+            answer: 0,
+            explanation: "tkinterは、Pythonに標準で付属しているGUIツールキットで、ウィンドウやボタン、テキストボックスなどを配置してアプリケーションを作成できます。"
+        },
+        {
+            question: "ボタンがクリックされた時など、ユーザの操作やシステムの特定の出来事をきっかけとして処理を実行する仕組みを何というか。",
+            options: ["逐次処理", "バッチ処理", "イベント処理", "並列処理", "リアルタイム処理"],
+            answer: 2,
+            explanation: "イベント処理（イベント駆動型プログラミング）は、GUIアプリケーションの基本的な動作モデルです。「イベントが発生したら、対応する処理（イベントハンドラ）を実行する」という形でプログラムを記述します。"
+        },
+        {
+            question: "キー（Key）とバリュー（Value）のペアでデータを管理するデータ構造を何というか。Pythonでは「辞書」と呼ばれる。",
+            options: ["リスト", "タプル", "セット", "キーバリュー型", "配列"],
+            answer: 3,
+            explanation: "キーバリュー型データ構造（辞書、連想配列）は、数値の添字の代わりに、意味のあるキー（文字列など）を使ってデータにアクセスできるのが特徴です。"
+        },
+        {
+            question: "物理量を検知して電気信号に変換する装置を何というか。",
+            options: ["アクチュエータ", "センサ", "モーター", "LED", "ADコンバータ"],
+            answer: 1,
+            explanation: "センサは、温度、光、圧力などの物理的な情報を、コンピュータが扱える電気信号に変換する役割を持ちます。"
+        },
+        {
+            question: "電気信号を物理的な運動に変換する装置を何というか。",
+            options: ["アクチュエータ", "センサ", "マイク", "カメラ", "DAコンバータ"],
+            answer: 0,
+            explanation: "アクチュエータは、コンピュータからの指令を受けて、モーターを回転させたり、バルブを開閉したりといった物理的な動作を行います。"
+        },
+        {
+            question: "アナログ信号をデジタル信号に変換する回路や装置を何というか。",
+            options: ["DAコンバータ", "ADコンバータ", "入力ポート", "出力ポート", "CPU"],
+            answer: 1,
+            explanation: "ADコンバータ（ADC）は、センサから得られた連続的なアナログ電圧を、コンピュータが処理できる離散的なデジタル値に変換します。"
+        },
+        {
+            question: "プログラムの基本構造を組み合わせることで、どのような複雑なプログラムでも記述できる、という考え方を何というか。",
+            options: ["オブジェクト指向", "構造化プログラミング", "関数型プログラミング", "アルゴリズム設計", "トップダウン設計"],
+            answer: 1,
+            explanation: "構造化プログラミングは、順次・選択・反復の3つの基本構造を用いることで、見通しが良く、保守しやすいプログラムを作成できるという定理に基づいています。"
+        },
+        {
+            question: "Pythonの`import random`は何をするための記述か。",
+            options: ["数学関数を利用可能にする", "乱数を扱う機能を利用可能にする", "日付や時刻を扱う機能を利用可能にする", "GUIを作成する機能を利用可能にする", "ファイルを操作する機能を利用可能にする"],
+            answer: 1,
+            explanation: "`import`文は、他のファイルに定義された機能（モジュール）を自分のプログラムで使えるようにするために使用します。`random`モジュールには乱数関連の関数が含まれています。"
+        },
+        {
+            question: "`a = [88, 43, 27, 65]`というリストを交換法（バブルソート）で昇順にソートする際、1回目の走査（パス）が終わった後のリストの状態はどれか。",
+            options: ["[27, 88, 43, 65]", "[43, 27, 65, 88]", "[43, 88, 27, 65]", "[27, 43, 65, 88]", "[88, 43, 27, 65]"],
+            answer: 1,
+            explanation: "バブルソートの1パスでは、隣り合う要素を比較・交換しながら末尾に向かいます。結果として、最大の要素（88）が末尾に移動します。[43, 27, 65, 88]となります。"
+        },
+        {
+            question: "`a = [88, 43, 27, 65]`というリストを選択法で昇順にソートする際、1回目の走査（パス）が終わった後のリストの状態はどれか。",
+            options: ["[27, 43, 88, 65]", "[43, 88, 27, 65]", "[88, 43, 27, 65]", "[27, 43, 65, 88]", "[65, 43, 27, 88]"],
+            answer: 0,
+            explanation: "選択ソートの1パスでは、全体から最小値（27）を見つけ出し、先頭の要素（88）と交換します。結果として[27, 43, 88, 65]となります。"
+        },
+        {
+            question: "オブジェクト指向の考え方で、既存のクラスの機能を引き継いで新しいクラスを作成することを何というか。",
+            options: ["カプセル化", "継承", "多態性（ポリモーフィズム）", "インスタンス化", "オーバーライド"],
+            answer: 1,
+            explanation: "継承を利用することで、コードの再利用性が高まり、効率的な開発が可能になります。"
+        },
+        {
+            question: "オブジェクト指向の考え方で、データとその操作を一つにまとめ、内部の詳細を外部から隠蔽することを何というか。",
+            options: ["カプセル化", "継承", "多態性（ポリモーフィズム）", "抽象化", "情報隠蔽"],
+            answer: 0,
+            explanation: "カプセル化により、オブジェクトの独立性が高まり、意図しないデータの書き換えなどを防ぐことができます。"
+        },
+        {
+            question: "`a = 'Hello'` と `b = 'World'` があるとき、`print(a + ' ' + b)`の実行結果はどうなるか。",
+            options: ["HelloWorld", "Hello World", "ab", "a + ' ' + b", "エラー"],
+            answer: 1,
+            explanation: "文字列に対して`+`演算子を使用すると、文字列が連結されます。"
+        },
+        {
+            question: "`input()`関数で数値を入力した場合、そのデータ型は何になるか。",
+            options: ["整数型(int)", "浮動小数点数型(float)", "文字列型(str)", "ブール型(bool)", "リスト型(list)"],
+            answer: 2,
+            explanation: "`input()`関数はすべての入力を文字列型(str)として扱います。計算に使用する場合は`int()`や`float()`関数で数値型に変換する必要があります。"
+        },
+        {
+            question: "`a = 10`、`b = 3` のとき、`a % b` の結果は何か。",
+            options: ["3", "3.33", "1", "0", "エラー"],
+            answer: 2,
+            explanation: "`%`演算子は、割り算の余りを求めます。10を3で割ると商が3で余りが1なので、結果は1となります。"
+        },
+        {
+            question: "関数を定義する際に、呼び出し元から渡される値を受け取るために使う変数を何というか。",
+            options: ["実引数", "仮引数", "戻り値", "グローバル変数", "ローカル変数"],
+            answer: 1,
+            explanation: "仮引数は、関数の定義部分で宣言される変数で、実引数として渡された値を受け取ります。"
+        },
+        {
+            question: "Pythonで、あるモジュールが持つ特定の関数だけをインポートする際の記述として正しいものはどれか。",
+            options: ["import math", "import math as m", "from math import sin", "include math", "require 'math'"],
+            answer: 2,
+            explanation: "`from モジュール名 import 関数名`という構文を使うと、モジュール名を付けずに直接関数名で呼び出すことができます。"
+        },
+        {
+            question: "`a = [1, 2, 3]` のリストの末尾に `4` を追加する操作はどれか。",
+            options: ["a.add(4)", "a.insert(4)", "a.append(4)", "a[3] = 4", "a + 4"],
+            answer: 2,
+            explanation: "リストの`append()`メソッドは、リストの末尾に新しい要素を追加します。"
+        },
+        {
+            question: "`for i in range(1, 10, 2):`というループで、変数`i`がとる値の組み合わせとして正しいものはどれか。",
+            options: ["[1, 3, 5, 7, 9]", "[1, 2, 3, 4, 5, 6, 7, 8, 9]", "[2, 4, 6, 8, 10]", "[1, 10, 2]", "[1, 2]"],
+            answer: 0,
+            explanation: "`range(開始, 終了, ステップ)`は、開始値から終了値の直前まで、ステップ値ずつ増加する数値を生成します。この場合、1, 3, 5, 7, 9となります。"
+        },
+        {
+            question: "二次元配列（リストのリスト）`a = [[1, 2], [3, 4]]`において、値`4`にアクセスするための記述はどれか。",
+            options: ["a[1][1]", "a[2][2]", "a[4]", "a[1,1]", "a(1,1)"],
+            answer: 0,
+            explanation: "最初の添字が行番号（0から）、次の添字が列番号（0から）を示します。`a[1]`で`[3, 4]`が選択され、その中の`[1]`番目の要素が`4`です。"
+        },
+        {
+            question: "オブジェクト指向において、オブジェクトが生成される際に一度だけ自動的に呼び出される特別なメソッドを何というか。",
+            options: ["デストラクタ", "コンストラクタ", "ゲッター", "セッター", "イニシャライザ"],
+            answer: 1,
+            explanation: "コンストラクタは、オブジェクトの初期化処理（プロパティに初期値を設定するなど）を行うために使用されます。Pythonでは`__init__`メソッドがこれにあたります。"
+        },
+        {
+            question: "プログラムの実行を任意の場所で一時停止させるデバッグ手法を何というか。",
+            options: ["ステップ実行", "ブレークポイント", "ウォッチ式", "ログ出力", "トレース"],
+            answer: 1,
+            explanation: "ブレークポイントを設定すると、プログラムはその行の直前で停止し、その時点での変数の値などを確認することができます。"
+        },
+        {
+            question: "ある関数が、処理の途中で自分自身を呼び出すことを何というか。",
+            options: ["繰り返し", "ループ", "再帰呼び出し", "コールバック", "ネスト"],
+            answer: 2,
+            explanation: "再帰呼び出しは、階乗の計算や特定のデータ構造の処理など、問題をより小さな同じ構造の問題に分割できる場合に有効な手法です。"
+        },
+        {
+            question: "Pythonで`True`または`False`の2つの値のみをとるデータ型は何か。",
+            options: ["整数型(int)", "文字列型(str)", "ブール型(bool)", "None型", "リスト型(list)"],
+            answer: 2,
+            explanation: "ブール型（bool）は、真（True）と偽（False）を表すデータ型で、主に条件分岐などで使用されます。"
+        },
+        {
+            question: "`if x > 10:`の後に、`x`が10より大きくない場合の処理を記述する際に使うキーワードは何か。",
+            options: ["elif", "then", "else", "except", "case"],
+            answer: 2,
+            explanation: "`else`ブロックは、`if`文の条件が偽（False）の場合に実行されます。"
+        },
+        {
+            question: "`if x > 10:`の後に、`x`は10以下だが5より大きい、というような別の条件を記述する際に使うキーワードは何か。",
+            options: ["or", "and", "else", "elif", "case"],
+            answer: 3,
+            explanation: "`elif` (else ifの略) を使うと、複数の条件を順番に判定していく多岐分岐を記述できます。"
+        },
+        {
+            question: "`a = [10, 20, 30]`というリストの要素数を取得する関数はどれか。",
+            options: ["count(a)", "size(a)", "length(a)", "len(a)", "a.length"],
+            answer: 3,
+            explanation: "組み込み関数の`len()`は、リストや文字列、辞書などの要素数を返します。"
+        },
+        {
+            question: "探索アルゴリズムの計算量を評価する際に、最も効率が良いとされるものはどれか。（Nはデータ数）",
+            options: ["O(N^2)", "O(N)", "O(log N)", "O(N log N)", "O(1)"],
+            answer: 2,
+            explanation: "計算量O(log N)は、データ数が倍になっても比較回数が1回しか増えないことを意味し、非常に効率的です。二分探索がこれに該当します。"
+        },
+        {
+            question: "整列アルゴリズムの計算量を評価する際に、バブルソートや選択ソートが該当するものはどれか。（Nはデータ数）",
+            options: ["O(N^2)", "O(N)", "O(log N)", "O(N log N)", "O(1)"],
+            answer: 0,
+            explanation: "計算量O(N^2)は、データ数が倍になると処理時間がおよそ4倍になることを意味し、単純なソートアルゴリズムの多くがこれに該当します。"
+        },
+        {
+            question: "Pythonの`tkinter`モジュールで、GUIの土台となるウィンドウを作成するクラスはどれか。",
+            options: ["Button", "Canvas", "Tk", "Window", "Frame"],
+            answer: 2,
+            explanation: "`tkinter.Tk()`を実行することで、メインウィンドウのオブジェクトが生成されます。"
+        },
+        {
+            question: "Pythonで、`math.pi`は何を表す定数か。",
+            options: ["自然対数の底 (ネイピア数)", "黄金比", "円周率", "光の速度", "重力加速度"],
+            answer: 2,
+            explanation: "`math.pi`は、円周率π（約3.14159）の値を保持しています。`math`モジュールをインポートして使用します。"
+        },
+        {
+            question: "`a = '123'`という文字列を、数値の`123`に変換する関数はどれか。",
+            options: ["str(a)", "int(a)", "float(a)", "num(a)", "convert(a)"],
+            answer: 1,
+            explanation: "`int()`関数は、引数に与えられた文字列や浮動小数点数を整数に変換します。"
+        },
+        {
+            question: "プログラムにおいて、あらかじめ言語仕様で定められており、変数名として使えない単語を何というか。",
+            options: ["識別子", "予約語", "キーワード", "リテラル", "演算子"],
+            answer: 1,
+            explanation: "予約語（またはキーワード）は、`if`, `for`, `while`など、プログラミング言語において特別な意味を持つ単語のことです。"
+        },
+        {
+            question: "2つの変数の値を入れ替える際に、一時的に値を保存するために使う変数を一般的に何というか。",
+            options: ["カウンタ変数", "フラグ変数", "作業用変数（テンポラリ変数）", "インデックス変数", "グローバル変数"],
+            answer: 2,
+            explanation: "例えば`temp = a; a = b; b = temp;`のように、一時的な保管場所（作業用変数）を使うことで、値を安全に入れ替えることができます。"
+        },
+        {
+            question: "ある条件が満たされているか否かといった、真偽の状態を記憶するために使われる変数を特に何というか。",
+            options: ["カウンタ変数", "フラグ変数", "ループ変数", "ポインタ変数", "状態変数"],
+            answer: 1,
+            explanation: "フラグは「旗」を意味し、プログラムの特定の状態（例：探索値が見つかったかどうか）をON/OFFで示すために使われます。"
+        },
+        {
+            question: "プログラムの処理の流れを視覚的に表現した図はフローチャートだが、システムの構造や振る舞いを統一的な記法で図示するモデリング言語は何か。",
+            options: ["HTML", "XML", "UML", "SQL", "Python"],
+            answer: 2,
+            explanation: "UML（統一モデリング言語）は、クラス図、シーケンス図、状態遷移図など、様々な図を用いてソフトウェアの設計を視覚化します。"
+        },
+        {
+            question: "`a = [5, 2, 8, 1]`というリストをソート（昇順）した結果、`print(a)`の表示はどうなるか。※リスト自体が変更されるソートメソッドを使った場合",
+            options: ["[5, 2, 8, 1]", "[1, 2, 5, 8]", "[8, 5, 2, 1]", "ソートされたリストが返されるがaは変わらない", "エラー"],
+            answer: 1,
+            explanation: "リストの`sort()`メソッドなどは、リストそのものを並べ替えます。昇順にソートすると`[1, 2, 5, 8]`となります。"
+        },
+        {
+            question: "`a = 'Python'`という文字列があるとき、`a[1]`は何を指すか。",
+            options: ["'P'", "'y'", "'t'", "'h'", "'o'"],
+            answer: 1,
+            explanation: "文字列もリストと同様に、0から始まるインデックスで各文字にアクセスできます。`a[0]`が'P'、`a[1]`が'y'となります。"
+        },
+        {
+            question: "`while True:`という記述が引き起こす可能性が最も高いものは何か。",
+            options: ["構文エラー", "実行時エラー", "論理エラー（無限ループ）", "正常終了", "一度だけ実行される"],
+            answer: 2,
+            explanation: "`True`は常に真なので、このループは条件が偽になることがありません。ループを脱出する`break`文などが内部にないと、無限ループに陥ります。"
+        },
+        {
+            question: "`def add(a, b): return a + b` という関数がある。`result = add(5, 3)`を実行した後、`result`の値はどうなるか。",
+            options: ["'53'", "8", "15", "None", "エラー"],
+            answer: 1,
+            explanation: "関数`add`は引数`a`と`b`を受け取り、その和を返します。5と3が渡されるので、`5 + 3 = 8`が計算され、`result`に代入されます。"
+        },
+        {
+            question: "オブジェクト指向プログラミングの利点として、適切でないものはどれか。",
+            options: ["プログラムの再利用性が高まる", "大規模なプログラムを部品に分けて開発できる", "現実世界のモデルを直感的に表現しやすい", "どんなプログラムでも必ず実行速度が速くなる", "データの誤った書き換えを防ぎやすい（カプセル化）"],
+            answer: 3,
+            explanation: "オブジェクト指向は、プログラムの構造化や保守性を高めるための手法であり、必ずしも実行速度の向上を保証するものではありません。場合によっては手続き型より遅くなることもあります。"
+        }
+    ];
+
+
+
+    // --- DOM Elements ---
+    const startScreen = document.getElementById('start-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const resultScreen = document.getElementById('result-screen');
+    
+    const startBtn = document.getElementById('start-btn');
+    const questionNumberEl = document.getElementById('question-number');
+    const questionTextEl = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const feedbackContainer = document.getElementById('feedback-container');
+    const feedbackResultEl = document.getElementById('feedback-result');
+    const explanationEl = document.getElementById('explanation');
+    const explanationTextEl = document.getElementById('explanation-text');
+    const nextBtn = document.getElementById('next-btn');
+    const restartBtn = document.getElementById('restart-btn');
+    const scoreEl = document.getElementById('score');
+    const resultMessageEl = document.getElementById('result-message');
+    const progressBar = document.getElementById('progress-bar');
+
+
+    // --- Variables ---
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let shuffledQuizData = [];
+
+    // --- Event Listeners ---
+    startBtn.addEventListener('click', startQuiz);
+    nextBtn.addEventListener('click', nextQuestion);
+    restartBtn.addEventListener('click', startQuiz);
+
+    // --- Functions ---
+
+    // Function to start the quiz
+    function startQuiz() {
+        startScreen.classList.add('hidden');
+        resultScreen.classList.add('hidden');
+        quizScreen.classList.remove('hidden');
+        
+        currentQuestionIndex = 0;
+        score = 0;
+        // Shuffle quiz data for a new order each time
+        shuffledQuizData = [...quizData].sort(() => Math.random() - 0.5);
+        displayQuestion();
+    }
+
+    // Function to display a question
+    function displayQuestion() {
+        resetState();
+        const currentQuestion = shuffledQuizData[currentQuestionIndex];
+        questionNumberEl.textContent = currentQuestionIndex + 1;
+        questionTextEl.innerHTML = `Q${currentQuestionIndex + 1}. ${currentQuestion.question}`;
+        
+        currentQuestion.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.innerHTML = `<span class="bg-blue-100 text-blue-800 font-bold rounded-full w-8 h-8 flex items-center justify-center mr-4">${index + 1}</span> ${option}`;
+            button.classList.add('option-btn', 'w-full', 'p-4', 'text-left', 'bg-white', 'border-2', 'border-gray-300', 'rounded-lg', 'flex', 'items-center', 'text-lg');
+            button.dataset.index = index;
+            button.addEventListener('click', selectAnswer);
+            optionsContainer.appendChild(button);
+        });
+
+        updateProgressBar();
+    }
+    
+    // Function to reset the state for the next question
+    function resetState() {
+        feedbackContainer.classList.add('hidden');
+        nextBtn.classList.add('hidden');
+        while (optionsContainer.firstChild) {
+            optionsContainer.removeChild(optionsContainer.firstChild);
+        }
+    }
+
+    // Function to handle answer selection
+    function selectAnswer(e) {
+        const selectedBtn = e.currentTarget;
+        const selectedIndex = parseInt(selectedBtn.dataset.index);
+        const correctIndex = shuffledQuizData[currentQuestionIndex].answer;
+
+        if (selectedIndex === correctIndex) {
+            feedbackResultEl.textContent = "正解！";
+            feedbackResultEl.className = "text-2xl font-bold mb-4 text-green-600";
+            score++;
+        } else {
+            feedbackResultEl.textContent = "不正解...";
+            feedbackResultEl.className = "text-2xl font-bold mb-4 text-red-600";
+        }
+        
+        explanationTextEl.textContent = shuffledQuizData[currentQuestionIndex].explanation;
+        feedbackContainer.classList.remove('hidden');
+
+        // Update styles for all buttons
+        Array.from(optionsContainer.children).forEach(button => {
+            const btnIndex = parseInt(button.dataset.index);
+            if (btnIndex === correctIndex) {
+                button.classList.add('correct');
+            } else if (btnIndex === selectedIndex) {
+                button.classList.add('incorrect');
+            }
+            button.disabled = true;
+        });
+
+        if (shuffledQuizData.length > currentQuestionIndex + 1) {
+            nextBtn.textContent = "次の問題へ";
+            nextBtn.classList.remove('hidden');
+        } else {
+            nextBtn.textContent = "結果を見る";
+            nextBtn.classList.remove('hidden');
+        }
+    }
+    
+    // Function to move to the next question or show results
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < shuffledQuizData.length) {
+            displayQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    // Function to show the final results
+    function showResult() {
+        quizScreen.classList.add('hidden');
+        resultScreen.classList.remove('hidden');
+        scoreEl.textContent = score;
+        
+        let message = "";
+        if (score >= 95) {
+            message = "素晴らしい！完璧です。プログラミングマスターですね！";
+        } else if (score >= 80) {
+            message = "高得点！素晴らしい理解度です。この調子で頑張りましょう。";
+        } else if (score >= 60) {
+            message = "合格ラインです。苦手な部分を解説で復習しましょう。";
+        } else if (score >= 40) {
+            message = "もう少しです。間違えた問題を中心に、もう一度挑戦してみましょう。";
+        } else {
+            message = "基礎からもう一度復習が必要です。繰り返し学習が力になります。";
+        }
+        resultMessageEl.textContent = message;
+    }
+
+    // Function to update the progress bar
+    function updateProgressBar() {
+        const progressPercentage = ((currentQuestionIndex + 1) / shuffledQuizData.length) * 100;
+        progressBar.style.width = `${progressPercentage}%`;
+    }
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>図形と方程式 シューティング</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  background:#000;
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;font-family:'Noto Sans JP',sans-serif;
+}
+canvas{display:block;cursor:crosshair;}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+const C=document.getElementById('c');
+const ctx=C.getContext('2d');
+const W=400,H=600;
+C.width=W;C.height=H;
+
+// ── レイアウト定数 ──
+const Q_H=130;        // 問題エリアの高さ
+const CANNON_Y=H-70;
+const BLOCK_W=70,BLOCK_H=50;
+const COL_X=[40,120,200,280,360];
+const MISSILE_SPD=9;
+
+// ── 乱数 ──
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const shuf=a=>{const r=[...a];for(let i=r.length-1;i>0;i--){const j=rnd(0,i);[r[i],r[j]]=[r[j],r[i]];}return r;};
+
+// ── 方程式フォーマッタ ──
+function fmtStd(a,b,r){
+  const xp=a===0?'x²':a>0?`(x-${a})²`:`(x+${-a})²`;
+  const yp=b===0?'y²':b>0?`(y-${b})²`:`(y+${-b})²`;
+  return `${xp} + ${yp} = ${r*r}`;
+}
+function fmtStdR2(a,b,r2){
+  const xp=a===0?'x²':a>0?`(x-${a})²`:`(x+${-a})²`;
+  const yp=b===0?'y²':b>0?`(y-${b})²`:`(y+${-b})²`;
+  return `${xp} + ${yp} = ${r2}`;
+}
+function fmtGen(D,E,F){
+  let s='x² + y²';
+  if(D>0)s+=` + ${D}x`;else if(D<0)s+=` - ${-D}x`;
+  if(E>0)s+=` + ${E}y`;else if(E<0)s+=` - ${-E}y`;
+  if(F>0)s+=` + ${F}`;else if(F<0)s+=` - ${-F}`;
+  return s+' = 0';
+}
+
+// ── 誤答生成（円） ──
+function wrongCoords(cx,cy,n){
+  const used=new Set([`${cx},${cy}`]);const res=[];
+  while(res.length<n){
+    const nx=cx+rnd(-4,4),ny=cy+rnd(-4,4);
+    const k=`${nx},${ny}`;
+    if(!used.has(k)){used.add(k);res.push(`(${nx}, ${ny})`);}
+  }
+  return res;
+}
+function wrongRadii(r,n){
+  const used=new Set([r]);const res=[];
+  while(res.length<n){const w=rnd(1,10);if(!used.has(w)){used.add(w);res.push(String(w));}}
+  return res;
+}
+
+// ── 直線フォーマッタ ──
+function fmtLinStd(m,b){
+  let mx=m===0?'':m===1?'x':m===-1?'-x':`${m}x`;
+  let bs=b===0?'':b>0?` + ${b}`:` - ${-b}`;
+  if(m===0)return `y = ${b}`;
+  return `y = ${mx}${bs}`;
+}
+function fmtLinGen(a,b,c){
+  const T=[];
+  if(a===1)T.push('x');else if(a===-1)T.push('-x');else if(a!==0)T.push(`${a}x`);
+  if(b===1)T.push('y');else if(b===-1)T.push('-y');else if(b!==0)T.push(`${b}y`);
+  if(c!==0)T.push(String(c));
+  let s='';for(const t of T){s+=(!s||t[0]==='-')?t:'+'+t;}
+  return (s||'0')+' = 0';
+}
+
+// ── 分数ヘルパー ──
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){const t=b;b=a%b;a=t;}return a||1;}
+function fmtFrac(p,q){
+  if(q===0)return '∞';
+  if(p===0)return '0';
+  const g=gcd(Math.abs(p),Math.abs(q));
+  p=p/g;q=q/g;
+  if(q<0){p=-p;q=-q;}
+  return q===1?String(p):`${p}/${q}`;
+}
+
+// ── 誤答生成（直線） ──
+function wrongSlopesInt(m,n){
+  const used=new Set([m]);const res=[];
+  while(res.length<n){const w=rnd(-6,6);if(!used.has(w)){used.add(w);res.push(String(w));}}
+  return res;
+}
+function wrongSlopesFrac(p,q,n){
+  const correctStr=fmtFrac(p,q);
+  const pool=[];
+  const nums=[-4,-3,-2,-1,0,1,2,3,4];
+  const denoms=[1,2,3];
+  for(const fp of nums)for(const fq of denoms){
+    const s=fmtFrac(fp,fq);
+    if(s!==correctStr&&!pool.includes(s))pool.push(s);
+  }
+  return shuf(pool).slice(0,n);
+}
+function wrongCoordsLine(m,b,x0,y0,n){
+  const used=new Set([`${x0},${y0}`]);const res=[];
+  let tries=0;
+  while(res.length<n&&tries<300){
+    tries++;
+    const nx=x0+rnd(-4,4),ny=y0+rnd(-4,4);
+    if(m*nx+b===ny)continue;
+    const k=`${nx},${ny}`;
+    if(!used.has(k)){used.add(k);res.push(`(${nx}, ${ny})`);}
+  }
+  return res;
+}
+
+// ── 問題生成：標準形 ──
+function genQ0(){
+  const a=rnd(-5,5),b=rnd(-5,5),r=rnd(1,7);
+  const eq=fmtStd(a,b,r);
+  if(Math.random()<0.4){
+    const correct=String(r);
+    return{eq,ques:'半径を選べ',choices:shuf([correct,...wrongRadii(r,4)]),correct};
+  }
+  const correct=`(${a}, ${b})`;
+  return{eq,ques:'中心の座標を選べ',choices:shuf([correct,...wrongCoords(a,b,4)]),correct};
+}
+
+// ── 問題生成：一般形 ──
+function genQ1(){
+  const cx=rnd(-4,4),cy=rnd(-4,4),r=rnd(1,5);
+  const D=-2*cx,E=-2*cy,F=cx*cx+cy*cy-r*r;
+  const eq=fmtGen(D,E,F);
+  const correct=`(${cx}, ${cy})`;
+  return{eq,ques:'中心の座標を選べ（一般形）',choices:shuf([correct,...wrongCoords(cx,cy,4)]),correct};
+}
+
+// ── 問題生成：応用 ──
+function genQ2(){
+  const t=rnd(0,2);
+
+  if(t===0){
+    // x軸に接する円：|b|=r
+    const a=rnd(-4,4),b=rnd(1,5),r=b;
+    const correct=fmtStd(a,b,r);
+    const ws=[];
+    while(ws.length<4){
+      const wa=rnd(-5,5),wb=rnd(-5,5),wr=rnd(1,6);
+      if(Math.abs(wb)!==wr){const s=fmtStd(wa,wb,wr);if(s!==correct&&!ws.includes(s))ws.push(s);}
+    }
+    return{eq:'',ques:'x軸に接する円の方程式を選べ',choices:shuf([correct,...ws]),correct};
+  }
+
+  if(t===1){
+    // y軸に接する円：|a|=r
+    const a=rnd(1,5),b=rnd(-4,4),r=a;
+    const correct=fmtStd(a,b,r);
+    const ws=[];
+    while(ws.length<4){
+      const wa=rnd(-5,5),wb=rnd(-5,5),wr=rnd(1,6);
+      if(Math.abs(wa)!==wr){const s=fmtStd(wa,wb,wr);if(s!==correct&&!ws.includes(s))ws.push(s);}
+    }
+    return{eq:'',ques:'y軸に接する円の方程式を選べ',choices:shuf([correct,...ws]),correct};
+  }
+
+  // 原点を通る円：a²+b²=r²
+  const a=rnd(1,5),b=rnd(1,5),r2=a*a+b*b;
+  const correct=fmtStdR2(a,b,r2);
+  const ws=[];
+  while(ws.length<4){
+    const wa=rnd(-5,5),wb=rnd(-5,5),wr=rnd(1,7);
+    if(wa*wa+wb*wb!==wr*wr){const s=fmtStd(wa,wb,wr);if(s!==correct&&!ws.includes(s))ws.push(s);}
+  }
+  return{eq:'',ques:'原点を通る円の方程式を選べ',choices:shuf([correct,...ws]),correct};
+}
+
+// ── 問題生成：直線①標準形→傾き ──
+function genL0(){
+  const m=rnd(-5,5),b=rnd(-5,5);
+  const eq=fmtLinStd(m,b);
+  const correct=String(m);
+  return{eq,ques:'この直線の傾きを選べ',choices:shuf([correct,...wrongSlopesInt(m,4)]),correct,tag:'line'};
+}
+
+// ── 問題生成：直線②標準形→通る点 ──
+function genL1(){
+  const m=rnd(-3,3),b=rnd(-3,3);
+  const eq=fmtLinStd(m,b);
+  const x0=rnd(-3,3),y0=m*x0+b;
+  const correct=`(${x0}, ${y0})`;
+  const ws=wrongCoordsLine(m,b,x0,y0,4);
+  return{eq,ques:'この直線が通る点を選べ',choices:shuf([correct,...ws]),correct,tag:'line'};
+}
+
+// ── 問題生成：直線③一般形→傾き ──
+function genL2(){
+  let a,bcoef;
+  do{a=rnd(-3,3);bcoef=rnd(-3,3);}while(bcoef===0);
+  const c=rnd(-4,4);
+  const eq=fmtLinGen(a,bcoef,c);
+  const correct=fmtFrac(-a,bcoef);
+  const ws=wrongSlopesFrac(-a,bcoef,4);
+  return{eq,ques:'この直線の傾きを選べ（一般形）',choices:shuf([correct,...ws]),correct,tag:'line'};
+}
+
+// ── 問題生成：直線④垂直な直線の傾き ──
+function genL3(){
+  let m;do{m=rnd(-4,4);}while(m===0);
+  const b=rnd(-4,4);
+  const eq=fmtLinStd(m,b);
+  const correct=fmtFrac(-1,m);
+  const ws=wrongSlopesFrac(-1,m,4);
+  return{eq,ques:'この直線に垂直な直線の傾きを選べ',choices:shuf([correct,...ws]),correct,tag:'line'};
+}
+
+// ── 問題生成：直線⑤平行な直線の傾き ──
+function genL4(){
+  const m=rnd(-5,5),b=rnd(-5,5);
+  const eq=fmtLinStd(m,b);
+  const correct=String(m);
+  const ws=wrongSlopesInt(m,4);
+  return{eq,ques:'この直線に平行な直線の傾きを選べ',choices:shuf([correct,...ws]),correct,tag:'line'};
+}
+
+function makeQ(level){
+  const r=Math.random();
+  if(level<=1){
+    // 円標準形 + 直線①② をバランスよく
+    if(r<0.40)return genQ0();
+    if(r<0.70)return genL0();
+    return genL1();
+  }
+  if(level<=2){
+    // 上記 + 円一般形 + 直線③
+    if(r<0.20)return genQ0();
+    if(r<0.38)return genQ1();
+    if(r<0.56)return genL0();
+    if(r<0.72)return genL1();
+    return genL2();
+  }
+  // level 3: 全種類
+  if(r<0.12)return genQ0();
+  if(r<0.22)return genQ1();
+  if(r<0.32)return genQ2();
+  if(r<0.46)return genL0();
+  if(r<0.58)return genL1();
+  if(r<0.70)return genL2();
+  if(r<0.84)return genL3();
+  return genL4();
+}
+
+// ── ゲーム状態 ──
+let G,mouseX=W/2;
+const keys={};
+let lastInput='mouse'; // 'mouse' or 'key'
+
+function init(){
+  G={
+    phase:'playing',score:0,lives:5,level:1,qCount:0,
+    playerX:W/2,missiles:[],blocks:[],particles:[],
+    flash:{t:0,col:''},q:null,
+    stars:Array.from({length:48},()=>({x:rnd(0,W),y:rnd(2,Q_H-10),sz:Math.random()*1.6+0.3})),
+  };
+  nextQ();
+}
+
+function nextQ(){
+  G.qCount++;
+  if(G.qCount>1&&(G.qCount-1)%5===0)G.level=Math.min(G.level+1,3);
+  G.q=makeQ(G.level);
+  G.phase='playing';
+  G.missiles=[];
+  const base=0.5+G.level*0.18+G.qCount*0.02;
+  G.blocks=G.q.choices.map((text,i)=>({
+    x:COL_X[i],
+    y:Q_H-BLOCK_H/2-i*30,
+    text,
+    isCorrect:text===G.q.correct,
+    alive:true,
+    spd:base*(0.82+Math.random()*0.36)
+  }));
+}
+
+// ── 入力 ──
+C.addEventListener('mousemove',e=>{
+  const r=C.getBoundingClientRect();
+  mouseX=(e.clientX-r.left)*(W/r.width);
+  lastInput='mouse';
+});
+C.addEventListener('click',()=>{
+  if(G.phase==='gameover'){init();return;}
+  if(G.phase==='playing')fire();
+});
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space'){e.preventDefault();if(G.phase==='playing')fire();}
+  if(e.code==='Enter'&&G.phase==='gameover')init();
+  if(e.code==='ArrowLeft'||e.code==='ArrowRight'){
+    e.preventDefault();
+    keys[e.code]=true;
+    lastInput='key';
+  }
+});
+document.addEventListener('keyup',e=>{
+  if(e.code==='ArrowLeft'||e.code==='ArrowRight') keys[e.code]=false;
+});
+function fire(){G.missiles.push({x:G.playerX,y:CANNON_Y-28});}
+
+// ── パーティクル ──
+function burst(x,y,col,n){
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2,s=Math.random()*5+1.5;
+    G.particles.push({x,y,col,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:38+rnd(0,22),sz:Math.random()*4+1});
+  }
+}
+
+// ── 更新 ──
+function update(){
+  if(G.phase==='gameover'||G.phase==='transition'){
+    G.particles=G.particles.filter(p=>p.life>0);
+    G.particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.14;p.life--;});
+    if(G.flash.t>0)G.flash.t--;
+    return;
+  }
+
+  if(lastInput==='key'){
+    const spd=6;
+    if(keys['ArrowLeft']) G.playerX=Math.max(30,G.playerX-spd);
+    if(keys['ArrowRight']) G.playerX=Math.min(W-30,G.playerX+spd);
+    mouseX=G.playerX; // lerpが引き戻さないよう同期
+  }else{
+    G.playerX+=(mouseX-G.playerX)*0.12;
+    G.playerX=Math.max(30,Math.min(W-30,G.playerX));
+  }
+
+  G.missiles=G.missiles.filter(m=>m.y>Q_H-4);
+  G.missiles.forEach(m=>m.y-=MISSILE_SPD);
+
+  for(const b of G.blocks){
+    if(!b.alive)continue;
+    b.y+=b.spd;
+
+    if(G.phase!=='playing')break;
+
+    // ミサイル衝突チェック
+    for(let mi=G.missiles.length-1;mi>=0;mi--){
+      const m=G.missiles[mi];
+      if(Math.abs(m.x-b.x)<BLOCK_W/2-4&&Math.abs(m.y-b.y)<BLOCK_H/2+2){
+        G.missiles.splice(mi,1);
+        b.alive=false;
+        if(b.isCorrect){
+          burst(b.x,b.y,'#00ff88',28);
+          G.score+=100*G.level;
+          G.flash={t:26,col:'rgba(0,255,100,0.18)'};
+          G.phase='transition';
+          setTimeout(nextQ,680);
+        }else{
+          burst(b.x,b.y,'#ff4444',20);
+          G.lives--;
+          G.flash={t:20,col:'rgba(255,0,0,0.22)'};
+          if(G.lives<=0)G.phase='gameover';
+        }
+        break;
+      }
+    }
+
+    // 正解ブロックが底に落ちたら
+    if(b.isCorrect&&b.alive&&b.y>CANNON_Y+12){
+      b.alive=false;
+      G.lives--;
+      burst(b.x,CANNON_Y,'#ff6600',18);
+      G.flash={t:30,col:'rgba(255,80,0,0.24)'};
+      if(G.lives<=0){G.phase='gameover';}
+      else{G.phase='transition';setTimeout(nextQ,680);}
+    }
+    if(!b.isCorrect&&b.y>H+20)b.alive=false;
+  }
+
+  G.particles=G.particles.filter(p=>p.life>0);
+  G.particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.14;p.life--;});
+  if(G.flash.t>0)G.flash.t--;
+}
+
+// ── 描画ヘルパー ──
+function rrect(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+
+// ── 描画 ──
+function draw(){
+  ctx.fillStyle='#000a18';ctx.fillRect(0,0,W,H);
+
+  // グリッド
+  ctx.strokeStyle='#001428';ctx.lineWidth=1;
+  for(let x=0;x<W;x+=36){ctx.beginPath();ctx.moveTo(x,Q_H);ctx.lineTo(x,CANNON_Y);ctx.stroke();}
+  for(let y=Q_H;y<CANNON_Y;y+=36){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+  // フラッシュ
+  if(G.flash.t>0){ctx.fillStyle=G.flash.col;ctx.fillRect(0,0,W,H);}
+
+  // ── 問題エリア ──
+  ctx.fillStyle='#00050e';ctx.fillRect(0,0,W,Q_H);
+  ctx.strokeStyle='#004477';ctx.lineWidth=1.5;ctx.strokeRect(1,1,W-2,Q_H-1);
+
+  // 仕切り線（グロー）
+  ctx.save();ctx.shadowColor='#0088ff';ctx.shadowBlur=14;
+  ctx.strokeStyle='#0099ff';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(0,Q_H);ctx.lineTo(W,Q_H);ctx.stroke();ctx.restore();
+
+  // 星
+  const tn=Date.now()*0.001;
+  G.stars.forEach((s,i)=>{
+    const brightness=0.3+0.6*Math.abs(Math.sin(tn+i*0.85));
+    ctx.fillStyle=`rgba(180,215,255,${brightness})`;
+    ctx.beginPath();ctx.arc(s.x,s.y,s.sz,0,Math.PI*2);ctx.fill();
+  });
+
+  // スコア・レベル・ライフ
+  ctx.save();ctx.font=`bold 13px 'Orbitron',monospace`;ctx.fillStyle='#00ffcc';
+  ctx.shadowColor='#00ffcc';ctx.shadowBlur=6;ctx.textAlign='left';
+  ctx.fillText(`SCORE  ${G.score}`,12,21);ctx.restore();
+
+  ctx.font=`bold 12px 'Orbitron',monospace`;ctx.fillStyle='#ffcc00';ctx.textAlign='center';
+  ctx.fillText(`LEVEL ${G.level}`,W/2,21);
+
+  ctx.font=`15px sans-serif`;ctx.fillStyle='#ff4466';ctx.textAlign='right';
+  ctx.fillText('❤'.repeat(Math.max(0,G.lives)),W-10,21);
+
+  // 問題表示
+  if(G.q){
+    ctx.textAlign='center';
+    // カテゴリラベル
+    const isLine=G.q.tag==='line';
+    const labelText=isLine?'📐 直線の方程式':'⭕ 円の方程式';
+    const labelCol=isLine?'#ffaa00':'#00ddff';
+    ctx.font=`bold 11px 'Noto Sans JP',sans-serif`;ctx.fillStyle=labelCol;
+    ctx.fillText(labelText,W/2,37);
+
+    if(G.q.eq){
+      ctx.save();
+      ctx.font=`bold 18px 'Orbitron',monospace`;
+      ctx.fillStyle=isLine?'#ffdd66':'#00ddff';
+      ctx.shadowColor=isLine?'#ffaa00':'#00aaff';ctx.shadowBlur=10;
+      ctx.fillText(G.q.eq,W/2,60);ctx.restore();
+      ctx.font=`bold 14px 'Noto Sans JP',sans-serif`;ctx.fillStyle='#ddeeff';
+      ctx.fillText('〔問〕'+G.q.ques,W/2,84);
+    }else{
+      ctx.save();ctx.font=`bold 16px 'Noto Sans JP',sans-serif`;ctx.fillStyle='#ffdd44';
+      ctx.shadowColor='#ffaa00';ctx.shadowBlur=8;ctx.fillText('〔問〕'+G.q.ques,W/2,66);ctx.restore();
+    }
+    ctx.font=`11px 'Noto Sans JP',sans-serif`;ctx.fillStyle='#223344';ctx.textAlign='center';
+    ctx.fillText('クリック or スペースキーで発射  ／  ←→キーで砲台移動',W/2,Q_H-12);
+  }
+
+  // ── 落下ブロック ──
+  for(const b of G.blocks){
+    if(!b.alive)continue;
+    if(b.y+BLOCK_H/2<Q_H)continue;
+
+    const bx=b.x-BLOCK_W/2+4,by=b.y-BLOCK_H/2;
+    const bw=BLOCK_W-8,bh=BLOCK_H;
+
+    ctx.fillStyle='#030916';rrect(bx,by,bw,bh,9);ctx.fill();
+    ctx.save();ctx.strokeStyle='#0066cc';ctx.lineWidth=1.5;
+    ctx.shadowColor='#0077ff';ctx.shadowBlur=11;rrect(bx,by,bw,bh,9);ctx.stroke();ctx.restore();
+
+    // 上部アクセントライン
+    ctx.strokeStyle='#0099ee';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(bx+8,by+1.5);ctx.lineTo(bx+bw-8,by+1.5);ctx.stroke();
+
+    // テキスト描画（長い場合は2行に分割）
+    ctx.textAlign='center';ctx.fillStyle='#aad4ff';
+    const txt=b.text;
+    ctx.font=`bold 11px 'Noto Sans JP',sans-serif`;
+
+    if(ctx.measureText(txt).width<=bw-10){
+      ctx.fillText(txt,b.x,b.y+6);
+    }else{
+      const pi=txt.indexOf(' + ');
+      if(pi>0){
+        ctx.font=`bold 10px 'Noto Sans JP',sans-serif`;
+        ctx.fillText(txt.substring(0,pi),b.x,b.y-4);
+        ctx.fillText('+ '+txt.substring(pi+3),b.x,b.y+12);
+      }else{
+        let fs=11;
+        while(ctx.measureText(txt).width>bw-10&&fs>7){fs--;ctx.font=`bold ${fs}px 'Noto Sans JP',sans-serif`;}
+        ctx.fillText(txt,b.x,b.y+6);
+      }
+    }
+  }
+
+  // ── ミサイル ──
+  for(const m of G.missiles){
+    ctx.save();
+    ctx.shadowColor='#ff8800';ctx.shadowBlur=12;
+    ctx.fillStyle='#ffdd00';ctx.fillRect(m.x-3,m.y-15,6,17);
+    ctx.fillStyle='#ffffff';
+    ctx.beginPath();ctx.moveTo(m.x,m.y-21);ctx.lineTo(m.x-3,m.y-15);ctx.lineTo(m.x+3,m.y-15);ctx.closePath();ctx.fill();
+    ctx.restore();
+    const tg=ctx.createLinearGradient(m.x,m.y,m.x,m.y+18);
+    tg.addColorStop(0,'rgba(255,100,0,0.55)');tg.addColorStop(1,'rgba(255,40,0,0)');
+    ctx.fillStyle=tg;ctx.fillRect(m.x-3,m.y,6,18);
+  }
+
+  // ── パーティクル ──
+  ctx.save();
+  for(const p of G.particles){
+    ctx.globalAlpha=Math.min(p.life/30,1);
+    ctx.fillStyle=p.col;ctx.beginPath();ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=1;ctx.restore();
+
+  // ── 砲台 ──
+  const px=G.playerX,py=CANNON_Y;
+
+  // ベース台座
+  ctx.fillStyle='#0c1e3a';rrect(px-30,py+8,60,22,6);ctx.fill();
+  ctx.strokeStyle='#0055aa';ctx.lineWidth=1.5;rrect(px-30,py+8,60,22,6);ctx.stroke();
+
+  // 砲台本体
+  ctx.save();ctx.shadowColor='#0099ff';ctx.shadowBlur=16;
+  ctx.fillStyle='#071628';ctx.beginPath();ctx.arc(px,py+8,22,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#0088ff';ctx.lineWidth=2;ctx.stroke();ctx.restore();
+
+  // 砲身
+  ctx.save();ctx.shadowColor='#00ccff';ctx.shadowBlur=10;
+  const bg=ctx.createLinearGradient(px-5,0,px+5,0);
+  bg.addColorStop(0,'#003366');bg.addColorStop(0.5,'#00aaff');bg.addColorStop(1,'#003366');
+  ctx.fillStyle=bg;ctx.fillRect(px-5,py-24,10,34);ctx.restore();
+
+  // 砲口
+  ctx.fillStyle='#00ccff';ctx.beginPath();ctx.arc(px,py-24,6,Math.PI,0);ctx.fill();
+
+  // 地面ライン
+  ctx.strokeStyle='#001a30';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(0,H-28);ctx.lineTo(W,H-28);ctx.stroke();
+
+  // ── ゲームオーバー画面 ──
+  if(G.phase==='gameover'){
+    ctx.fillStyle='rgba(0,0,12,0.9)';ctx.fillRect(0,0,W,H);
+
+    ctx.textAlign='center';
+    ctx.save();ctx.font=`900 48px 'Orbitron',monospace`;ctx.fillStyle='#ff2244';
+    ctx.shadowColor='#ff0033';ctx.shadowBlur=30;ctx.fillText('GAME OVER',W/2,H/2-38);ctx.restore();
+
+    ctx.font=`bold 23px 'Orbitron',monospace`;ctx.fillStyle='#00ddff';
+    ctx.fillText(`FINAL SCORE: ${G.score}`,W/2,H/2+14);
+
+    ctx.font=`15px 'Noto Sans JP',sans-serif`;ctx.fillStyle='#445566';
+    ctx.fillText('クリックまたはEnterキーでリスタート',W/2,H/2+58);
+  }
+}
+
+// ── ゲームループ ──
+function loop(){update();draw();requestAnimationFrame(loop);}
+init();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

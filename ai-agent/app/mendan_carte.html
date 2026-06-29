@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>めんだんカルテβ版</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #16a085;
+            --bg-color: #f4f6f8;
+            --panel-bg: #ffffff;
+            --border-color: #bdc3c7;
+        }
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            margin: 0; padding: 0; background-color: var(--bg-color); color: #333;
+            display: flex; flex-direction: column; height: 100vh;
+        }
+        header {
+            background-color: var(--primary-color); color: white; padding: 8px 15px;
+            display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        header h1 { margin: 0; font-size: 1rem; }
+        .controls-group { display: flex; gap: 12px; align-items: center; font-size: 0.8rem; }
+        .file-inputs { display: flex; gap: 8px; background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px; align-items: center; flex-wrap: wrap; }
+        .file-inputs label { font-weight: bold; font-size: 0.75rem; color: #fff; }
+        .file-inputs input[type="file"] { max-width: 100px; font-size: 0.7rem; color: #eee; }
+        
+        .btn { background: var(--accent-color); color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold; }
+        .btn:hover { opacity: 0.9; }
+        .btn-save { background: #2980b9; }
+        .btn-load { background: #27ae60; }
+        .btn-danger { background: #c0392b; padding: 3px 6px; font-size: 0.75rem; }
+
+        .main-container { display: flex; flex: 1; overflow: hidden; }
+        
+        /* 左側サイドバー（名簿一覧） */
+        .sidebar { width: 220px; background: #fff; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; flex-shrink: 0; }
+        .sidebar-header { padding: 10px; background: #eee; font-weight: bold; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; }
+        .student-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex: 1; }
+        .student-item { padding: 10px 15px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; }
+        .student-item:hover { background-color: #e8f8f5; }
+        .student-item.active { background-color: var(--accent-color); color: white; font-weight: bold; }
+
+        /* 右側メインエリア */
+        .content-area { flex: 1; padding: 15px; overflow-y: auto; box-sizing: border-box; display: none; }
+        .welcome-screen { flex: 1; display: flex; justify-content: center; align-items: center; font-size: 1.1rem; color: #7f8c8d; flex-direction: column; gap: 12px; text-align: center; }
+
+        .sheet-grid { display: flex; flex-direction: column; gap: 15px; }
+        .row-group { display: flex; gap: 15px; width: 100%; }
+        .col-main { flex: 1; display: flex; flex-direction: column; gap: 15px; min-width: 0; }
+        .col-sub { width: 320px; display: flex; flex-direction: column; gap: 15px; flex-shrink: 0; }
+
+        .card { background: var(--panel-bg); border-radius: 6px; border: 1px solid var(--border-color); padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); box-sizing: border-box; }
+        .card-title { font-size: 0.9rem; font-weight: bold; border-left: 4px solid var(--accent-color); padding-left: 8px; margin-top: 0; margin-bottom: 10px; color: var(--primary-color); display: flex; justify-content: space-between; align-items: center; }
+        
+        /* タブボタン */
+        .tab-buttons { display: flex; gap: 5px; margin-bottom: 8px; }
+        .tab-btn { background: #e0e0e0; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold; color: #555; }
+        .tab-btn.active { background: var(--primary-color); color: white; }
+
+        .table-container { width: 100%; overflow-x: auto; border: 1px solid var(--border-color); border-radius: 4px; background: #fff; }
+        table { border-collapse: collapse; font-size: 0.85rem; text-align: center; width: 100%; }
+        th, td { border: 1px solid #dcdde1; padding: 5px 2px; height: 34px; box-sizing: border-box; }
+        th { background-color: #f8f9fa; font-weight: bold; color: #2c3e50; font-size: 0.8rem; }
+        
+        /* 入力フォーム */
+        input[type="text"], input[type="number"], textarea, select {
+            width: 100%; height: 100%; box-sizing: border-box; border: 1px solid transparent; background: transparent;
+            text-align: center; font-size: 0.9rem; padding: 2px 0; color: #2c3e50; font-weight: 500; transition: all 0.2s;
+        }
+        input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
+        input[type="text"]:focus, input[type="number"]:focus, textarea:focus, select:focus { border-color: var(--accent-color); background: #fff; outline: none; }
+        
+        textarea { text-align: left; padding: 10px; font-family: inherit; resize: vertical; min-height: 80px; }
+        td.editable { background-color: #fffff6; }
+        td.editable:hover { background-color: #ffffea; }
+        
+        .student-info-header { display: flex; gap: 15px; align-items: center; margin-bottom: 12px; border-bottom: 2px solid var(--primary-color); padding-bottom: 6px; }
+        .student-info-header input { text-align: left; font-size: 1.3rem; font-weight: bold; width: 180px; border-bottom: 1px dashed #ccc; padding: 0; }
+        .student-info-header .meta-input { font-size: 0.85rem; width: 50px; text-align: center; }
+
+        .chart-container { height: 160px; position: relative; }
+        .subject-select { font-size: 0.85rem; font-weight: bold; color: #16a085; cursor: pointer; }
+        .stepup-badge { margin-top: 10px; padding: 12px; text-align: center; font-size: 1.2rem; font-weight: bold; border-radius: 6px; border: 1px dashed #e67e22; background: #fafafa; }
+        .auto-fill-info { font-size: 0.7rem; color: #7f8c8d; text-align: left; padding: 2px 6px; line-height: 1.2; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>めんだんカルテβ版</h1>
+    <div class="controls-group">
+        <div class="file-inputs">
+            <div><label>①出欠: </label><input type="file" id="csv-attendance" accept=".csv"></div>
+            <div><label>②模試: </label><input type="file" id="csv-exam" accept=".csv" multiple></div>
+            <div><label>③GTEC: </label><input type="file" id="csv-gtec" accept=".csv"></div>
+            <div><label>④志望校: </label><input type="file" id="csv-wish" accept=".csv"></div>
+            <div><label style="color:#f1c40f;">⑤ボーダー: </label><input type="file" id="csv-border" accept=".csv"></div>
+        </div>
+        <button class="btn btn-save" onclick="exportDataJSON()">データ保存</button>
+        <button class="btn btn-load" onclick="document.getElementById('import-json-file').click()">読込</button>
+        <input type="file" id="import-json-file" accept=".json" style="display:none;" onchange="importDataJSON(this)">
+    </div>
+</header>
+
+<div class="main-container">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <span>生徒名簿一覧</span>
+            <span style="font-size:0.75rem; color:#7f8c8d;" id="save-status">● 自動保存</span>
+        </div>
+        <ul class="student-list" id="student-list"></ul>
+        <div style="padding: 8px; border-top: 1px solid var(--border-color); display: flex; gap: 4px;">
+            <button class="btn" style="flex:1;" onclick="addNewStudent()">＋ 生徒を追加</button>
+            <button class="btn btn-danger" style="background:#7f8c8d;" onclick="clearAllData()">全消去</button>
+        </div>
+    </div>
+
+    <div class="welcome-screen" id="welcome-screen">
+        <div style="font-size: 1.4rem; font-weight: bold; color: var(--primary-color);">面談カルテシステム</div>
+        <div style="max-width: 520px; font-size:0.85rem; line-height:1.6; margin-top:5px;">
+            上のメニューから<strong>①出欠</strong>で名簿を作り、<strong>②模試</strong>や<strong>④志望校</strong>を読み込ませてください。<br>
+            <strong style="color:#f1c40f;">⑤ボーダー</strong>に国公立大の合格基準CSVを読み込ませると、志望校名から共通テスト目標点や満点配点を自動で割り出してカルテに埋め込みます。
+        </div>
+    </div>
+
+    <div class="content-area" id="content-area">
+        <div class="student-info-header">
+            <input type="text" id="edit-name" onchange="saveCurrentInputs(true)" placeholder="氏名">
+            <span style="font-size:0.85rem;">組:</span>
+            <input type="text" id="edit-col" class="meta-input" onchange="saveCurrentInputs(true)" placeholder="組">
+            <span style="font-size:0.85rem;">番:</span>
+            <input type="number" id="edit-num" class="meta-input" onchange="saveCurrentInputs(true)" placeholder="番号">
+        </div>
+
+        <div class="sheet-grid">
+            <div class="row-group">
+                <div class="col-main">
+                    <div class="card">
+                        <div class="chart-container">
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="tab-buttons">
+                            <button class="tab-btn active" id="tab-mark" onclick="switchExamTab('mark')">共通テスト(マーク)模試・パック</button>
+                            <button class="tab-btn" id="tab-desc" onclick="switchExamTab('desc')">二次・記述模試 (偏差値記録)</button>
+                        </div>
+                        <div class="table-container" id="dynamic-table-container"></div>
+                        <div style="margin-top: 5px;">
+                            <button class="btn" style="padding:2px 8px; font-size:0.7rem;" onclick="addExamRow()">＋ 模試の行を手動追加</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sub">
+                    <div class="card" style="background:#fffcf9; border-color:#e67e22;" id="stepup-card">
+                        <div class="card-title" style="border-left-color:#e67e22;">目標ラインとの差 (ステップアップ)</div>
+                        <div style="font-size:0.78rem; line-height:1.4; color:#555;">
+                            直近のマーク模試合計点と、第一志望「ボーダー目標点」の差を表示します。
+                        </div>
+                        <div class="stepup-badge" id="view-stepup">- 点</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">
+                            <span>必要科目・選考チェック</span>
+                            <button class="btn" style="padding:1px 5px; font-size:0.65rem; background:#34495e;" onclick="addCustomSubjectRow()">＋ 項目追加</button>
+                        </div>
+                        <div style="max-height: 180px; overflow-y: auto; border: 1px solid #eee; border-radius: 4px;">
+                            <table style="table-layout: auto; font-size:0.8rem; margin: 0;">
+                                <thead><tr><th style="text-align: left; padding-left: 6px;">項目名</th><th style="width: 85px;">必要性</th></tr></thead>
+                                <tbody id="subjects-check-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">出欠記録・学校生活状況</div>
+                        <table style="table-layout: auto;">
+                            <thead><tr><th>欠席</th><th>遅刻</th><th>早退</th></tr></thead>
+                            <tbody><tr>
+                                <td class="editable"><input type="number" id="edit-ks" onchange="saveCurrentInputs(false, false)"></td>
+                                <td class="editable"><input type="number" id="edit-tk" onchange="saveCurrentInputs(false, false)"></td>
+                                <td class="editable"><input type="number" id="edit-st" onchange="saveCurrentInputs(false, false)"></td>
+                            </tr></tbody>
+                        </table>
+                        <table style="table-layout: auto; margin-top:8px;">
+                            <tr><th width="45%">評定平均</th><td class="editable"><input type="text" id="edit-gpa" onchange="saveCurrentInputs(false, false)" style="font-weight:bold; color:#e67e22;"></td></tr>
+                            <tr><th>英検取得</th><td class="editable"><input type="text" id="edit-eiken" onchange="saveCurrentInputs(false, false)"></td></tr>
+                            <tr><th>GTEC</th><td class="editable"><input type="text" id="edit-gtec" onchange="saveCurrentInputs(false, false)" style="font-weight:bold; color:#2980b9;"></td></tr>
+                        </table>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">志望校選考・ボーダー目標点</div>
+                        <table style="table-layout: auto; font-size:0.8rem;">
+                            <tr><th width="25%">第1志望</th><td class="editable"><input type="text" id="edit-wish1" onchange="saveCurrentInputs(false, false); triggerBorderLookup();" placeholder="例: 琉球大学 理学部"></td></tr>
+                            <tr><th>目標点</th><td class="editable" style="background:#fffcf2;"><input type="number" id="edit-border" onchange="saveCurrentInputs(false, false)" placeholder="自動計算可"></td></tr>
+                            <tr><th>配点/率</th><td id="edit-fill-info" class="auto-fill-info">-</td></tr>
+                            <tr><th>第2志望</th><td class="editable"><input type="text" id="edit-wish2" onchange="saveCurrentInputs(false, false); triggerBorderLookup();"></td></tr>
+                            <tr><th>第3志望</th><td class="editable"><input type="text" id="edit-wish3" onchange="saveCurrentInputs(false, false); triggerBorderLookup();"></td></tr>
+                            <tr><th>第4志望</th><td class="editable"><input type="text" id="edit-wish4" onchange="saveCurrentInputs(false, false); triggerBorderLookup();"></td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">面談記録・指導メモ</div>
+                <textarea id="edit-notes" onchange="saveCurrentInputs(false, false)" placeholder="面談メモを自由入力してください。"></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let appData = {};
+    let borderMaster = []; 
+    let chartInstance = null;
+    let selectedStudentKey = null;
+    let currentExamTab = 'mark';
+
+    const defaultCheckItems = [
+        "志望理由書", "調査書(評定)", "面接", "小論文", "総合問題",
+        "国語", "数学", "英語", "化学", "物理/生物", "地理", "情報"
+    ];
+
+    window.onload = function() {
+        const saved = localStorage.getItem('interview_sheet_data');
+        if (saved) { try { appData = JSON.parse(saved); updateStudentList(); } catch(e) { appData = {}; } }
+        const savedBorder = localStorage.getItem('interview_border_master');
+        if (savedBorder) { try { borderMaster = JSON.parse(savedBorder); } catch(e) { borderMaster = []; } }
+    };
+
+    function cleanVal(val) { return val === undefined || val === null ? '' : val.toString().trim().replace(/^'/, ''); }
+    function isKatakana(str) { return /^[ｱ-ﾝﾞﾟｧｨｩｪｫｬｭｮｯｰ\s']*$/.test(str); }
+    function safeParseFloat(val) { let num = parseFloat(cleanVal(val)); return isNaN(num) ? 0 : num; }
+
+    function ensureStudent(num, name, col = '03') {
+        let cleanNum = parseInt(cleanVal(num)); if (!cleanNum && !name) return null;
+        let key = cleanNum ? cleanNum.toString() : name;
+
+        if (!appData[key]) {
+            appData[key] = {
+                num: cleanNum || '', name: name || '', col: cleanVal(col) || '03',
+                attendance: { ks: 0, tk: 0, st: 0 },
+                status: { eiken: '', gtec: '', gpa: '' },
+                target: { wish1: '', wish2: '', wish3: '', wish4: '', border: '', fillInfo: '' },
+                examsMark: {}, examsDesc: {}, customChecks: {}, notes: ''
+            };
+            defaultCheckItems.forEach(item => { appData[key].customChecks[item] = '-'; });
+        } else {
+            if (name && (!appData[key].name || (isKatakana(appData[key].name) && !isKatakana(name)))) {
+                appData[key].name = name;
+            }
+        }
+        return appData[key];
+    }
+
+    function updateStudentList() {
+        const listEl = document.getElementById('student-list');
+        if (!listEl) return; listEl.innerHTML = '';
+        const sortedKeys = Object.keys(appData).sort((a, b) => (parseInt(appData[a].num) || 999) - (parseInt(appData[b].num) || 999));
+        sortedKeys.forEach(key => {
+            const s = appData[key]; const li = document.createElement('li'); li.className = 'student-item';
+            if (selectedStudentKey === key) li.className += ' active';
+            li.innerHTML = `<span>${s.col||'3'}組 ${s.num?s.num+'番':'無'} ${s.name}</span><button class="btn btn-danger" style="padding:1px 5px; font-size:10px;" onclick="deleteStudent(event, '${key}')">✕</button>`;
+            li.onclick = () => selectStudent(key); listEl.appendChild(li);
+        });
+    }
+
+    function selectStudent(key) {
+        selectedStudentKey = key;
+        document.getElementById('welcome-screen').style.display = 'none';
+        document.getElementById('content-area').style.display = 'block';
+        updateStudentList(); renderStudentSheet(key);
+    }
+
+    function smartDecodeAndParse(file, callback) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const arrayBuffer = e.target.result;
+            let decoder = new TextDecoder('utf-8'); let text = decoder.decode(arrayBuffer);
+            // 判定基準に「出席」と「欠席」を追加して、今回の出欠CSVでも正しくShift-JISへの切り替えが走るように修正
+            if (!text.includes("氏名") && !text.includes("番号") && !text.includes("大学") && !text.includes("生徒") && !text.includes("出席") && !text.includes("欠席")) {
+                decoder = new TextDecoder('shift-jis'); text = decoder.decode(arrayBuffer);
+            }
+            Papa.parse(text, { header: false, skipEmptyLines: true, complete: function(res) { callback(res.data); } });
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    // ⑤ ボーダーマスターCSV読込
+    document.getElementById('csv-border').addEventListener('change', function(e) {
+        if (!e.target.files[0]) return;
+        smartDecodeAndParse(e.target.files[0], function(rows) {
+            if (rows.length < 2) return;
+            borderMaster = [];
+            let headers = rows[0].map(h => cleanVal(h));
+            let idxUniv = headers.indexOf("大学"), idxFac = headers.indexOf("学部"), idxDept = headers.indexOf("学科");
+            let idxFullScore = headers.indexOf("配点（共通テスト）"), idxBorder = headers.indexOf("ボーダー得点"), idxRate = headers.indexOf("ボーダー得点率");
+            
+            if(idxUniv === -1 || idxBorder === -1) {
+                idxUniv = 0; idxFac = 1; idxDept = 2; idxFullScore = 4; idxBorder = 6; idxRate = 7;
+            }
+
+            for(let i = 1; i < rows.length; i++) {
+                let r = rows[i]; if(!r || r.length <= Math.max(idxUniv, idxBorder)) continue;
+                borderMaster.push({
+                    univ: cleanVal(r[idxUniv]), fac: cleanVal(r[idxFac]), dept: cleanVal(r[idxDept]),
+                    fullScore: safeParseFloat(r[idxFullScore]), borderScore: safeParseFloat(r[idxBorder]), rate: cleanVal(r[idxRate])
+                });
+            }
+            localStorage.setItem('interview_border_master', JSON.stringify(borderMaster));
+            alert(`ボーダーデータを ${borderMaster.length} 件登録しました！`);
+            if(selectedStudentKey) { triggerBorderLookup(); }
+        });
+    });
+
+    function triggerBorderLookup() {
+        if (!selectedStudentKey || borderMaster.length === 0) return;
+        let s = appData[selectedStudentKey];
+        let wish1Text = document.getElementById('edit-wish1').value.replace(/[\s　]/g, "");
+        if (!wish1Text) return;
+
+        let hit = borderMaster.find(b => {
+            let comb1 = (b.univ + b.fac).replace(/[\s　]/g, "");
+            let comb2 = (b.univ + b.fac + b.dept).replace(/[\s　]/g, "");
+            return wish1Text.includes(comb1) || wish1Text.includes(b.univ) && wish1Text.includes(b.fac) || comb2.includes(wish1Text);
+        });
+
+        if (hit) {
+            document.getElementById('edit-border').value = hit.borderScore;
+            let infoStr = `満点:${hit.fullScore} / 率:${hit.rate}% (${hit.univ})`;
+            document.getElementById('edit-fill-info').textContent = infoStr;
+            s.target.border = hit.borderScore;
+            s.target.fillInfo = infoStr;
+            saveCurrentInputs(false, false);
+        }
+    }
+
+    // ① 出欠内訳CSV
+    document.getElementById('csv-attendance').addEventListener('change', function(e) {
+        if (!e.target.files[0]) return;
+        smartDecodeAndParse(e.target.files[0], function(rows) {
+            let startLine = (rows[0][0] && rows[0][0].includes("/")) ? 1 : 0;
+            for(let i = startLine; i < rows.length; i++) {
+                let row = rows[i]; if (!row || row.length <= 1) continue;
+                let s = ensureStudent(row[0], row[1]); if(!s) continue;
+                s.attendance.ks = Math.round(safeParseFloat(row[4])); s.attendance.tk = Math.round(safeParseFloat(row[5])); s.attendance.st = Math.round(safeParseFloat(row[6]));
+            }
+            saveToLocalStorage(); updateStudentList(); alert("出欠名簿を同期しました！");
+        });
+    });
+
+    // ② 模試CSV
+    document.getElementById('csv-exam').addEventListener('change', function(e) {
+        if (!e.target.files.length) return;
+        let filesProcessed = 0;
+        Array.from(e.target.files).forEach(file => {
+            let examName = file.name.replace(".csv", ""); let isDesc = examName.includes("記述");
+            let match = examName.match(/(進研模試|駿ベネ|全統|パック|記述|マーク|本番)[^_\)]+/);
+            examName = match ? match[0] : examName.substring(0, 15);
+
+            smartDecodeAndParse(file, function(rows) {
+                if (rows.length < 2) return;
+                let headerRow = rows[0].join('').includes("BeneID") || rows[0].join('').includes("番号") ? rows[0] : rows[1];
+                let idxNum = 5, idxName = 6, idxCol = 4; let columnsMap = {};
+                for(let j=0; j<headerRow.length; j++) {
+                    let h = cleanVal(headerRow[j]); if(h) columnsMap[h] = j;
+                    if(h === "番号") idxNum = j; if(h === "氏名") idxName = j; if(h === "組") idxCol = j;
+                }
+
+                let findScore = (rowObj, targets) => {
+                    for (let target of targets) {
+                        let tClean = target.replace(/[\s_・]/g, "");
+                        for (let rawKey in columnsMap) {
+                            if (rawKey.replace(/[\s_・]/g, "").includes(tClean)) return safeParseFloat(rowObj[columnsMap[rawKey]]);
+                        }
+                    }
+                    return 0;
+                };
+
+                let startDataIdx = (headerRow === rows[1]) ? 2 : 1;
+                for(let i = startDataIdx; i < rows.length; i++) {
+                    let row = rows[i]; if (!row || row.length <= Math.max(idxNum, idxName)) continue;
+                    let s = ensureStudent(row[idxNum], row[idxName], row[idxCol]); if(!s) continue;
+
+                    if (isDesc) {
+                        let subData = {};
+                        Object.keys(columnsMap).forEach(rawKey => {
+                            let k = cleanVal(rawKey);
+                            if (!["学科名", "学科コード", "BeneID", "年度・学年", "組", "番号", "氏名", "生徒"].includes(k)) {
+                                subData[k.replace(/国語_|数学_|英語_|理科_/g, "")] = safeParseFloat(row[columnsMap[rawKey]]);
+                            }
+                        });
+                        s.examsDesc[examName] = subData;
+                    } else {
+                        let kk = findScore(row, ["国語計", "国語"]), m1 = findScore(row, ["数学Ⅰ・A", "数学ⅠA"]), m2 = findScore(row, ["数学Ⅱ・B・C", "数ⅡBC"]);
+                        let er = findScore(row, ["英語・ﾘｰﾃﾞｨﾝｸﾞ", "英R"]), el = findScore(row, ["英語・ﾘｽﾆﾝｸﾞ", "英L"]), gg = findScore(row, ["地総、地探", "地理"]);
+                        let ph = findScore(row, ["物理"]), ch = findScore(row, ["化学"]), bi = findScore(row, ["生物"]), inf = findScore(row, ["情報Ⅰ", "情報"]);
+                        s.examsMark[examName] = { kk, m1, m2, er, el, gg, ph, ch, bi, inf, total: kk+m1+m2+er+el+gg+ph+ch+bi+inf };
+                    }
+                }
+                filesProcessed++;
+                if (filesProcessed === e.target.files.length) {
+                    saveToLocalStorage(); updateStudentList(); if(selectedStudentKey) renderStudentSheet(selectedStudentKey); alert("模試CSVのインポートが完了しました。");
+                }
+            });
+        });
+    });
+
+    // ③ GTEC / ④ 志望校
+    document.getElementById('csv-gtec').addEventListener('change', function(e) {
+        if (!e.target.files[0]) return;
+        smartDecodeAndParse(e.target.files[0], function(rows) {
+            for(let i = 2; i < rows.length; i++) {
+                let row = rows[i]; if (!row || row.length <= 7) continue;
+                let s = ensureStudent(row[5], ""); if(s) s.status.gtec = cleanVal(row[7]);
+            }
+            saveToLocalStorage(); if(selectedStudentKey) renderStudentSheet(selectedStudentKey); alert("GTECデータを同期しました。");
+        });
+    });
+    document.getElementById('csv-wish').addEventListener('change', function(e) {
+        if (!e.target.files[0]) return;
+        smartDecodeAndParse(e.target.files[0], function(rows) {
+            for(let i = 2; i < rows.length; i++) {
+                let row = rows[i]; if(!row || row.length <= 6) continue;
+                let s = ensureStudent(row[5], "");
+                if(s) {
+                    s.target.wish1 = cleanVal(row[10]); s.target.wish2 = cleanVal(row[12]);
+                    s.target.wish3 = cleanVal(row[14]); s.target.wish4 = cleanVal(row[16]);
+                }
+            }
+            saveToLocalStorage(); if(selectedStudentKey) { triggerBorderLookup(); renderStudentSheet(selectedStudentKey); } alert("志望校登録データを同期しました！");
+        });
+    });
+
+    function switchExamTab(tabType) {
+        currentExamTab = tabType;
+        document.getElementById('tab-mark').className = 'tab-btn' + (tabType === 'mark' ? ' active' : '');
+        document.getElementById('tab-desc').className = 'tab-btn' + (tabType === 'desc' ? ' active' : '');
+        document.getElementById('stepup-card').style.display = tabType === 'mark' ? 'block' : 'none';
+        if(selectedStudentKey) renderStudentSheet(selectedStudentKey);
+    }
+
+    function buildDynamicTable(s) {
+        const container = document.getElementById('dynamic-table-container'); container.innerHTML = '';
+        let table = document.createElement('table');
+        
+        if (currentExamTab === 'mark') {
+            table.style.minWidth = "860px";
+            table.innerHTML = `<thead><tr><th style="text-align:left; padding-left:6px;">マーク模試・パック名</th><th>国語</th><th>数ⅠA</th><th>数ⅡBC</th><th>英R</th><th>英L</th><th>地総</th><th>物理</th><th>化学</th><th>生物</th><th>情報</th><th style="background:#e8f8f5;">合計</th><th></th></tr></thead><tbody id="exam-tbody"></tbody>`;
+            container.appendChild(table); const tbody = document.getElementById('exam-tbody');
+            Object.keys(s.examsMark || {}).forEach(exName => {
+                let d = s.examsMark[exName]; let tr = document.createElement('tr'); tr.dataset.exname = exName;
+                tr.innerHTML = `<td style="text-align:left; font-weight:bold;">${exName}</td>
+                    <td class="editable"><input type="number" value="${d.kk||''}" class="score-mark-kk" onchange="saveCurrentInputs(false, true)"></td>
+                    <td class="editable"><input type="number" value="${d.m1||''}" class="score-mark-m1" onchange="saveCurrentInputs(false, true)"></td>
+                    <td class="editable"><input type="number" value="${d.m2||''}" class="score-mark-m2" onchange="saveCurrentInputs(false, true)"></td>
+                    <td class="editable"><input type="number" value="${d.er||''}" class="score-mark-er" onchange="saveCurrentInputs(false, true)"></td>
+                    <td class="editable"><input type="number" value="${d.el||''}" class="score-mark-el" onchange="saveCurrentInputs(false, true)"></td>
+                    <td class="editable"><input type="number" value="${d.gg||''}" class="score-mark-gg" onchange="saveCurrentInputs(false, true)"></td>
+                    <td class="editable"><input type="number" value="${d.ph||''}" class="score-mark-ph" onchange="saveCurrentInputs(false, true)"></td>
+                    <td class="editable"><input type="number" value="${d.ch||''}" class="score-mark-ch" onchange="saveCurrentInputs(false, true)"></td>
+                    <td class="editable"><input type="number" value="${d.bi||''}" class="score-mark-bi" onchange="saveCurrentInputs(false, true)"></td>
+                    <td class="editable"><input type="number" value="${d.inf||''}" class="score-mark-inf" onchange="saveCurrentInputs(false, true)"></td>
+                    <td style="font-weight:bold; background:#e8f8f5;">${d.total||0}</td><td><button class="btn btn-danger" style="padding:1px 4px; font-size:10px;" onclick="deleteExamRow(event, '${exName}')">✕</button></td>`;
+                tbody.appendChild(tr);
+            });
+        } else {
+            let descExams = s.examsDesc || {}; let uniqueSubjects = new Set();
+            Object.keys(descExams).forEach(name => { Object.keys(descExams[name]).forEach(sub => uniqueSubjects.add(sub)); });
+            let subjectList = Array.from(uniqueSubjects); if(subjectList.length === 0) subjectList = ["国語", "数学計", "英語計", "物理", "化学", "生物"];
+            table.style.minWidth = "100%"; let theadHtml = `<tr><th style="text-align:left; padding-left:6px;">記述・二次模試名(偏差値)</th>`;
+            subjectList.forEach(sub => { theadHtml += `<th>${sub}</th>`; }); theadHtml += `<th></th></tr>`;
+            table.innerHTML = `<thead>${theadHtml}</thead><tbody id="exam-tbody"></tbody>`; container.appendChild(table);
+            const tbody = document.getElementById('exam-tbody');
+            Object.keys(descExams).forEach(exName => {
+                let d = descExams[exName]; let tr = document.createElement('tr'); tr.dataset.exname = exName;
+                let tdsHtml = `<td style="text-align:left; font-weight:bold;">${exName}</td>`;
+                subjectList.forEach(sub => { tdsHtml += `<td class="editable"><input type="number" step="0.1" value="${d[sub]!==undefined?d[sub]:''}" class="score-desc-cell" data-subname="${sub}" onchange="saveCurrentInputs(false, true)"></td>`; });
+                tdsHtml += `<td><button class="btn btn-danger" style="padding:1px 4px; font-size:10px;" onclick="deleteExamRow(event, '${exName}')">✕</button></td>`;
+                tr.innerHTML = tdsHtml; tbody.appendChild(tr);
+            });
+        }
+    }
+
+    function renderStudentSheet(key) {
+        const s = appData[key]; if(!s) return;
+        document.getElementById('edit-name').value = s.name; document.getElementById('edit-col').value = s.col; document.getElementById('edit-num').value = s.num;
+        document.getElementById('edit-ks').value = s.attendance.ks || 0; document.getElementById('edit-tk').value = s.attendance.tk || 0; document.getElementById('edit-st').value = s.attendance.st || 0;
+        document.getElementById('edit-gpa').value = s.status.gpa || ''; document.getElementById('edit-eiken').value = s.status.eiken || ''; document.getElementById('edit-gtec').value = s.status.gtec || '';
+        document.getElementById('edit-wish1').value = s.target.wish1 || ''; document.getElementById('edit-wish2').value = s.target.wish2 || '';
+        document.getElementById('edit-wish3').value = s.target.wish3 || ''; document.getElementById('edit-wish4').value = s.target.wish4 || '';
+        document.getElementById('edit-border').value = s.target.border || '';
+        document.getElementById('edit-fill-info').textContent = s.target.fillInfo || '-';
+        document.getElementById('edit-notes').value = s.notes || '';
+
+        const checkTbody = document.getElementById('subjects-check-tbody'); checkTbody.innerHTML = '';
+        Object.keys(s.customChecks).forEach(itemName => {
+            const currentStatus = s.customChecks[itemName] || '-'; const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="text-align:left; padding-left:6px; font-size:0.8rem; font-weight:bold;">${itemName}</td>
+                <td>
+                    <select class="subject-select" data-itemname="${itemName}" onchange="changeCustomCheckValue(this)">
+                        <option value="-" ${currentStatus==='-'?'selected':''}>-</option>
+                        <option value="〇" ${currentStatus==='〇'?'selected':''}>〇 必要</option>
+                        <option value="△" ${currentStatus==='△'?'selected':''}>△ 選択</option>
+                    </select>
+                </td>`;
+            checkTbody.appendChild(tr);
+        });
+
+        buildDynamicTable(s);
+
+        // ステップアップ計算
+        let borderScore = parseInt(s.target.border) || 0;
+        let markKeys = Object.keys(s.examsMark || {});
+        let latestMarkTotal = markKeys.length > 0 ? s.examsMark[markKeys[markKeys.length - 1]].total || 0 : 0;
+        let stepUpBox = document.getElementById('view-stepup');
+        if (borderScore > 0 && latestMarkTotal > 0 && currentExamTab === 'mark') {
+            let diff = latestMarkTotal - borderScore;
+            if(diff >= 0) { stepUpBox.textContent = `＋${diff} 点 (目標クリア!)`; stepUpBox.style.color = "#16a085"; stepUpBox.style.background = "#e8f8f5"; }
+            else { stepUpBox.textContent = `${diff} 点`; stepUpBox.style.color = "#c0392b"; stepUpBox.style.background = "#fdf2e9"; }
+        } else { stepUpBox.textContent = "- 点"; stepUpBox.style.color = "#7f8c8d"; stepUpBox.style.background = "#fafafa"; }
+
+        let activeExams = currentExamTab === 'mark' ? s.examsMark : s.examsDesc;
+        let labels = Object.keys(activeExams || {}); let totals = labels.map(k => currentExamTab === 'mark' ? activeExams[k].total || 0 : activeExams[k][Object.keys(activeExams[k])[0]] || 0);
+        renderChart(labels, totals, activeExams[labels[labels.length - 1]]);
+    }
+
+    function changeCustomCheckValue(selectEl) { if(selectedStudentKey) { appData[selectedStudentKey].customChecks[selectEl.dataset.itemname] = selectEl.value; saveCurrentInputs(false, false); } }
+
+    function saveCurrentInputs(refreshList = false, isManualInput = true) {
+        if (!selectedStudentKey) return;
+        let s = appData[selectedStudentKey]; let oldKey = selectedStudentKey;
+        s.name = document.getElementById('edit-name').value; s.col = document.getElementById('edit-col').value; s.num = parseInt(document.getElementById('edit-num').value) || '';
+        s.attendance = { ks: parseInt(document.getElementById('edit-ks').value)||0, tk: parseInt(document.getElementById('edit-tk').value)||0, st: parseInt(document.getElementById('edit-st').value)||0 };
+        s.status = { gpa: document.getElementById('edit-gpa').value, eiken: document.getElementById('edit-eiken').value, gtec: document.getElementById('edit-gtec').value };
+        s.target = {
+            wish1: document.getElementById('edit-wish1').value, wish2: document.getElementById('edit-wish2').value,
+            wish3: document.getElementById('edit-wish3').value, wish4: document.getElementById('edit-wish4').value,
+            border: document.getElementById('edit-border').value, fillInfo: document.getElementById('edit-fill-info').textContent
+        };
+        s.notes = document.getElementById('edit-notes').value;
+
+        if (isManualInput) {
+            document.querySelectorAll('#exam-tbody tr').forEach(row => {
+                let exName = row.dataset.exname;
+                if (currentExamTab === 'mark') {
+                    let kk = parseInt(row.querySelector('.score-mark-kk').value)||0, m1 = parseInt(row.querySelector('.score-mark-m1').value)||0, m2 = parseInt(row.querySelector('.score-mark-m2').value)||0;
+                    let er = parseInt(row.querySelector('.score-mark-er').value)||0, el = parseInt(row.querySelector('.score-mark-el').value)||0, gg = parseInt(row.querySelector('.score-mark-gg').value)||0;
+                    let ph = parseInt(row.querySelector('.score-mark-ph').value)||0, ch = parseInt(row.querySelector('.score-mark-ch').value)||0, bi = parseInt(row.querySelector('.score-mark-bi').value)||0, inf = parseInt(row.querySelector('.score-mark-inf').value)||0;
+                    s.examsMark[exName] = { kk, m1, m2, er, el, gg, ph, ch, bi, inf, total: kk+m1+m2+er+el+gg+ph+ch+bi+inf };
+                } else {
+                    let subData = {}; row.querySelectorAll('.score-desc-cell').forEach(c => { subData[c.dataset.subname] = parseFloat(c.value)||0; });
+                    s.examsDesc[exName] = subData;
+                }
+            });
+        }
+        let newKey = s.num ? s.num.toString() : s.name;
+        if (newKey && oldKey !== newKey) { appData[newKey] = s; delete appData[oldKey]; selectedStudentKey = newKey; }
+        saveToLocalStorage(); if (refreshList) updateStudentList(); renderStudentSheet(selectedStudentKey);
+    }
+
+    function deleteExamRow(event, exName) {
+        event.stopPropagation(); if (!selectedStudentKey || !confirm(`「${exName}」のデータを削除しますか？`)) return;
+        if (currentExamTab === 'mark') { delete appData[selectedStudentKey].examsMark[exName]; } else { delete appData[selectedStudentKey].examsDesc[exName]; }
+        saveCurrentInputs(false, false);
+    }
+
+    function addCustomSubjectRow() {
+        if(!selectedStudentKey) return; let newItem = prompt("追加したい項目名:"); if(!newItem) return;
+        appData[selectedStudentKey].customChecks[newItem.trim()] = '-'; saveCurrentInputs(false, false);
+    }
+
+    function renderChart(labels, totals, lastExam) {
+        const ctx = document.getElementById('trendChart').getContext('2d'); if (chartInstance) chartInstance.destroy();
+        
+        let yMax = 80;
+        let yStep = 10;
+        if (currentExamTab === 'mark') {
+            if (labels.length >= 2) {
+                yMax = 1000; 
+                yStep = 100;
+            } else {
+                yMax = 200;  
+                yStep = 20;
+            }
+        }
+
+        if (labels.length >= 2) {
+            chartInstance = new Chart(ctx, { 
+                type: 'line', 
+                data: { labels: labels, datasets: [{ label: currentExamTab==='mark'?'共テマーク計':'記述偏差値', data: totals, borderColor: '#16a085', backgroundColor: 'rgba(22, 160, 133, 0.05)', borderWidth: 3 }] }, 
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    scales: { y: { min: 0, max: yMax, ticks: { stepSize: yStep } } }
+                } 
+            });
+        } else if (lastExam) {
+            let barLabels = currentExamTab === 'mark' ? ['国語', '数ⅠA', '数ⅡBC', '英R', '英L', '地総', '物理', '化学', '生物', '情報'] : Object.keys(lastExam);
+            let barData = currentExamTab === 'mark' ? [lastExam.kk, lastExam.m1, lastExam.m2, lastExam.er, lastExam.el, lastExam.gg, lastExam.ph, lastExam.ch, lastExam.bi, lastExam.inf] : Object.values(lastExam);
+            chartInstance = new Chart(ctx, { 
+                type: 'bar', 
+                data: { labels: barLabels, datasets: [{ label: currentExamTab==='mark'?'得点':'偏差値', data: barData, backgroundColor: '#3498db' }] }, 
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    scales: { y: { min: 0, max: yMax, ticks: { stepSize: yStep } } }
+                } 
+            });
+        }
+    }
+
+    function saveToLocalStorage() { localStorage.setItem('interview_sheet_data', JSON.stringify(appData)); }
+    function exportDataJSON() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2)); const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", `面談シートデータ_${new Date().toISOString().slice(0,10)}.json`); document.body.appendChild(dl); dl.click(); dl.remove(); }
+    function importDataJSON(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { appData = JSON.parse(e.target.result); saveToLocalStorage(); updateStudentList(); document.getElementById('content-area').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex'; alert("復元しました。"); } catch (err) { alert("形式が不正です。"); } }; reader.readAsText(file); }
+    function addNewStudent() { let name = prompt("生徒の氏名:"); if (!name) return; let num = prompt("出席番号:"); if (!num) return; ensureStudent(num, name.trim()); saveToLocalStorage(); updateStudentList(); selectStudent(parseInt(num).toString()); }
+    function deleteStudent(e, key) { e.stopPropagation(); if(!confirm("消去しますか？")) return; delete appData[key]; saveToLocalStorage(); updateStudentList(); document.getElementById('content-area').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex'; }
+    function addExamRow() {
+        if (!selectedStudentKey) return; let exName = prompt("模試・パック名:"); if (!exName) return;
+        if (currentExamTab === 'mark') { appData[selectedStudentKey].examsMark[exName] = { kk:0, m1:0, m2:0, er:0, el:0, gg:0, ph:0, ch:0, bi:0, inf:0, total:0 }; }
+        else { appData[selectedStudentKey].examsDesc[exName] = { "国語":0, "数学計":0, "英語計":0, "物理":0, "化学":0, "生物":0 }; }
+        renderStudentSheet(selectedStudentKey);
+    }
+    function clearAllData() { if (!confirm("消去しますか？")) return; appData = {}; localStorage.removeItem('interview_sheet_data'); updateStudentList(); document.getElementById('content-area').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'flex'; }
+</script>
+</body>
+</html>

@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>情報Ⅰ 情報デザイン分野 100問ドリル</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', 'Inter', sans-serif;
+        }
+        .quiz-container {
+            max-width: 800px;
+            margin: 2rem auto;
+        }
+        .option-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .correct {
+            background-color: #d1fae5 !important;
+            border-color: #10b981 !important;
+        }
+        .incorrect {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+        }
+        .explanation {
+            border-left: 4px solid #60a5fa;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="quiz-container p-4 sm:p-6 md:p-8">
+        <div id="start-screen" class="text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold text-blue-600 mb-4">情報Ⅰ 情報デザイン分野</h1>
+            <h2 class="text-xl sm:text-2xl font-semibold mb-8">共通テスト対策 100問ドリル</h2>
+            <p class="mb-8 text-gray-600">提供された資料に基づいて作成された100問のクイズです。<br>準備ができたら下のボタンを押して開始してください。</p>
+            <button id="start-btn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105">
+                クイズを開始
+            </button>
+        </div>
+
+        <div id="quiz-screen" class="hidden">
+            <div class="bg-white p-6 rounded-xl shadow-md mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-blue-700">問題 <span id="question-number"></span>/100</h2>
+                    <div id="progress-bar-container" class="w-1/2 bg-gray-200 rounded-full h-2.5">
+                        <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+                <p id="question-text" class="text-lg leading-relaxed"></p>
+            </div>
+
+            <div id="options-container" class="grid grid-cols-1 gap-4">
+                <!-- Option buttons will be generated here by JS -->
+            </div>
+
+            <div id="feedback-container" class="hidden mt-6">
+                <div id="feedback-result" class="text-2xl font-bold mb-4"></div>
+                <div id="explanation" class="bg-blue-50 p-4 rounded-lg explanation">
+                    <h3 class="font-bold text-lg mb-2 text-blue-800">解説</h3>
+                    <p id="explanation-text" class="text-gray-700"></p>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <button id="next-btn" class="bg-gray-800 text-white font-bold py-3 px-12 rounded-lg shadow-lg hover:bg-gray-900 transition-transform transform hover:scale-105 hidden">
+                    次の問題へ
+                </button>
+            </div>
+        </div>
+
+        <div id="result-screen" class="hidden text-center bg-white p-8 rounded-xl shadow-lg">
+            <h2 class="text-3xl font-bold text-blue-600 mb-4">結果発表</h2>
+            <p class="text-xl mb-6">お疲れ様でした！あなたのスコアは...</p>
+            <p class="text-6xl font-extrabold text-gray-800 mb-8"><span id="score"></span> / 100</p>
+            <p id="result-message" class="text-lg font-medium mb-8"></p>
+            <button id="restart-btn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105">
+                もう一度挑戦する
+            </button>
+        </div>
+    </div>
+
+<script>
+    // --- Quiz Data ---
+    const quizData = [
+        {
+            question: "双方向のやり取りが同時に行われるコミュニケーションの形態を何というか。",
+            options: ["非同期コミュニケーション", "同期コミュニケーション", "間接コミュニケーション", "マスコミ型コミュニケーション", "個別型コミュニケーション"],
+            answer: 1,
+            explanation: "同期コミュニケーションは、会話や電話のように、情報の送受信がリアルタイムで行われる形態です。"
+        },
+        {
+            question: "電子メールやSNSのように、情報の送受信が同時に行われないコミュニケーションの形態を何というか。",
+            options: ["同期コミュニケーション", "直接コミュニケーション", "非同期コミュニケーション", "会議型コミュニケーション", "個別型コミュニケーション"],
+            answer: 2,
+            explanation: "非同期コミュニケーションは、送信者と受信者がそれぞれの都合の良いタイミングでやり取りできる特徴があります。"
+        },
+        {
+            question: "1人が情報源となって発信し、複数の人が同じ情報を共有するコミュニケーションの形態はどれか。",
+            options: ["個別型", "会議型", "逆マスコミ型", "マスコミ型", "双方向型"],
+            answer: 3,
+            explanation: "マスコミ型は、テレビ放送や講演会のように、一人の発信者から多数の受信者へ情報が伝達される形態です。"
+        },
+        {
+            question: "電子メールを作成する際、宛先（To）以外に参考としてメールを送る相手のメールアドレスを入力する欄はどれか。",
+            options: ["BCC", "件名", "署名", "添付", "CC"],
+            answer: 4,
+            explanation: "CC (Carbon Copy) 欄に入力されたアドレスは他の受信者にも表示されます。「参考までに情報共有します」という意図で使われます。"
+        },
+        {
+            question: "他の受信者に知られずに、特定の人にも同じメールを送信したい場合に使用する欄はどれか。",
+            options: ["To", "CC", "BCC", "From", "Subject"],
+            answer: 2,
+            explanation: "BCC (Blind Carbon Copy) 欄に入力されたアドレスは、ToやCCの受信者には表示されません。個人情報保護の観点からも利用されます。"
+        },
+        {
+            question: "コミュニケーションを円滑にし、その成果を生み出す役割を持つメディアを何というか。",
+            options: ["伝播メディア", "マスメディア", "ソーシャルメディア", "成果メディア", "パーソナルメディア"],
+            answer: 3,
+            explanation: "成果メディアは、誤解が生じないようにコミュニケーションの意味的な領域を定め、論理的なつながりを与えます。例として「真理」や「貨幣」などがあります。"
+        },
+        {
+            question: "メディアで報じられた情報の真偽を正しく判断したり、情報を効果的に表現したりする能力を何というか。",
+            options: ["情報リテラシー", "メディアリテラシー", "コンピュータリテラシー", "ネットワークリテラシー", "情報倫理"],
+            answer: 1,
+            explanation: "メディアリテラシーは、情報を受け取るだけでなく、自らが発信する際の責任も含めた、メディアとの付き合い方に関する総合的な能力です。"
+        },
+        {
+            question: "情報の信憑性を確認するために、複数の情報源から提供された情報を比較することを何というか。",
+            options: ["引用", "参照", "クロスチェック", "レビュー", "裏付け"],
+            answer: 2,
+            explanation: "クロスチェックは、一つの情報源だけを鵜呑みにせず、多角的な視点から情報を検証するための重要な手法です。"
+        },
+        {
+            question: "発信者が明確な意図をもって、報道内容を操作し、受け手に実際とは違った印象を与えようとすることを何というか。",
+            options: ["フェイクニュース", "デマ", "プロパガンダ", "印象操作", "世論誘導"],
+            answer: 3,
+            explanation: "印象操作は、グラフの見せ方を工夫したり、特定の映像だけを切り取って報道したりするなど、様々な方法で行われる可能性があります。"
+        },
+        {
+            question: "情報を整理し、受け手に対してわかりやすく伝達するためのデザインの基礎知識や表現方法、技術を総称して何というか。",
+            options: ["グラフィックデザイン", "ウェブデザイン", "情報デザイン", "ユニバーサルデザイン", "プロダクトデザイン"],
+            answer: 2,
+            explanation: "情報デザインは、単に見た目を美しくするだけでなく、情報が持つ意味や構造を効果的かつ効率的に伝えることを目的とします。"
+        },
+        {
+            question: "文字の書体のことを何と呼ぶか。",
+            options: ["ポイント", "ピクセル", "フォント", "スタイル", "ウェイト"],
+            answer: 2,
+            explanation: "フォントの種類（明朝体、ゴシック体など）によって、読み手への印象が大きく変わるため、目的に応じた選択が重要です。"
+        },
+        {
+            question: "色相環において、向かい合った位置にある色の関係を何というか。",
+            options: ["類似色", "同系色", "補色", "対照色", "反対色"],
+            answer: 2,
+            explanation: "補色同士を組み合わせると、互いの色を引き立て合い、非常に目立つ派手な印象になります。"
+        },
+        {
+            question: "誰もが読みやすくなるように、文字色と背景色の組み合わせを工夫する際に、特に避けるべきとされる色の組み合わせはどれか。",
+            options: ["黒と白", "青と黄", "赤と緑", "オレンジと青", "紫と黄"],
+            answer: 2,
+            explanation: "赤と緑の組み合わせは、色覚特性を持つ人にとって判別しにくい場合があります。明度差を大きくするなどの配慮が必要です。"
+        },
+        {
+            question: "伝えたい情報を単純な構図と明瞭な二色などで表した視覚記号を何というか。",
+            options: ["アイコン", "ロゴ", "ピクトグラム", "イラスト", "シンボル"],
+            answer: 2,
+            explanation: "ピクトグラムは、言語に依存せず、直感的に意味を伝えることができるため、公共の案内表示などで広く利用されています。"
+        },
+        {
+            question: "収集したデータをグラフや表にまとめて視覚的に表現し、特徴や傾向を把握しやすくすることを何というか。",
+            options: ["データ分析", "情報の可視化", "インフォグラフィック", "統計処理", "データ整理"],
+            answer: 1,
+            explanation: "情報の可視化は、数値の羅列だけでは分かりにくいデータのパターンや関係性を直感的に理解するのに役立ちます。"
+        },
+        {
+            question: "文章を読みやすくするために、段落の行頭を数文字分下げることを何というか。",
+            options: ["インデント", "レイアウト", "キャプション", "フッター", "ヘッダー"],
+            answer: 0,
+            explanation: "インデント（字下げ）は、文章の構造を視覚的に分かりやすくするための基本的な手法です。"
+        },
+        {
+            question: "あるもの（道具や環境）が、人に対してどのような操作や行為を可能にしているかという、ものと人との間に存在する関係性を表す概念は何か。",
+            options: ["シグニファイア", "アフォーダンス", "ユーザビリティ", "アクセシビリティ", "デザイン"],
+            answer: 1,
+            explanation: "アフォーダンスは、ものが持つ「〜できる」という可能性を指します。例えば、ドアノブは「回す」、ボタンは「押す」という行為をアフォード（提供）します。"
+        },
+        {
+            question: "客観的な事実をもとに、論理を積み重ねて新しい事実や法則を導き出す過程を記述した文章を何というか。",
+            options: ["感想文", "エッセイ", "レポート", "論文", "コラム"],
+            answer: 3,
+            explanation: "論文は、主観的な感想ではなく、客観的な根拠に基づいて論理的に主張を展開する点が特徴です。"
+        },
+        {
+            question: "論文の構成要素のうち、研究の背景や目的、研究方法などを記述する導入部分を何というか。",
+            options: ["要約", "序論", "本論", "結論", "考察"],
+            answer: 1,
+            explanation: "序論は、読み手が論文全体を理解するための土台となる部分であり、問題提起や研究の位置づけを明確にします。"
+        },
+        {
+            question: "論理的な文章の構成で、最初に結論を述べ、その後に理由や具体例を説明していく論法を何というか。",
+            options: ["尾括式（帰納型）", "双括式", "頭括式（演繹型）", "並列式", "時系列式"],
+            answer: 2,
+            explanation: "頭括式は、主張が最初に明確に伝わるため、ビジネス文書やニュース記事など、短時間で情報を伝えたい場合に適しています。"
+        },
+        {
+            question: "プレゼンテーションの企画段階で、主題、目標、伝達内容、論理構成などをまとめるために作成するとよいシートは何か。",
+            options: ["ストーリーボード", "ルーブリック", "プランニングシート", "タイムテーブル", "アウトライン"],
+            answer: 2,
+            explanation: "プランニングシートを作成することで、プレゼンテーションの全体像を整理し、準備を効率的に進めることができます。"
+        },
+        {
+            question: "プレゼンテーションの発表内容の構成や話の流れを一覧にしたものを何というか。",
+            options: ["レジュメ", "ハンドアウト", "スクリプト", "アウトライン", "アジェンダ"],
+            answer: 3,
+            explanation: "アウトラインは、プレゼンテーションの骨格となるもので、「導入→展開→まとめ」といった大項目と、その中の中項目・小項目で構成されます。"
+        },
+        {
+            question: "スライド作成において、スライド全体のデザインやレイアウトのひな形となるものを何というか。",
+            options: ["デザインテンプレート", "スライドマスター", "テーマ", "スタイルシート", "レイアウト"],
+            answer: 0,
+            explanation: "デザインテンプレートを利用することで、手軽に統一感のある見栄えの良いスライドを作成できます。"
+        },
+        {
+            question: "グループで分担してスライドを作成する際に、全体のデザイン（フォント、色、ロゴの位置など）を統一するために用いると便利な機能は何か。",
+            options: ["デザインテンプレート", "スライドマスター", "アニメーション設定", "画面切り替え効果", "ノート機能"],
+            answer: 1,
+            explanation: "スライドマスターを編集すると、そのマスターを使用しているすべてのスライドに一括で変更が適用されるため、統一性の維持と作業の効率化に役立ちます。"
+        },
+        {
+            question: "プレゼンテーションなどを評価する際に、評価の観点と基準を段階的に示した評価指標のことを何というか。",
+            options: ["チェックリスト", "アンケート", "ルーブリック", "評価シート", "採点基準"],
+            answer: 2,
+            explanation: "ルーブリックを用いることで、評価者による評価のばらつきを抑え、客観的で公平な評価を行うことができます。"
+        },
+        {
+            question: "特別な知識がなくても、ブラウザ上でテキストや画像を入力してWebページを作成・更新できるシステムを何というか。",
+            options: ["HTML", "CSS", "CMS", "FTP", "Webサーバ"],
+            answer: 2,
+            explanation: "CMS (Contents Management System) を利用することで、HTMLやCSSの知識がなくても、ブログのように手軽にWebサイトの管理ができます。"
+        },
+        {
+            question: "Webサイトの入り口となる、最初のWebページを一般的に何というか。",
+            options: ["ランディングページ", "ホームページ", "トップページ", "インデックスページ", "ポータルサイト"],
+            answer: 2,
+            explanation: "トップページは、サイト全体の案内役として、各コンテンツへのナビゲーションを提供する重要な役割を担います。"
+        },
+        {
+            question: "Webサイトの構造の一つで、トップページから下層ページへと枝分かれしていく、サイトの全体像を把握しやすい構造はどれか。",
+            options: ["直線的構造", "網状構造", "階層構造", "ネットワーク構造", "マトリックス構造"],
+            answer: 2,
+            explanation: "階層構造は、多くのWebサイトで採用されている一般的な構造です。ただし、階層が深くなりすぎると目的のページにたどり着きにくくなるため注意が必要です。"
+        },
+        {
+            question: "Webページを記述するための言語で、文書の構造や意味を定義する役割を持つものは何か。",
+            options: ["CSS", "JavaScript", "PHP", "HTML", "SQL"],
+            answer: 3,
+            explanation: "HTML (Hyper Text Markup Language) は、見出し、段落、リンク、画像などの要素を「タグ」で囲んで文書の構造を定義します。"
+        },
+        {
+            question: "HTMLにおいて、文書の本体、つまりブラウザに表示される内容を記述するタグはどれか。",
+            options: ["<html>", "<head>", "<body>", "<title>", "<main>"],
+            answer: 2,
+            explanation: "`<body>`タグの中に見出し、段落、画像、リンクなどのコンテンツを記述します。"
+        },
+        {
+            question: "HTMLにおいて、最も大きな見出しを表すタグはどれか。",
+            options: ["<h1>", "<h6>", "<head>", "<title>", "<header>"],
+            answer: 0,
+            explanation: "見出しタグは`<h1>`から`<h6>`まであり、数字が小さいほど重要度が高く、一般的に大きく表示されます。"
+        },
+        {
+            question: "HTMLにおいて、他のWebページへのリンクを設定するタグはどれか。",
+            options: ["<img>", "<link>", "<a>", "<p>", "<nav>"],
+            answer: 2,
+            explanation: "`<a>`タグはアンカー（anchor）の略で、`href`属性にリンク先のURLを指定します。例: `<a href=\"...\">リンクテキスト</a>`"
+        },
+        {
+            question: "HTML文書の見た目（スタイル）を定義するための言語は何か。",
+            options: ["HTML", "JavaScript", "XML", "CSS", "Python"],
+            answer: 3,
+            explanation: "CSS (Cascading Style Sheets) を使うことで、文字の色や大きさ、背景、レイアウトなどを指定し、文書の構造と見た目を分離して管理できます。"
+        },
+        {
+            question: "CSSにおいて、特定のHTML要素にスタイルを適用するための指定部分を何というか。",
+            options: ["プロパティ", "値", "セレクタ", "ルール", "宣言"],
+            answer: 2,
+            explanation: "セレクタには、タグ名を指定する「要素セレクタ」、IDを指定する「IDセレクタ」、クラス名を指定する「クラスセレクタ」などがあります。"
+        },
+        {
+            question: "CSSのIDセレクタを記述する際に、ID名の前に付ける記号はどれか。",
+            options: [".", "#", ":", "@", ">"],
+            answer: 1,
+            explanation: "IDセレクタは`#id名`のように記述します。IDは一つのページ内でユニーク（一意）でなければなりません。"
+        },
+        {
+            question: "CSSのクラスセレクタを記述する際に、クラス名の前に付ける記号はどれか。",
+            options: [".", "#", ":", "*", "$"],
+            answer: 0,
+            explanation: "クラスセレクタは`.クラス名`のように記述します。クラスは一つのページ内で複数回使用でき、複数の要素に同じスタイルを適用するのに便利です。"
+        },
+        {
+            question: "一つのHTML文書に対して、閲覧する端末の画面サイズなどに応じて適用するCSSを切り替え、表示を最適化するデザイン手法を何というか。",
+            options: ["アダプティブデザイン", "リキッドデザイン", "レスポンシブデザイン", "ユニバーサルデザイン", "フラットデザイン"],
+            answer: 2,
+            explanation: "レスポンシブデザインにより、PC、タブレット、スマートフォンなど、様々なデバイスで快適に閲覧できるWebサイトを一つのHTMLファイルで実現できます。"
+        },
+        {
+            question: "検索エンジン（Googleなど）の検索結果で、自社のWebサイトが上位に表示されるように行う施策を総称して何というか。",
+            options: ["SEM", "SEO", "CMS", "SNS", "API"],
+            answer: 1,
+            explanation: "SEO (Search Engine Optimization) には、適切なキーワードをタイトルや見出しに含める「内部対策」や、質の高いサイトからリンクを獲得する「外部対策」などがあります。"
+        },
+        {
+            question: "コミュニケーションの分類で、電話やテレビ会議はどれに当てはまるか。",
+            options: ["直接・同期", "間接・同期", "直接・非同期", "間接・非同期", "マスコミ型"],
+            answer: 1,
+            explanation: "電話やテレビ会議は、物理的に離れた場所（間接）で行われますが、やり取りはリアルタイム（同期）で行われます。"
+        },
+        {
+            question: "論文の構成要素のうち、研究結果をまとめ、今後の課題などを記述する部分を何というか。",
+            options: ["序論", "本論", "考察", "結論", "要約"],
+            answer: 3,
+            explanation: "結論部分では、本論で示した客観的な事実に基づいて、筆者の考察や主張を論理的に述べます。"
+        },
+        {
+            question: "HTMLで表を作成する際に、表の一行を定義するタグはどれか。",
+            options: ["<table>", "<td>", "<th>", "<tr>", "<caption>"],
+            answer: 3,
+            explanation: "`<tr>` (table row) タグの中に、`<th>` (見出しセル) や `<td>` (データセル) を配置して行を構成します。"
+        },
+        {
+            question: "CSSで文字の色を指定するプロパティはどれか。",
+            options: ["font-size", "background-color", "color", "font-family", "text-align"],
+            answer: 2,
+            explanation: "`color`プロパティに、`red`のような色名や`#FF0000`のような16進数カラーコードを指定して文字色を設定します。"
+        },
+        {
+            question: "Webサイトの各ページに共通して表示される、サイト内リンクの集まり（メニュー）などを配置する領域を何というか。",
+            options: ["ヘッダ領域", "フッタ領域", "コンテンツ領域", "メイン領域", "ナビゲーション領域"],
+            answer: 4,
+            explanation: "ナビゲーション領域は、ユーザーがサイト内をスムーズに移動できるように手助けする重要な部分です。グローバルナビゲーションとも呼ばれます。"
+        },
+        {
+            question: "HTML文書の <head> タグ内に記述する内容として、適切でないものはどれか。",
+            options: ["ページのタイトル (<title>)", "文字コードの指定 (<meta>)", "CSSの記述 (<style>)", "ページの本文 (<p>)", "外部CSSファイルの読み込み (<link>)"],
+            answer: 3,
+            explanation: "ページの本文、つまりブラウザに直接表示されるコンテンツは`<body>`タグ内に記述します。`<head>`内には、そのページに関する設定情報などを記述します。"
+        },
+        {
+            question: "あるものが持つ「どのような行為が可能か」という性質と、それを見る人との間に生まれる関係性を指す言葉は何か。",
+            options: ["ユーザビリティ", "アフォーダンス", "シグニファイア", "アクセシビリティ", "インタラクション"],
+            answer: 1,
+            explanation: "アフォーダンスは、ものが人に「行為を促す」性質のことです。良いデザインは、このアフォーダンスをうまく利用しています。"
+        },
+        {
+            question: "論理的な文章の構成で、理由や具体例を先に述べ、最後に結論をまとめる論法を何というか。",
+            options: ["頭括式", "尾括式", "双括式", "並列式", "対比式"],
+            answer: 1,
+            explanation: "尾括式（帰納型）は、複数の具体例から一般的な結論を導き出す際に用いられ、読み手を説得しやすい構成です。"
+        },
+        {
+            question: "プレゼンテーションの評価基準をまとめたルーブリックを作成する目的として、適切でないものはどれか。",
+            options: ["評価の観点を明確にする", "評価者による評価のばらつきをなくす", "評価を客観的に行う", "発表者が自己評価しやすくなる", "評価者の主観だけで評価する"],
+            answer: 4,
+            explanation: "ルーブリックは、評価者の主観を排し、定められた基準に基づいて客観的な評価を行うためのツールです。"
+        },
+        {
+            question: "HTMLで画像を表示する <img> タグにおいて、画像が表示できない場合に代わりに表示されるテキストを指定する属性は何か。",
+            options: ["src", "href", "alt", "title", "source"],
+            answer: 2,
+            explanation: " alt 属性（代替テキスト）は、音声読み上げソフトが利用する情報でもあり、ウェブアクセシビリティの観点から非常に重要です。"
+        },
+        {
+            question: "CSSのセレクタで、 p.important は何を意味するか。",
+            options: ["pタグまたはimportantクラスを持つ要素", "pタグの中にあるimportantクラスを持つ要素", "importantクラスを持つpタグの要素", "pというIDとimportantというクラスを持つ要素", "pタグとimportantタグ"],
+            answer: 2,
+            explanation: "これは要素セレクタとクラスセレクタを組み合わせた指定方法で、`<p class=\"important\">`という要素にのみスタイルが適用されます。"
+        },
+        {
+            question: "同じ意味の情報を伝える際、文字よりもグラフや図の方が効果的な場合がある。この考え方が最も関連するものはどれか。",
+            options: ["メディアリテラシー", "情報デザイン", "コミュニケーション形態", "論文の構成", "Webサイトの構造"],
+            answer: 1,
+            explanation: "情報デザインでは、伝えるべき情報の内容や受け手の特性に応じて、文字、図、グラフなどの表現方法を適切に選択することが求められます。"
+        },
+        {
+            question: "コミュニケーションの分類で、SNSの投稿やコメントのやり取りは、一般的にどれに分類されるか。",
+            options: ["直接・同期", "間接・同期", "直接・非同期", "間接・非同期", "マスコミ型"],
+            answer: 3,
+            explanation: "SNSはインターネットを介して（間接）、投稿や返信をそれぞれの好きなタイミングで（非同期）行うコミュニケーションです。"
+        },
+        {
+            question: "プレゼンテーションのストーリーボードを作成する主な目的は何か。",
+            options: ["発表時間を正確に計測するため", "スライドのデザインを統一するため", "各スライドの構成と話の流れを具体的に可視化するため", "配布資料を作成するため", "質疑応答をシミュレーションするため"],
+            answer: 2,
+            explanation: "ストーリーボード（絵コンテ）は、各スライドのレイアウト、盛り込む内容、説明の要点などを具体的に書き出すことで、発表全体の流れを設計し、グループ作業を円滑にします。"
+        },
+        {
+            question: "Webサイトのフッタ領域に記載されることが多い情報として、適切でないものはどれか。",
+            options: ["コピーライト表記", "プライバシーポリシーへのリンク", "サイトのロゴやメインタイトル", "問い合わせ先", "サイトマップへのリンク"],
+            answer: 2,
+            explanation: "サイトのロゴやメインタイトルは、サイトの顔となる部分であり、通常はページ上部のヘッダ領域に配置されます。"
+        },
+        {
+            question: "CSSの font-size プロパティで指定できる値の単位でないものはどれか。",
+            options: ["px (ピクセル)", "em", "rem", "% (パーセント)", "cm (センチメートル)"],
+            answer: 4,
+            explanation: "Webデザインでは、px, em, rem, % などが一般的に使われます。cmは印刷用の単位であり、画面表示の指定には通常使われません。"
+        },
+        {
+            question: "ある行為を誘導するための、知覚可能な手がかりを何というか。",
+            options: ["アフォーダンス", "シグニファイア", "フィードバック", "マッピング", "制約"],
+            answer: 1,
+            explanation: "シグニファイアは、アフォーダンスをユーザーに伝えるためのサインです。例えば、ドアの「押す」と書かれたプレートがシグニファイアにあたります。"
+        },
+        {
+            question: "論文で他の文献の内容をそのまま文章に用いることを何というか。",
+            options: ["参考", "参照", "引用", "要約", "盗用"],
+            answer: 2,
+            explanation: "引用する際は、引用部分を明確に区別し、出典を明記する必要があります。これらを怠ると盗用（剽窃）と見なされます。"
+        },
+        {
+            question: "プレゼンテーションの発表において、聴衆と視線を合わせることを特に何というか。",
+            options: ["ジェスチャー", "ポスチャー", "アイコンタクト", "デリバリー", "パフォーマンス"],
+            answer: 2,
+            explanation: "アイコンタクトは、聴衆との一体感を生み出し、話に引き込むための重要な非言語的コミュニケーション技術です。"
+        },
+        {
+            question: "HTMLで、 <ul> タグは何を定義するために使われるか。",
+            options: ["番号付きリスト", "定義リスト", "順序なしリスト（箇条書き）", "テーブル", "段落"],
+            answer: 2,
+            explanation: "`<ul>` (Unordered List) タグと、その中の項目を表す`<li>` (List Item) タグを組み合わせて、箇条書きリストを作成します。"
+        },
+        {
+            question: "CSSで、要素の背景色を指定するプロパティはどれか。",
+            options: ["color", "border-color", "background-color", "text-color", "fill-color"],
+            answer: 2,
+            explanation: "`background-color`プロパティは、要素の背景に色を付けます。`color`プロパティは文字色を指定します。"
+        },
+        {
+            question: "情報デザインの原則として、「近接」「整列」「反復」「コントラスト」を提唱した人物は誰か。",
+            options: ["ティム・バーナーズ＝リー", "ニクラス・ルーマン", "ロビン・ウィリアムズ", "ドナルド・ノーマン", "ヤコブ・ニールセン"],
+            answer: 2,
+            explanation: "ロビン・ウィリアムズが提唱したこれらの4つの基本原則は、ノンデザイナーでも分かりやすく美しいデザインを作成するための指針となります。（※この内容はPDF外の補足知識です）"
+        },
+        {
+            question: "Webページに動画を埋め込む際に使用するHTML5のタグはどれか。",
+            options: ["<movie>", "<media>", "<video>", "<embed>", "<object>"],
+            answer: 2,
+            explanation: "`<video>`タグを使うことで、プラグインなしでブラウザに動画を直接表示させることができます。`controls`属性で再生ボタンなどを表示できます。"
+        },
+        {
+            question: "CSSの記述方法で、HTMLファイルとは別の`.css`ファイルにスタイルを記述し、HTMLから読み込む方法を何というか。",
+            options: ["インラインスタイル", "内部スタイルシート", "外部スタイルシート", "インポート", "リンクスタイル"],
+            answer: 2,
+            explanation: "外部スタイルシートを利用することで、複数のHTMLファイルで同じスタイルを共有でき、サイト全体のデザイン統一やメンテナンスが容易になります。"
+        },
+        {
+            question: "「私は、絵が好きです。」という文があいまいな表現である理由として最も適切なものはどれか。",
+            options: ["主語が省略されているから", "句読点の使い方が間違っているから", "「絵を描くのが好き」か「絵を見るのが好き」か解釈が分かれるから", "敬語の使い方が不適切だから", "事実か意見か不明確だから"],
+            answer: 2,
+            explanation: "この文は、文脈によって複数の意味に解釈できる可能性があります。情報を伝える際は、受け手が誤解しないような明確な表現を心がけることが重要です。"
+        },
+        {
+            question: "円グラフで各項目の割合を示す際、最も注意すべきことは何か。",
+            options: ["必ず3Dで表現する", "項目数は3つ以内にする", "合計が100%になるようにする", "色は補色のみを使う", "必ず大きい順に並べる"],
+            answer: 2,
+            explanation: "円グラフは全体に対する各部分の構成比を示すのに適したグラフです。各扇形の合計が全体（100%）と一致していることが基本です。"
+        },
+        {
+            question: "論文の構成要素で、論文全体の要点を短くまとめたものを何というか。",
+            options: ["序論", "はじめに", "要約（アブストラクト）", "目次", "結論"],
+            answer: 2,
+            explanation: "要約（アブストラクト）を読むことで、読者はその論文が自分の興味に合うものかどうかを短時間で判断することができます。"
+        },
+        {
+            question: "プレゼンテーションで、1枚のスライドに情報を詰め込みすぎない方が良いとされる理由は何か。",
+            options: ["印刷コストがかかるから", "ファイルサイズが大きくなるから", "聴き手が情報を処理しきれず、理解度が低下するから", "デザインテンプレートが適用できなくなるから", "アニメーションが重くなるから"],
+            answer: 2,
+            explanation: "「1スライド＝1メッセージ」が基本原則です。情報を絞り、視覚的に分かりやすく提示することで、伝えたい内容が効果的に伝わります。"
+        },
+        {
+            question: "Webサイトのアクセシビリティを高める工夫として、適切でないものはどれか。",
+            options: ["画像にalt属性で代替テキストを設定する", "文字と背景のコントラストを十分に確保する", "専門用語を多用し、高度な内容であることを示す", "キーボードだけでも操作できるようにする", "動画に字幕や音声ガイドを付ける"],
+            answer: 2,
+            explanation: "専門用語を多用すると、その分野に詳しくない人や初心者にとって理解が困難になります。誰にとっても分かりやすい言葉で表現することがアクセシビリティ向上につながります。"
+        },
+        {
+            question: "HTMLで、<!-- コメント --> という記述は何を意味するか。",
+            options: ["ブラウザに「コメント」と表示される", "文字が赤色になる", "その部分はHTMLのコメントであり、ブラウザには表示されない", "エラーが発生する", "見出しとして扱われる"],
+            answer: 2,
+            explanation: "コメントは、HTMLソースコード内にメモを残すために使用され、ページの表示には影響しません。"
+        },
+        {
+            question: "CSSで、 p { text-align: center; } というスタイルは何を指定しているか。",
+            options: ["pタグの文字を太字にする", "pタグの背景色を中央揃えにする", "pタグ内のテキストを中央揃えにする", "pタグをページの中央に配置する", "pタグの文字サイズを中央値にする"],
+            answer: 2,
+            explanation: " text-align プロパティは、ブロックレベル要素内のテキストやインライン要素の水平方向の配置を指定します。"
+        },
+        {
+            question: "情報の受け手のことを考え、誰もが利用しやすいように配慮されたデザインを何というか。",
+            options: ["レスポンシブデザイン", "フラットデザイン", "情報デザイン", "ユニバーサルデザイン", "インクルーシブデザイン"],
+            answer: 3,
+            explanation: "ユニバーサルデザインは、年齢、性別、国籍、能力にかかわらず、できるだけ多くの人が利用できることを目指したデザインの考え方です。"
+        },
+        {
+            question: "コミュニケーションにおいて、言葉そのものの意味（言語情報）以外の要素、例えば声のトーンや表情、身振りなどを何というか。",
+            options: ["非言語的コミュニケーション", "言語的コミュニケーション", "バーバルコミュニケーション", "メディア", "メッセージ"],
+            answer: 0,
+            explanation: "非言語的コミュニケーションは、言葉以上に感情や意図を伝えることがあります。対面での会話では非常に重要な要素です。"
+        },
+        {
+            question: "プレゼンテーションの最後に設けることが望ましい時間は何か。",
+            options: ["自己紹介", "質疑応答", "アンケート", "次回の予告", "休憩"],
+            answer: 1,
+            explanation: "質疑応答の時間を設けることで、聴き手の疑問を解消し、双方向のコミュニケーションを通じて理解を深めることができます。"
+        },
+        {
+            question: "Webページで、クリックできる範囲が分かりにくいリンクのデザインは、何が欠けていると言えるか。",
+            options: ["アフォーダンス", "シグニファイア", "コンテンツ", "ナビゲーション", "アクセシビリティ"],
+            answer: 1,
+            explanation: "リンクであることが分かるような視覚的な手がかり（シグニファイア）、例えば下線や色の変化が不十分であると、ユーザーはそれがクリックできるとは認識できません。"
+        },
+        {
+            question: "HTMLで、 lang=\"ja\" という属性は何を意味するか。",
+            options: ["ページの言語がJavaScriptであることを示す", "ページの言語が日本語であることを示す", "ページの著者が日本人であることを示す", "ページの文字コードがJISであることを示す", "ページが日本国内でのみ閲覧可能であることを示す"],
+            answer: 1,
+            explanation: "`lang`属性は、文書の主要な言語を指定します。これにより、検索エンジンや音声読み上げソフトが適切に文書を処理する手助けとなります。"
+        },
+        {
+            question: "CSSで、 #header というセレクタが適用されるHTML要素はどれか。",
+            options: ["<p class=\"header\">", "<p id=\"header\">", "<header>", "<h1>", "すべての要素"],
+            answer: 1,
+            explanation: "`#`で始まるセレクタはIDセレクタであり、`id`属性の値が一致する要素にスタイルを適用します。"
+        },
+        {
+            question: "情報伝達の正確性を高めるために、聞き手が話し手の言ったことを要約して繰り返し、内容の確認を行うコミュニケーション技法は何か。",
+            options: ["アクティブリスニング", "プレゼンテーション", "ディベート", "ブレインストーミング", "フィードバック"],
+            answer: 0,
+            explanation: "アクティブリスニング（積極的傾聴）は、相手の話に深く耳を傾け、理解しようと努める姿勢です。相槌や質問、要約などが含まれます。"
+        },
+        {
+            question: "あるテーマについて自由にアイデアを出し合い、互いの発想を連鎖させて、より良いアイデアを生み出そうとする会議の手法は何か。",
+            options: ["ディスカッション", "ディベート", "ブレインストーミング", "KJ法", "ワークショップ"],
+            answer: 2,
+            explanation: "ブレインストーミングでは、質より量を重視し、他人の意見を批判しないといったルールのもとで、自由な発想を促します。"
+        },
+        {
+            question: "Webサイトのナビゲーションにおいて、ユーザーがサイト内のどの位置にいるかを階層的に示すものを何というか。",
+            options: ["サイトマップ", "グローバルナビゲーション", "パンくずリスト", "フッターメニュー", "検索ボックス"],
+            answer: 2,
+            explanation: "パンくずリストは、「トップ > カテゴリ > 現在のページ」のように表示され、ユーザーが現在地を把握し、上位の階層へ簡単に戻る手助けをします。"
+        },
+        {
+            question: "HTMLで、段落を意味する <p> タグは、何の略称か。",
+            options: ["Page", "Paragraph", "Part", "Position", "Print"],
+            answer: 1,
+            explanation: "`<p>`はParagraphの略で、一つのまとまった文章のブロックを定義します。"
+        },
+        {
+            question: "CSSで複数のプロパティと値を指定する場合、それぞれの「プロパティ:値;」のペアを区切る記号は何か。",
+            options: ["カンマ (,)", "ピリオド (.)", "コロン (:)", "セミコロン (;)", "スペース ( )"],
+            answer: 3,
+            explanation: "各宣言（プロパティと値のセット）はセミコロンで区切ります。例: `color: red; font-size: 16px;`"
+        },
+        {
+            question: "情報デザインにおいて、関連する要素を近づけてグループ化することで、情報の構造を分かりやすくする原則は何か。",
+            options: ["整列", "反復", "コントラスト", "近接", "余白"],
+            answer: 3,
+            explanation: "近接の原則に従うと、人間は近くにあるものを無意識に関連付けて認識するため、視覚的に整理された分かりやすいレイアウトになります。"
+        },
+        {
+            question: "プレゼンテーション資料で、各ページのデザイン要素（見出しのフォント、箇条書きの記号など）を繰り返し使用する目的は何か。",
+            options: ["ページ数を増やすため", "聴き手を飽きさせないため", "一貫性を持たせ、視覚的な混乱を避けるため", "作成者の個性を表現するため", "アニメーション効果を高めるため"],
+            answer: 2,
+            explanation: "これは「反復」の原則です。デザイン要素を繰り返し使うことで、資料全体に統一感が生まれ、聴き手は安心して内容に集中できます。"
+        },
+        {
+            question: "Webページのデザインにおいて、重要な要素を目立たせるために、他の要素との間に視覚的な違い（大きさ、色、形など）を設ける原則は何か。",
+            options: ["近接", "整列", "反復", "コントラスト", "一貫性"],
+            answer: 3,
+            explanation: "コントラストを効果的に使うことで、ユーザーの視線を誘導し、最も伝えたい情報を際立たせることができます。"
+        },
+        {
+            question: "WWW（World Wide Web）の基本的な仕組みを考案・開発した人物は誰か。",
+            options: ["ビル・ゲイツ", "スティーブ・ジョブズ", "ティム・バーナーズ＝リー", "リーナス・トーバルズ", "ヴィントン・サーフ"],
+            answer: 2,
+            explanation: "ティム・バーナーズ＝リーは、HTML、HTTP、URLといったWebの基本技術を発明し、「Webの父」と呼ばれています。"
+        },
+        {
+            question: "HTMLで、 <div> タグの主な役割は何か。",
+            options: ["文章の段落を定義する", "重要なテキストを強調する", "複数の要素をグループ化し、レイアウトやスタイルのためのブロックを作る", "画像を挿入する", "ハイパーリンクを設定する"],
+            answer: 2,
+            explanation: "`<div>` (division) タグ自体に意味はありませんが、複数の要素をまとめる汎用的なコンテナとして、CSSでレイアウトを組む際に非常に重要です。"
+        },
+        {
+            question: "CSSで、 font-weight: bold; は何を指定するスタイルか。",
+            options: ["文字を斜体にする", "文字に下線を引く", "文字を太字にする", "文字のサイズを大きくする", "文字の種類を変更する"],
+            answer: 2,
+            explanation: "`font-weight`プロパティは、文字の太さを指定します。`bold`は太字、`normal`は標準の太さです。"
+        }
+    ];
+
+
+
+    // --- DOM Elements ---
+    const startScreen = document.getElementById('start-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const resultScreen = document.getElementById('result-screen');
+    
+    const startBtn = document.getElementById('start-btn');
+    const questionNumberEl = document.getElementById('question-number');
+    const questionTextEl = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const feedbackContainer = document.getElementById('feedback-container');
+    const feedbackResultEl = document.getElementById('feedback-result');
+    const explanationEl = document.getElementById('explanation');
+    const explanationTextEl = document.getElementById('explanation-text');
+    const nextBtn = document.getElementById('next-btn');
+    const restartBtn = document.getElementById('restart-btn');
+    const scoreEl = document.getElementById('score');
+    const resultMessageEl = document.getElementById('result-message');
+    const progressBar = document.getElementById('progress-bar');
+
+
+    // --- Variables ---
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let shuffledQuizData = [];
+
+    // --- Event Listeners ---
+    startBtn.addEventListener('click', startQuiz);
+    nextBtn.addEventListener('click', nextQuestion);
+    restartBtn.addEventListener('click', startQuiz);
+
+    // --- Functions ---
+
+    // Function to start the quiz
+    function startQuiz() {
+        startScreen.classList.add('hidden');
+        resultScreen.classList.add('hidden');
+        quizScreen.classList.remove('hidden');
+        
+        currentQuestionIndex = 0;
+        score = 0;
+        // Shuffle quiz data for a new order each time
+        shuffledQuizData = [...quizData].sort(() => Math.random() - 0.5);
+        displayQuestion();
+    }
+
+    // Function to display a question
+    function displayQuestion() {
+        resetState();
+        const currentQuestion = shuffledQuizData[currentQuestionIndex];
+        questionNumberEl.textContent = currentQuestionIndex + 1;
+        questionTextEl.innerHTML = `Q${currentQuestionIndex + 1}. ${currentQuestion.question}`;
+        
+        currentQuestion.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.innerHTML = `<span class="bg-blue-100 text-blue-800 font-bold rounded-full w-8 h-8 flex items-center justify-center mr-4">${index + 1}</span> ${option}`;
+            button.classList.add('option-btn', 'w-full', 'p-4', 'text-left', 'bg-white', 'border-2', 'border-gray-300', 'rounded-lg', 'flex', 'items-center', 'text-lg');
+            button.dataset.index = index;
+            button.addEventListener('click', selectAnswer);
+            optionsContainer.appendChild(button);
+        });
+
+        updateProgressBar();
+    }
+    
+    // Function to reset the state for the next question
+    function resetState() {
+        feedbackContainer.classList.add('hidden');
+        nextBtn.classList.add('hidden');
+        while (optionsContainer.firstChild) {
+            optionsContainer.removeChild(optionsContainer.firstChild);
+        }
+    }
+
+    // Function to handle answer selection
+    function selectAnswer(e) {
+        const selectedBtn = e.currentTarget;
+        const selectedIndex = parseInt(selectedBtn.dataset.index);
+        const correctIndex = shuffledQuizData[currentQuestionIndex].answer;
+
+        if (selectedIndex === correctIndex) {
+            feedbackResultEl.textContent = "正解！";
+            feedbackResultEl.className = "text-2xl font-bold mb-4 text-green-600";
+            score++;
+        } else {
+            feedbackResultEl.textContent = "不正解...";
+            feedbackResultEl.className = "text-2xl font-bold mb-4 text-red-600";
+        }
+        
+        explanationTextEl.textContent = shuffledQuizData[currentQuestionIndex].explanation;
+        feedbackContainer.classList.remove('hidden');
+
+        // Update styles for all buttons
+        Array.from(optionsContainer.children).forEach(button => {
+            const btnIndex = parseInt(button.dataset.index);
+            if (btnIndex === correctIndex) {
+                button.classList.add('correct');
+            } else if (btnIndex === selectedIndex) {
+                button.classList.add('incorrect');
+            }
+            button.disabled = true;
+        });
+
+        if (shuffledQuizData.length > currentQuestionIndex + 1) {
+            nextBtn.textContent = "次の問題へ";
+            nextBtn.classList.remove('hidden');
+        } else {
+            nextBtn.textContent = "結果を見る";
+            nextBtn.classList.remove('hidden');
+        }
+    }
+    
+    // Function to move to the next question or show results
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < shuffledQuizData.length) {
+            displayQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    // Function to show the final results
+    function showResult() {
+        quizScreen.classList.add('hidden');
+        resultScreen.classList.remove('hidden');
+        scoreEl.textContent = score;
+        
+        let message = "";
+        if (score >= 95) {
+            message = "素晴らしい！完璧です。情報デザインの達人ですね！";
+        } else if (score >= 80) {
+            message = "高得点！素晴らしい理解度です。この調子で頑張りましょう。";
+        } else if (score >= 60) {
+            message = "合格ラインです。苦手な部分を解説で復習しましょう。";
+        } else if (score >= 40) {
+            message = "もう少しです。間違えた問題を中心に、もう一度挑戦してみましょう。";
+        } else {
+            message = "基礎からもう一度復習が必要です。繰り返し学習が力になります。";
+        }
+        resultMessageEl.textContent = message;
+    }
+
+    // Function to update the progress bar
+    function updateProgressBar() {
+        const progressPercentage = ((currentQuestionIndex + 1) / shuffledQuizData.length) * 100;
+        progressBar.style.width = `${progressPercentage}%`;
+    }
+
+</script>
+
+</body>
+</html>

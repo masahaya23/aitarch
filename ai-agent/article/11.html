@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三角関数シューティング - OIH_AIエージェント研究会</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="/common/theme.css">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+        .launch-btn {
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .launch-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(124, 58, 237, 0.45);
+        }
+        .tag {
+            background-color: #ede9fe;
+            color: #5b21b6;
+            font-size: 0.75rem;
+            padding: 2px 10px;
+            border-radius: 9999px;
+        }
+        .info-row { border-bottom: 1px solid rgba(124,58,237,0.15); }
+        .info-table span { color: #1e0a40 !important; }
+        .topic-cards p, .topic-cards li { color: #1e0a40 !important; }
+        .phase-badge {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="bg-[var(--bg-color)] overflow-x-hidden">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <aside id="sidebar-container"
+               class="w-full md:w-1/3 lg:w-1/4 p-6 bg-white/60 backdrop-blur-sm border-r border-black/10"
+               data-aos="fade-right" data-aos-duration="900">
+        </aside>
+
+        <main class="w-full md:w-2/3 lg:w-3/4 p-8 md:p-12"
+              data-aos="fade-left" data-aos-duration="900" data-aos-delay="200">
+            <div class="max-w-3xl text-[var(--text-color)]">
+
+                <!-- ヘッダー -->
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="tag">🎮 ゲーム</span>
+                    <span class="tag">📐 数学</span>
+                    <span class="tag">三角関数</span>
+                    <span class="tag">弧度法</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold pb-4 mt-4 mb-6 border-b border-[var(--theme-color)]/30">
+                    三角関数シューティング
+                </h1>
+
+                <!-- 起動ボタン -->
+                <div class="mb-10" data-aos="zoom-in" data-aos-duration="600">
+                    <button onclick="window.open('/ai-agent/app/trig-shooting.html', '_blank', 'width=760,height=760')"
+                            class="launch-btn inline-flex items-center gap-3 text-white font-bold text-lg px-8 py-4 rounded-2xl shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        ゲームを起動（別窓）
+                    </button>
+                    <p class="mt-2 text-sm opacity-60">新しいウィンドウで開きます</p>
+                </div>
+
+                <!-- ゲーム概要 -->
+                <section class="prose prose-lg max-w-none mb-8" data-aos="fade-up">
+                    <h2 class="text-xl font-bold mb-3" style="color:var(--text-color)">ゲーム概要</h2>
+                    <p style="color:var(--text-color)">
+                        弧度法による三角関数の値を答えるシューティングゲームです。
+                        画面上から降ってくる5つの選択肢ブロックの中から正しい答えを砲台で撃ち落としてください。
+                        sin → cos → tan の順に5問ずつ出題され、問題が進むほどブロックの落下速度が上昇します。
+                    </p>
+                </section>
+
+                <!-- 情報テーブル -->
+                <section class="info-table mb-8 bg-white/70 rounded-xl overflow-hidden border border-[var(--theme-color)]/20" data-aos="fade-up" data-aos-delay="80">
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">対象</span>
+                        <span>高校数学（三角関数 / 数学II）</span>
+                    </div>
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">角度範囲</span>
+                        <span>−2π ～ 2π（弧度法）</span>
+                    </div>
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">出題角度</span>
+                        <span>π/6・π/4・π/3・π/2・π の整数倍</span>
+                    </div>
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">問題数</span>
+                        <span>無制限（sin・cos・tan 各5問ループ）</span>
+                    </div>
+                    <div class="flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">作成</span>
+                        <span>HTML / CSS / JavaScript（Canvas使用）</span>
+                    </div>
+                </section>
+
+                <!-- 出題内容 -->
+                <section class="mb-8" data-aos="fade-up" data-aos-delay="120">
+                    <h2 class="text-xl font-bold mb-4" style="color:var(--text-color)">出題フェーズ</h2>
+                    <div class="topic-cards grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="bg-white/70 rounded-xl p-4 border border-[var(--theme-color)]/20 text-center">
+                            <p class="font-bold text-base mb-2" style="color:#7c3aed">sin フェーズ</p>
+                            <p class="text-sm opacity-75">5問</p>
+                            <p class="text-sm mt-2">答えの種類<br>0, ±1/2, ±√2/2, ±√3/2, ±1</p>
+                        </div>
+                        <div class="bg-white/70 rounded-xl p-4 border border-[var(--theme-color)]/20 text-center">
+                            <p class="font-bold text-base mb-2" style="color:#2563eb">cos フェーズ</p>
+                            <p class="text-sm opacity-75">5問</p>
+                            <p class="text-sm mt-2">答えの種類<br>0, ±1/2, ±√2/2, ±√3/2, ±1</p>
+                        </div>
+                        <div class="bg-white/70 rounded-xl p-4 border border-[var(--theme-color)]/20 text-center">
+                            <p class="font-bold text-base mb-2" style="color:#059669">tan フェーズ</p>
+                            <p class="text-sm opacity-75">5問</p>
+                            <p class="text-sm mt-2">答えの種類<br>0, ±1, ±√3, ±√3/3</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 操作方法 -->
+                <section class="mb-8" data-aos="fade-up" data-aos-delay="160">
+                    <h2 class="text-xl font-bold mb-3" style="color:var(--text-color)">操作方法</h2>
+                    <ul class="text-sm opacity-80 space-y-2 list-disc list-inside" style="color:var(--text-color)">
+                        <li>← → カーソルキー または マウス移動：砲台を左右に動かす</li>
+                        <li>スペースキー または クリック：ミサイルを発射</li>
+                        <li>正しい答えのブロックを撃つ → +10点</li>
+                        <li>誤ったブロックを撃つ、または正解ブロックを取り逃がす → ❤ 1減</li>
+                        <li>命（❤）が5つなくなるとゲームオーバー</li>
+                    </ul>
+                </section>
+
+            </div>
+
+            <footer class="text-left text-slate-400 mt-12">
+                <p>&copy; 2025 Aitarch. All Rights Reserved.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ once: true });
+        const script = document.createElement('script');
+        script.src = `../../sidebar.js?v=${new Date().getTime()}`;
+        script.onload = function() {
+            generateSidebar('ai-agent', '/ai-agent/article/11.html');
+        };
+        document.body.appendChild(script);
+    </script>
+</body>
+</html>

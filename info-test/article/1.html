@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- タスクバーに表示するタイトル-->
+    <title>[情報Ⅰ]プログラミングの基礎</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="/common/theme.css">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- 左サイドバー: 中身はJSで自動生成される -->
+        <aside id="sidebar-container" class="w-full md:w-1/3 lg:w-1/4 p-6 bg-white/60 backdrop-blur-sm border-r border-black/10" data-aos="fade-right" data-aos-duration="900">
+            <!-- ここにsidebar.jsから記事一覧が挿入されます -->
+        </aside>
+
+        <!-- 右コンテンツ: 記事本文 -->
+        <main class="w-full md:w-2/3 lg:w-3/4 p-8 md:p-12" data-aos="fade-up" data-aos-duration="900" data-aos-delay="200">
+            <div class="prose prose-lg max-w-4xl text-[var(--text-color)] prose-headings:text-[var(--text-color)] prose-p:text-[var(--text-color)] prose-strong:text-[var(--text-color)] prose-a:text-[var(--theme-color)] prose-ul:text-[var(--text-color)] prose-li:text-[var(--text-color)]">
+                <!-- Title -->
+                <h1 class="text-4xl md:text-4xl font-bold pb-4 mb-8 border-b border-[var(--theme-color)]/30">アルゴリズムとプログラミングの基礎</h1>
+                <p class="text-right text-base text-[var(--text-color)] opacity-70 mt-4 mb-8">公開日: 2025-06-30</p>
+                <!-- Content --> 
+            <section id="intro" class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-md mb-12">
+                <h2 class="text-2xl font-bold text-slate-900 mb-4">はじめに：DNCLをマスターしよう</h2>
+                <div class="space-y-4 text-slate-700">
+                    <p>
+                        大学入学共通テスト「情報Ⅰ」の配点の中で、アルゴリズムとプログラミング分野は非常に重要です。この対策として、試験で用いられる<strong class="text-sky-700">DNCL（共通テスト手順記述標準言語）</strong>に習熟することが合格への鍵となります。
+                    </p>
+                    <p>
+                        DNCLは、広く使われているプログラミング言語<strong class="text-sky-700">Pythonを基に、日本語で記述できるようにした言語</strong>です。そのため、基本的な考え方はPythonと共通しており、プログラミング的思考を養うのに最適です。このガイドを使って、効率的に学習を進めましょう。
+                    </p>
+                </div>
+            </section>
+
+            <!-- How to Study Section -->
+            <section id="how-to" class="max-w-3xl mx-auto">
+                <div class="bg-white p-8 rounded-xl shadow-md">
+                    <h2 class="text-2xl font-bold text-slate-900 mb-6 text-center">3ステップで進めるDNCL実践学習</h2>
+                    
+                    <div class="space-y-8">
+                        <!-- Step 1: Access the Site -->
+                        <div class="flex items-center space-x-6">
+                            <div class="flex-shrink-0 bg-sky-600 text-white rounded-full h-12 w-12 flex items-center justify-center text-xl font-bold">1</div>
+                            <div>
+                                <h3 class="font-bold text-lg text-slate-800">DNCL実習サイトへアクセス</h3>
+                                <p class="text-slate-600">まずは、DNCLを実際に動かせる学習サイトを開きます。ブックマークしておくと便利です。</p>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <a href="http://aitarch.com/PyPEN/" target="_blank" rel="noopener noreferrer" class="inline-block bg-sky-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-sky-700 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                DNCL実習サイトを開く
+                            </a>
+                        </div>
+
+                        <!-- Step 2: Understand Samples -->
+                        <div class="flex items-start space-x-6">
+                            <div class="flex-shrink-0 bg-sky-600 text-white rounded-full h-12 w-12 flex items-center justify-center text-xl font-bold">2</div>
+                            <div>
+                                <h3 class="font-bold text-lg text-slate-800">サンプルプログラムを完全理解</h3>
+                                <p class="text-slate-600">サイト下部にある「サンプル1」から「サンプル8」は、DNCLの基本文法を網羅した良質な教材です。一つずつ実行し、コードの意味を完全に理解できるまで取り組みましょう。下のチェックリストで進捗を管理できます。</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Interactive Checklist -->
+                        <div id="checklist" class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
+                            <!-- JS will populate this -->
+                        </div>
+
+                        <!-- Step 3: Use the Manual -->
+                        <div class="flex items-start space-x-6">
+                            <div class="flex-shrink-0 bg-sky-600 text-white rounded-full h-12 w-12 flex items-center justify-center text-xl font-bold">3</div>
+                            <div>
+                                <h3 class="font-bold text-lg text-slate-800">マニュアルを活用する</h3>
+                                <p class="text-slate-600">サンプルで分からない記述があれば、サイト下部にある「言語マニュアル」ですぐに確認する習慣をつけましょう。これが実力アップの近道です。</p>
+                            </div>
+                        </div>
+                        <div class="bg-sky-50 border-l-4 border-sky-500 text-sky-800 p-4 rounded-r-lg">
+                            <p><strong>ヒント：</strong>マニュアルはPDF形式です。ダウンロードして、いつでも参照できるようにしておくと学習効率が上がります。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            </div>
+            <footer class="text-center text-slate-400 mt-12">
+                <p>&copy; 2025 Aitarch. All Rights Reserved.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="../../sidebar.js"></script>
+    <script>
+        AOS.init({ once: true });
+        //ここに記事のディレクトリを入れる 
+        generateSidebar('info-test', '/info-test/article/1.html');
+    </script>
+</body>
+</html>

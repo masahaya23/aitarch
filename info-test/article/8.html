@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大学入試英単語1000</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Chosen Palette: Purple/Blue Gradient (from eitan_quiz02.html) -->
+    <!-- Application Structure Plan: このページは、英単語クイズ「eitan_quiz02.html」への誘導に特化します。構造は、(1)クイズのブランドカラーである紫と青のグラデーションを使ったヒーローセクションで関心を引き、(2)ユーザー要件（1000語、テンポ、50問ごと）を「3つの特長」としてアイコン付きで明示し、(3)強力なCTA（Call to Action）ボタンでクイズ本体へ誘導する、という直線的な構成を採用しました。これにより、受験生が迷わずクイズの価値を理解し、即座に学習を開始できる流れを作ります。 -->
+    <!-- Visualization & Content Choices: データグラフは不要です。代わりに、Font Awesomeアイコン（卒業帽、稲妻、タスク）を使い、「大学入試レベル(1000語)」「テンポの良さ」「学習戦略(50問ごと)」という要件を視覚的に伝えます。Goal: クイズの価値を伝え、利用を促す。Presentation Method: アイコン付きの特長リストと、目立つCTAボタン。Interaction: CTAボタンをクリックすると、指定されたクイズファイル「eitan_quiz02.html」に遷移します。Justification: 情報を明確に伝え、次のアクション（クイズの開始）を力強く促すことが、このページの唯一かつ最大の目的であるためです。Library/Method: Tailwind CSS, Font Awesome。 -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="/common/theme.css">
+    <style>
+        body {
+            font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+            background-color: #f8f9ff;
+        }
+        .hero-bg {
+            background-color: #667eea;
+            background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .cta-button {
+            background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .cta-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        .feature-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.08);
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- 左サイドバー: 中身はJSで自動生成される -->
+        <aside id="sidebar-container" class="w-full md:w-1/3 lg:w-1/4 p-6 bg-white/60 backdrop-blur-sm border-r border-black/10" data-aos="fade-right" data-aos-duration="900">
+            <!-- ここにsidebar.jsから記事一覧が挿入されます -->
+        </aside>
+
+        <!-- 右コンテンツ: 記事本文 -->
+        <main class="w-full md:w-2/3 lg:w-3/4 p-8 md:p-12" data-aos="fade-up" data-aos-duration="900" data-aos-delay="200">
+            <div class="prose prose-lg max-w-4xl text-[var(--text-color)] prose-headings:text-[var(--text-color)] prose-p:text-[var(--text-color)] prose-strong:text-[var(--text-color)] prose-a:text-[var(--theme-color)] prose-ul:text-[var(--text-color)] prose-li:text-[var(--text-color)]">
+                <!-- Title -->
+                <h1 class="text-4xl md:text-4xl font-bold pb-4 mb-8 border-b border-[var(--theme-color)]/30">大学入試英単語1000</h1>
+                <p class="text-base text-[var(--text-color)] opacity-70 mt-4 mb-8">公開日: 2025-11-06</p>
+                <!-- Content --> 
+    <!-- Hero Section -->
+    <header class="hero-bg text-white text-center py-20 px-4">
+        <div class="max-w-3xl mx-auto">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 leading-tight">大学入試英単語1000</h1>
+            <p class="mt-6 text-lg md:text-xl max-w-2xl mx-auto">
+                大学入試に必須英単語1000語を、クイズ形式で徹底的にマスターしよう<br>スキマ時間で、テンポよく実力アップ！
+            </p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="py-16 px-4">
+        <div class="max-w-4xl mx-auto">
+
+            <!-- Features Section -->
+            <section class="mb-16">
+                <h3 class="text-3xl font-bold text-center text-slate-900 mb-12">この単語ドリルの特長</h3>
+                <div class="grid md:grid-cols-3 gap-8 text-center">
+                    <!-- Feature 1 -->
+                    <div class="feature-card bg-white p-8 rounded-xl shadow-lg border-t-4 border-indigo-500">
+                        <div class="text-indigo-500 text-5xl mb-4"><i class="fas fa-graduation-cap"></i></div>
+                        <h4 class="text-xl font-bold mb-2">入試必須の1000語</h4>
+                        <p class="text-slate-600">大学入試で頻出する重要な1000語を厳選。これ一つで基礎は完璧です。</p>
+                    </div>
+                    <!-- Feature 2 -->
+                    <div class="feature-card bg-white p-8 rounded-xl shadow-lg border-t-4 border-indigo-500">
+                        <div class="text-indigo-500 text-5xl mb-4"><i class="fas fa-bolt"></i></div>
+                        <h4 class="text-xl font-bold mb-2">テンポよくマスター</h4>
+                        <p class="text-slate-600">5択クイズ形式で、直感的にサクサク進められます。通学中や休憩時間にも最適です。</p>
+                    </div>
+                    <!-- Feature 3 -->
+                    <div class="feature-card bg-white p-8 rounded-xl shadow-lg border-t-4 border-indigo-500">
+                        <div class="text-indigo-500 text-5xl mb-4"><i class="fas fa-tasks"></i></div>
+                        <h4 class="text-xl font-bold mb-2">50問ずつの攻略がカギ</h4>
+                        <p class="text-slate-600">「今日は50問だけ」のように、小さな目標を立てて毎日続けるのが記憶定着のコツです。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Call to Action Section -->
+            <section class="bg-slate-800 text-white rounded-2xl p-12 text-center">
+                <h3 class="text-3xl font-bold mb-4">準備はOK？ 今すぐ実力チェック！</h3>
+                <p class="text-slate-300 text-lg mb-8 max-w-xl mx-auto">
+                    自分の語彙力を試してみよう。<br>全問正解を目指して、いざ挑戦！
+                </p>
+                <!-- ここにeitan_quiz02.htmlへのリンクを設定します -->
+                <a href="eitan_quiz02.html" class="cta-button inline-block text-white font-bold text-xl py-4 px-10 rounded-full shadow-lg">
+                    1000語テストを開始する <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+     
+            </div>
+            <footer class="text-left text-slate-400 mt-12">
+                <p>&copy; 2025 Aitarch. All Rights Reserved.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="../../sidebar.js"></script>
+    <script>
+        AOS.init({ once: true });
+        //ここに記事のディレクトリを入れる 
+        generateSidebar('info-test', '/info-test/article/8.html');
+
+    </script>
+</body>
+</html>

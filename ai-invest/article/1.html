@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>すごいぞ Google Finance - Aitarch</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="/common/theme.css">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+        .glass-card { background: rgba(255,255,255,0.88); backdrop-filter: blur(10px); border: 1px solid #e0e0e0; transition: transform 0.2s; }
+        .glass-card:hover { transform: translateY(-5px); }
+        .ai-badge { background: linear-gradient(90deg, #4285f4, #34a853); color: white; padding: 2px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
+        .step-number { width: 32px; height: 32px; background-color: #1a73e8; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
+        #sidebar-container,
+        #sidebar-container h2,
+        #sidebar-container p,
+        #sidebar-container a { color: #1c1a0e !important; }
+        #sidebar-container .article-list a:hover,
+        #sidebar-container .article-list a.active { color: white !important; }
+    </style>
+</head>
+<body class="theme-ai-invest overflow-x-hidden text-gray-800">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <aside id="sidebar-container"
+               class="w-full md:w-1/3 lg:w-1/4 p-6 bg-white/70 backdrop-blur-sm border-r border-black/10"
+               data-aos="fade-right" data-aos-duration="900">
+        </aside>
+
+        <main class="w-full md:w-2/3 lg:w-3/4 overflow-y-auto"
+              data-aos="fade-left" data-aos-duration="900" data-aos-delay="200">
+
+            <div class="max-w-4xl mx-auto px-6 py-10">
+
+                <!-- SECTION 1: BLOG ARTICLE -->
+                <section id="blog" class="mb-20">
+                    <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+                        <div class="relative bg-slate-900 p-8 text-white overflow-hidden">
+                            <div class="absolute top-0 right-0 p-4 opacity-10">
+                                <i class="fa-solid fa-microchip text-9xl"></i>
+                            </div>
+                            <div class="relative z-10">
+                                <div class="flex items-center space-x-3 mb-4">
+                                    <span class="ai-badge">NEXT-GEN AI</span>
+                                    <span class="text-xs text-blue-300 font-mono tracking-widest uppercase">Special Report</span>
+                                </div>
+                                <h1 class="text-2xl md:text-3xl font-black mb-4 leading-snug">AIが変える投資の未来。<br><span class="text-blue-400">Google Finance</span> で始める新時代リサーチ。</h1>
+                                <p class="text-base text-gray-300 text-center mx-auto leading-relaxed">
+                                    ただの株価検索ツールではない！　Gemini AIを搭載し、投資情報の「質」を劇的に変える最強ツール！<br>Google Financeの凄さを徹底解説。
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="p-8 space-y-12">
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                                    <span class="bg-blue-600 w-2 h-8 mr-4 rounded-full"></span>
+                                    1. Google Financeの凄さとAIアプリとしての側面
+                                </h2>
+                                <p class="text-gray-600 text-lg mb-6">現在のGoogle Financeは、Googleの最新AI「Gemini」がバックエンドで常に情報を整理しています。投資家が直面する「情報過多」という課題に対する1つの回答です。</p>
+                                <div class="grid md:grid-cols-3 gap-4">
+                                    <div class="p-4 bg-blue-50 rounded-xl border-l-4 border-blue-500">
+                                        <h4 class="font-bold mb-2">情報の抽象化</h4>
+                                        <p class="text-sm text-gray-500">数千文字のニュース記事も、AIが株価に影響する要点だけを3行で要約します。</p>
+                                    </div>
+                                    <div class="p-4 bg-green-50 rounded-xl border-l-4 border-green-500">
+                                        <h4 class="font-bold mb-2">感情の可視化</h4>
+                                        <p class="text-sm text-gray-500">市場のニュースが「強気」か「弱気」か、AIがセンチメント分析を行いグラフ化。</p>
+                                    </div>
+                                    <div class="p-4 bg-purple-50 rounded-xl border-l-4 border-purple-500">
+                                        <h4 class="font-bold mb-2">シームレス連携</h4>
+                                        <p class="text-sm text-gray-500">Googleスプレッドシートへのエクスポート機能で、自分独自の分析シートも即作成。</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-8">
+                                <div class="bg-orange-50 p-6 rounded-2xl border border-orange-200">
+                                    <h3 class="font-bold text-orange-800 mb-3 flex items-center"><i class="fa-solid fa-triangle-exclamation mr-2"></i>2. 利用上の注意点</h3>
+                                    <ul class="text-sm text-orange-900 space-y-2 opacity-90">
+                                        <li>・AIの回答は「情報の整理」であり「投資助言」ではありません。</li>
+                                        <li>・データ反映の遅延が発生する場合があるため、超短期売買には注意。</li>
+                                        <li>・重要な意思決定の前には必ず一次ソース（有価証券報告書等）を確認しましょう。</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-indigo-50 p-6 rounded-2xl border border-indigo-200">
+                                    <h3 class="font-bold text-indigo-800 mb-3 flex items-center"><i class="fa-solid fa-rocket mr-2"></i>3. 今後の発展と展望</h3>
+                                    <p class="text-sm text-indigo-900 opacity-90 leading-relaxed">
+                                        今後は「予測市場」のデータ統合が進み、イベントに対する市場の期待値をAIが可視化する機能が期待されています。個人のリスク許容度に基づいた自動ウォッチリスト作成なども視野に入っています。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 2: VISUAL MANUAL -->
+                <section id="manual" class="mb-20">
+                    <div class="text-center mb-12">
+                        <h2 class="text-3xl font-extrabold text-gray-200">画面操作マニュアル</h2>
+                        <p class="text-gray-300 mt-2">どこに何があるか、直感的に理解しましょう</p>
+                    </div>
+
+                    <div class="bg-white p-4 md:p-8 rounded-3xl shadow-xl border border-gray-100">
+                        <div class="flex flex-col md:flex-row gap-6 mb-12">
+                            <div class="w-full md:w-24 bg-slate-50 border rounded-2xl p-4 flex md:flex-col items-center justify-around md:justify-start md:space-y-10">
+                                <div class="text-blue-600 text-center">
+                                    <i class="fa-solid fa-house text-2xl mb-1"></i>
+                                    <p class="text-[10px] font-bold">ホーム</p>
+                                </div>
+                                <div class="text-gray-400 text-center hover:text-blue-400 transition-colors cursor-pointer">
+                                    <i class="fa-solid fa-star text-2xl mb-1"></i>
+                                    <p class="text-[10px] font-bold">監視</p>
+                                </div>
+                                <div class="text-gray-400 text-center hover:text-blue-400 transition-colors cursor-pointer">
+                                    <i class="fa-solid fa-wallet text-2xl mb-1"></i>
+                                    <p class="text-[10px] font-bold">資産</p>
+                                </div>
+                            </div>
+
+                            <div class="flex-1 bg-white border rounded-2xl p-6 shadow-inner">
+                                <div class="flex items-center space-x-3 mb-6">
+                                    <div class="bg-gray-100 flex-1 px-5 py-3 rounded-xl text-sm text-gray-400 flex items-center border">
+                                        <i class="fa-solid fa-magnifying-glass mr-3"></i> 銘柄名・ティッカーを入力...
+                                    </div>
+                                </div>
+                                <div class="flex space-x-4 mb-6 overflow-x-auto pb-2">
+                                    <span class="px-4 py-1 bg-blue-600 text-white rounded-full text-xs font-bold whitespace-nowrap">米国株</span>
+                                    <span class="px-4 py-1 bg-gray-100 text-gray-500 rounded-full text-xs font-bold whitespace-nowrap">日本株</span>
+                                    <span class="px-4 py-1 bg-gray-100 text-gray-500 rounded-full text-xs font-bold whitespace-nowrap">FX</span>
+                                    <span class="px-4 py-1 bg-gray-100 text-gray-500 rounded-full text-xs font-bold whitespace-nowrap">暗号資産</span>
+                                </div>
+                                <div class="h-48 bg-slate-50 rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-3xl text-blue-300 mb-3"></i>
+                                    <p class="text-gray-400 text-sm font-bold">インタラクティブ・チャート・エリア</p>
+                                    <p class="text-gray-300 text-xs mt-1">※比較や分析指標を重ねて表示可能</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-10">
+                            <div>
+                                <h3 class="text-lg font-black mb-6 text-blue-700 flex items-center">
+                                    <i class="fa-solid fa-list-ul mr-3"></i>左側ナビゲーションの意味
+                                </h3>
+                                <div class="space-y-6">
+                                    <div class="flex space-x-4">
+                                        <div class="step-number">H</div>
+                                        <div>
+                                            <h4 class="font-bold text-gray-800">ホーム（市場概況）</h4>
+                                            <p class="text-sm text-gray-500 mt-1">ダウ平均、S&P 500、日経平均などの「世界の温度感」をパッと確認できます。</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex space-x-4">
+                                        <div class="step-number">W</div>
+                                        <div>
+                                            <h4 class="font-bold text-gray-800">ウォッチリスト</h4>
+                                            <p class="text-sm text-gray-500 mt-1">気になる銘柄を星マークで保存。ニュースが自動でパーソナライズされます。</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex space-x-4">
+                                        <div class="step-number">P</div>
+                                        <div>
+                                            <h4 class="font-bold text-gray-800">ポートフォリオ</h4>
+                                            <p class="text-sm text-gray-500 mt-1">現在保有している株を登録。リアルタイムで資産の合計額や損益を確認。</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-lg font-black mb-6 text-indigo-700 flex items-center">
+                                    <i class="fa-solid fa-circle-play mr-3"></i>主要ボタンの役割
+                                </h3>
+                                <div class="space-y-4">
+                                    <div class="p-4 bg-blue-50 rounded-xl flex items-center">
+                                        <i class="fa-solid fa-plus-circle text-blue-500 text-2xl mr-4 w-8"></i>
+                                        <span class="text-sm font-medium"><strong>フォロー:</strong> その銘柄に関連するAI要約ニュースを優先的に取得。</span>
+                                    </div>
+                                    <div class="p-4 bg-gray-50 rounded-xl flex items-center">
+                                        <i class="fa-solid fa-copy text-gray-500 text-2xl mr-4 w-8"></i>
+                                        <span class="text-sm font-medium"><strong>比較ボタン:</strong> 複数の銘柄を選択し、相対的なパフォーマンスを比較。</span>
+                                    </div>
+                                    <div class="p-4 bg-purple-50 rounded-xl flex items-center border-2 border-purple-100">
+                                        <i class="fa-solid fa-wand-magic-sparkles text-purple-500 text-2xl mr-4 w-8"></i>
+                                        <span class="text-sm font-medium text-purple-800 font-bold">AIサマリー: ニュースリストにあるこのボタンで、内容を即座に要約。</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 3: PRACTICAL EXAMPLES -->
+                <section id="practice" class="mb-20">
+                    <h2 class="text-3xl font-extrabold text-center mb-12 text-gray-200">実践的な活用シナリオ</h2>
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="glass-card p-8 rounded-3xl">
+                            <div class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-200">
+                                <i class="fa-solid fa-building text-2xl"></i>
+                            </div>
+                            <h3 class="font-black text-xl mb-3">個別株・株式指数</h3>
+                            <p class="text-gray-500 text-sm leading-relaxed mb-6">急落・急騰時に「なぜ？」を一瞬で解決。AI要約がニュースの裏側を解説し、感情的なトレードを防ぎます。</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="text-[10px] font-bold bg-blue-100 text-blue-600 px-2 py-1 rounded">テクニカル比較</span>
+                                <span class="text-[10px] font-bold bg-blue-100 text-blue-600 px-2 py-1 rounded">決算要約</span>
+                            </div>
+                        </div>
+                        <div class="glass-card p-8 rounded-3xl border-t-4 border-purple-500">
+                            <div class="w-14 h-14 bg-purple-600 text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-purple-200">
+                                <i class="fa-solid fa-layer-group text-2xl"></i>
+                            </div>
+                            <h3 class="font-black text-xl mb-3">ETF・REIT / CFD</h3>
+                            <p class="text-gray-500 text-sm leading-relaxed mb-6">低コストな中長期投資（ETF）から、レバレッジを効かせたアクティブ取引（CFD）まで、1つの画面で管理・比較が可能。</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="text-[10px] font-bold bg-purple-100 text-purple-600 px-2 py-1 rounded">資産分散</span>
+                                <span class="text-[10px] font-bold bg-purple-100 text-purple-600 px-2 py-1 rounded">指数追従</span>
+                            </div>
+                        </div>
+                        <div class="glass-card p-8 rounded-3xl">
+                            <div class="w-14 h-14 bg-green-600 text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-green-200">
+                                <i class="fa-solid fa-yen-sign text-2xl"></i>
+                            </div>
+                            <h3 class="font-black text-xl mb-3">為替 (FX)</h3>
+                            <p class="text-gray-500 text-sm leading-relaxed mb-6">「円安が株価にどう影響しているか」を、ドル円チャートと日経平均の重ね合わせ機能で客観的に分析できます。</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="text-[10px] font-bold bg-green-100 text-green-600 px-2 py-1 rounded">通貨ペア監視</span>
+                                <span class="text-[10px] font-bold bg-green-100 text-green-600 px-2 py-1 rounded">相関性分析</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 4: KNOWLEDGE & FUTURE -->
+                <div class="grid md:grid-cols-2 gap-8 mb-20">
+                    <section class="bg-slate-900 text-white p-10 rounded-3xl">
+                        <h2 class="text-2xl font-bold mb-8 flex items-center">
+                            <i class="fa-solid fa-brain mr-4 text-blue-400"></i>
+                            投資の力量を向上させる
+                        </h2>
+                        <div class="space-y-8">
+                            <div class="relative pl-8 border-l-2 border-blue-500">
+                                <p class="text-sm font-bold text-blue-400 uppercase tracking-widest mb-1">Method 01</p>
+                                <p class="text-gray-200"><strong>「真因」を探る習慣:</strong> 変動があった際、AI要約を読み、それが一時的要因か構造的要因かを見極める癖をつける。</p>
+                            </div>
+                            <div class="relative pl-8 border-l-2 border-blue-500">
+                                <p class="text-sm font-bold text-blue-400 uppercase tracking-widest mb-1">Method 02</p>
+                                <p class="text-gray-200"><strong>セクター横断比較:</strong> 同じニュースでも競合他社の株価がどう反応したかを「比較」機能で確認する。</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="bg-white border p-10 rounded-3xl shadow-sm">
+                        <h2 class="text-2xl font-bold mb-8 flex items-center text-gray-900">
+                            <i class="fa-solid fa-magnifying-glass-chart mr-4 text-green-500"></i>
+                            賢い銘柄選びの3ステップ
+                        </h2>
+                        <ul class="space-y-6">
+                            <li class="flex items-start">
+                                <span class="text-2xl mr-4">🔭</span>
+                                <div>
+                                    <h4 class="font-bold">Googleトレンド連動</h4>
+                                    <p class="text-xs text-gray-500 mt-1">検索ボリュームが増えている分野をAIから示唆を受け、トレンドの初動を掴む。</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-2xl mr-4">💰</span>
+                                <div>
+                                    <h4 class="font-bold">財務の「健全性」を直視</h4>
+                                    <p class="text-xs text-gray-500 mt-1">財務タブで営業キャッシュフローを確認し、本業で稼ぐ力がある企業を厳選。</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-2xl mr-4">🛡️</span>
+                                <div>
+                                    <h4 class="font-bold">負けないポートフォリオ</h4>
+                                    <p class="text-xs text-gray-500 mt-1">個別株に偏らず、REITやETFを組み合わせたバランスをAIに評価させる。</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                </div>
+
+                <div class="text-center bg-blue-600 text-white p-12 rounded-3xl shadow-2xl shadow-blue-200 mb-12">
+                    <h2 class="text-3xl font-black mb-6">さあ、投資の新時代を始めよう。</h2>
+                    <p class="mb-8 opacity-80 max-w-xl mx-auto">Google Finance（ベータ版）は、あなたの投資スタイルをよりスマートに、より科学的に変えてくれます。</p>
+                    <a href="https://www.google.com/finance" target="_blank" rel="noopener"
+                       class="inline-block bg-white text-blue-600 font-black px-10 py-4 rounded-full hover:bg-gray-100 transition-all shadow-xl">
+                        Google Finance を開く <i class="fa-solid fa-external-link ml-2"></i>
+                    </a>
+                </div>
+
+            </div>
+
+            <footer class="text-center text-slate-400 py-8 border-t">
+                <p>&copy; 2025 Aitarch. All Rights Reserved.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ once: true });
+
+        const script = document.createElement('script');
+        script.src = `../../sidebar.js?v=${new Date().getTime()}`;
+        script.onload = function() {
+            generateSidebar('ai-invest', '/ai-invest/article/1.html');
+        };
+        document.body.appendChild(script);
+    </script>
+</body>
+</html>

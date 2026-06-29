@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Untitled</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        /* CSSをここに直接書くことで、外部ファイル読み込みエラーを防ぎます */
+        :root { --primary: #4f46e5; --bg: #f3f4f6; }
+        body { font-family: sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { text-align: center; width: 100%; max-width: 400px; }
+        .card-container { width: 320px; height: 220px; margin: 20px auto; perspective: 1000px; }
+        .card { width: 100%; height: 100%; position: relative; transition: transform 0.6s; transform-style: preserve-3d; cursor: pointer; }
+        .card.is-flipped { transform: rotateY(180deg); }
+        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 20px; shadow: 0 10px 20px rgba(0,0,0,0.1); background: white; border: 4px solid var(--primary); }
+        .card-back { background: var(--primary); color: white; transform: rotateY(180deg); }
+        .content { font-size: 1.8rem; font-weight: bold; }
+        .controls { display: flex; gap: 15px; justify-content: center; margin-top: 30px; }
+        button { padding: 12px 25px; border: none; border-radius: 12px; background: white; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .status { margin-top: 20px; color: #9ca3af; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>物理記号チェック</h1>
+    <div class="card-container">
+        <div class="card" id="card">
+            <div class="card-face card-front">
+                <div style="font-size:0.8rem; opacity:0.6;">物理量</div>
+                <div class="content" id="front-text"></div>
+            </div>
+            <div class="card-face card-back">
+                <div style="font-size:0.8rem; opacity:0.8;">記号・単位</div>
+                <div class="content" id="back-text"></div>
+            </div>
+        </div>
+    </div>
+    <div class="controls">
+        <button id="prev-btn">前へ</button>
+        <button id="next-btn">次へ</button>
+    </div>
+    <div class="status"><span id="current-num">0</span> / <span id="total-num">0</span></div>
+</div>
+
+<script>
+    // JSもここに直接書きます
+    const rawData = `長さ, l, L [m]\n面積, S [m²]\n体積, V [m³]\n平面角, θ [rad]\n質量, m [kg]\n時間, t [s]\n変位, x [m]\n速度, v [m/s]\n加速度, a [m/s²]\n力, F [N]\n重さ, W [N]\n張力, T, S [N]\n垂直抗力, N [N]\nばね定数, k [N/m]\n静止摩擦係数, μ\n動摩擦係数, μ'\n圧力, P [Pa]\n仕事, W [J]\n仕事率, P [W]\nエネルギー, E [J]\n位置エネルギー, U [J]\n運動エネルギー, K [J]\n力のモーメント, M [N・m]\n運動量, p [kg・m/s]\n力積, I [N・s]\n反発係数, e\n角速度・角振動数, ω [rad/s]\n周期, T [s]\n振幅, A [m]\n振動数(周波数), f [Hz]\n位相, θ [rad]\n万有引力定数, G [N・m²/kg²]\n絶対温度, T [K]\n熱量, Q [J]\n熱容量, C [J/K]\n比熱, c [J/(g・K)]\n物質量, n [mol]\n気体定数, R [J/(mol・K)]\nアボガドロ定数, NA [/mol]\nモル比熱, Cv, Cp [J/(mol・K)]\n比熱比, γ\n熱効率, e\n波長, λ [m]\n入射角, i [rad]\n反射角, j [rad]\n屈折角, r [rad]\n屈折率, n\n焦点距離, f [m]\n観測者の速度, vo [m/s]\n音源の速度, vs [m/s]`;
+
+    const data = rawData.trim().split('\n').map(line => {
+        const parts = line.split(',');
+        return { q: parts[0].trim(), a: parts.slice(1).join(',').trim() };
+    });
+
+    let idx = 0;
+    const card = document.getElementById('card');
+    const fT = document.getElementById('front-text');
+    const bT = document.getElementById('back-text');
+    const cN = document.getElementById('current-num');
+    const tN = document.getElementById('total-num');
+
+    function up() {
+        card.classList.remove('is-flipped');
+        setTimeout(() => {
+            fT.innerText = data[idx].q;
+            bT.innerText = data[idx].a;
+            cN.innerText = idx + 1;
+        }, 150);
+    }
+
+    card.onclick = () => card.classList.toggle('is-flipped');
+    document.getElementById('next-btn').onclick = (e) => { e.stopPropagation(); idx = (idx + 1) % data.length; up(); };
+    document.getElementById('prev-btn').onclick = (e) => { e.stopPropagation(); idx = (idx - 1 + data.length) % data.length; up(); };
+
+    tN.innerText = data.length;
+    up();
+</script>
+</body>
+</html>
+    
+  </body>
+  
+</html>
