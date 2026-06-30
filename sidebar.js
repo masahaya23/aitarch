@@ -68,6 +68,8 @@ const allArticles = {
             { url: '/ai-agent/article/10.html', title: 'めんだんカルテβ版',             type: 'app',  subject: 'business' },
             { url: '/ai-agent/article/11.html', title: '三角関数シューティング',        type: 'game', subject: 'math'     },
             { url: '/ai-agent/article/12.html', title: '三角関数マスター',              type: 'app',  subject: 'math'     },
+            { url: '/ai-agent/article/13.html', title: 'このアクションが君を成長させる〜最強の勉強法', type: 'article', subject: 'other' },
+            { url: '/ai-agent/article/14.html', title: 'LEAP英単語マスターアプリ', type: 'app', subject: 'english' },
             // 新しいアプリはここに追加します
         ]
     }
