@@ -73,6 +73,7 @@ const allArticles = {
             { url: '/ai-agent/article/15.html', title: 'システム英単語マスターアプリ', type: 'app', subject: 'english' },
             { url: '/ai-agent/article/16.html', title: '英文法マスターアプリ', type: 'app', subject: 'english' },
             { url: '/ai-agent/article/17.html', title: '議題・議事録作成アプリ', type: 'app', subject: 'business' },
+            { url: '/ai-agent/article/18.html', title: '正しい思考の手順（数学勉強法）', type: 'article', subject: 'math' },
             // 新しいアプリはここに追加します
         ]
     }

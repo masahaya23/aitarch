@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>正しい思考の手順（数学勉強法） - OIH_AIエージェント研究会</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="/common/theme.css">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+        .launch-btn {
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .launch-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(124, 58, 237, 0.45);
+        }
+        .tag {
+            background-color: #ede9fe;
+            color: #5b21b6;
+            font-size: 0.75rem;
+            padding: 2px 10px;
+            border-radius: 9999px;
+        }
+        .info-row { border-bottom: 1px solid rgba(124,58,237,0.15); }
+        .info-table span { color: #1e0a40 !important; }
+        .method-card {
+            background: rgba(255,255,255,0.75);
+            border-radius: 12px;
+            padding: 14px 16px;
+            border: 1px solid rgba(124,58,237,0.15);
+            transition: box-shadow 0.2s;
+        }
+        .method-card:hover { box-shadow: 0 4px 16px rgba(124,58,237,0.15); }
+        .method-card span  { color: #1e0a40 !important; }
+        .method-card p     { color: #374151 !important; }
+        .method-card p.font-bold { color: #5b21b6 !important; }
+        .step-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.8);
+            border: 1px solid rgba(124,58,237,0.2);
+            border-radius: 9999px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            color: #1e0a40;
+        }
+        .step-pill b { color: #5b21b6; }
+    </style>
+</head>
+<body class="bg-[var(--bg-color)] overflow-x-hidden">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- 左サイドバー -->
+        <aside id="sidebar-container"
+               class="w-full md:w-1/3 lg:w-1/4 p-6 bg-white/60 backdrop-blur-sm border-r border-black/10"
+               data-aos="fade-right" data-aos-duration="900">
+        </aside>
+
+        <!-- メインコンテンツ -->
+        <main class="w-full md:w-2/3 lg:w-3/4 p-8 md:p-12"
+              data-aos="fade-left" data-aos-duration="900" data-aos-delay="200">
+            <div class="max-w-3xl text-[var(--text-color)]">
+
+                <!-- ヘッダー -->
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="tag">📝 記事</span>
+                    <span class="tag">📐 数学</span>
+                    <span class="tag">勉強法</span>
+                    <span class="tag">思考の手順</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold pb-4 mt-4 mb-6 border-b border-[var(--theme-color)]/30">
+                    正しい思考の手順（数学勉強法）
+                </h1>
+
+                <!-- 起動ボタン -->
+                <div class="mb-10" data-aos="zoom-in" data-aos-duration="600">
+                    <button onclick="window.open('https://neuravexlab.github.io/MathMaster/', '_blank')"
+                            class="launch-btn inline-flex items-center gap-3 text-white font-bold text-lg px-8 py-4 rounded-2xl shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        記事を開く（別タブ）
+                    </button>
+                    <p class="mt-2 text-sm opacity-60">新しいタブで開きます</p>
+                </div>
+
+                <!-- 概要 -->
+                <section class="prose prose-lg max-w-none mb-8" data-aos="fade-up">
+                    <h2 class="text-xl font-bold mb-3" style="color:var(--text-color)">この記事について</h2>
+                    <p style="color:var(--text-color)">
+                        「数学が解けないのは、才能やひらめきが足りないから」――そう思い込んでいませんか。
+                        この記事は、解けない本当の原因を<strong>「考え方の手順を知らないだけ」</strong>と捉え直し、
+                        問題文を定義・定理の言葉に「翻訳」して、決まった手順で思考を進める方法を解説します。
+                        さらに、正しい解き直しの手順や、毎日の計算力ルーティンまで、今日から実践できる形で紹介しています。
+                    </p>
+                </section>
+
+                <!-- 情報テーブル -->
+                <section class="info-table mb-8 bg-white/70 rounded-xl overflow-hidden border border-[var(--theme-color)]/20" data-aos="fade-up" data-aos-delay="100">
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">対象</span>
+                        <span>数学の「解き方の発想」が身につかず悩む高校生・大学受験生</span>
+                    </div>
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">テーマ</span>
+                        <span>問題文の「翻訳」と、数学を解く思考の手順</span>
+                    </div>
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">形式</span>
+                        <span>読み物（解説記事・別タブで開きます）</span>
+                    </div>
+                    <div class="flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">開発者</span>
+                        <span>藤井先生</span>
+                    </div>
+                </section>
+
+                <!-- 数学を解く8ステップ -->
+                <section class="mb-8" data-aos="fade-up" data-aos-delay="150">
+                    <h2 class="text-xl font-bold mb-4" style="color:var(--text-color)">数学を解く8ステップ</h2>
+                    <p class="text-sm opacity-75 mb-4">
+                        前半の「思考フェーズ」で勝負が決まり、後半の「実行フェーズ」で正確に仕上げます。
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="method-card">
+                            <p class="font-bold text-sm mb-2">🧠 思考フェーズ（ここが勝負）</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="step-pill"><b>①</b> 問題を把握する</span>
+                                <span class="step-pill"><b>②</b> 実験する（具体例を作る）</span>
+                                <span class="step-pill"><b>③</b> 翻訳する（定義・定理の言葉に）</span>
+                                <span class="step-pill"><b>④</b> 方針を立てる（逆算思考）</span>
+                            </div>
+                        </div>
+                        <div class="method-card">
+                            <p class="font-bold text-sm mb-2">✏️ 実行フェーズ</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="step-pill"><b>⑤</b> 立式する</span>
+                                <span class="step-pill"><b>⑥</b> 計算する</span>
+                                <span class="step-pill"><b>⑦</b> 吟味する（範囲・場合分け）</span>
+                                <span class="step-pill"><b>⑧</b> 検算する（別の方法で確かめる）</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 記事で学べること -->
+                <section class="mb-8" data-aos="fade-up" data-aos-delay="200">
+                    <h2 class="text-xl font-bold mb-4" style="color:var(--text-color)">記事で学べること</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="method-card flex items-start gap-3">
+                            <span class="text-2xl">🔁</span>
+                            <div>
+                                <p class="font-bold text-sm" style="color:#5b21b6">気づきの翻訳</p>
+                                <p class="text-sm opacity-75">問題文の表現を、定義・定理の言葉に言い換える「翻訳リスト」で発想のきっかけをつかむ</p>
+                            </div>
+                        </div>
+                        <div class="method-card flex items-start gap-3">
+                            <span class="text-2xl">📖</span>
+                            <div>
+                                <p class="font-bold text-sm" style="color:#5b21b6">正しい解き直しの手順</p>
+                                <p class="text-sm opacity-75">解説を理解して閉じ、「なぜこの解法に気づけるか」を声に出して再現する復習法</p>
+                            </div>
+                        </div>
+                        <div class="method-card flex items-start gap-3">
+                            <span class="text-2xl">🧮</span>
+                            <div>
+                                <p class="font-bold text-sm" style="color:#5b21b6">計算力のルーティン</p>
+                                <p class="text-sm opacity-75">毎朝15〜20分の計算時間で土台を作り、ミスのパターンを記録して減らす</p>
+                            </div>
+                        </div>
+                        <div class="method-card flex items-start gap-3">
+                            <span class="text-2xl">🗓️</span>
+                            <div>
+                                <p class="font-bold text-sm" style="color:#5b21b6">最適な復習タイミング</p>
+                                <p class="text-sm opacity-75">忘却曲線をふまえ、翌朝にもう一度同じ問題を解いて定着させる</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <footer class="text-left text-slate-400 mt-12">
+                <p>&copy; 2025 Aitarch. All Rights Reserved.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ once: true });
+
+        const script = document.createElement('script');
+        const timestamp = new Date().getTime();
+        script.src = `../../sidebar.js?v=${timestamp}`;
+        script.onload = function() {
+            generateSidebar('ai-agent', '/ai-agent/article/18.html');
+        };
+        document.body.appendChild(script);
+    </script>
+</body>
+</html>
