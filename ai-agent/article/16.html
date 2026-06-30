@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英文法マスターアプリ - OIH_AIエージェント研究会</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="/common/theme.css">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+        .launch-btn {
+            background: linear-gradient(135deg, #0891b2, #0e7490);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .launch-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(8, 145, 178, 0.45);
+        }
+        .tag {
+            background-color: #ede9fe;
+            color: #5b21b6;
+            font-size: 0.75rem;
+            padding: 2px 10px;
+            border-radius: 9999px;
+        }
+        .info-row { border-bottom: 1px solid rgba(124,58,237,0.15); }
+        .info-table span { color: #1e0a40 !important; }
+        .method-card {
+            background: rgba(255,255,255,0.75);
+            border-radius: 12px;
+            padding: 14px 16px;
+            border: 1px solid rgba(124,58,237,0.15);
+            transition: box-shadow 0.2s;
+        }
+        .method-card:hover { box-shadow: 0 4px 16px rgba(8,145,178,0.15); }
+        .method-card span  { color: #1e0a40 !important; }
+        .method-card p     { color: #374151 !important; }
+        .method-card p.font-bold { color: #0e7490 !important; }
+    </style>
+</head>
+<body class="bg-[var(--bg-color)] overflow-x-hidden">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- 左サイドバー -->
+        <aside id="sidebar-container"
+               class="w-full md:w-1/3 lg:w-1/4 p-6 bg-white/60 backdrop-blur-sm border-r border-black/10"
+               data-aos="fade-right" data-aos-duration="900">
+        </aside>
+
+        <!-- メインコンテンツ -->
+        <main class="w-full md:w-2/3 lg:w-3/4 p-8 md:p-12"
+              data-aos="fade-left" data-aos-duration="900" data-aos-delay="200">
+            <div class="max-w-3xl text-[var(--text-color)]">
+
+                <!-- ヘッダー -->
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="tag">⚙️ アプリ</span>
+                    <span class="tag">🔤 英語</span>
+                    <span class="tag">英文法</span>
+                    <span class="tag">リスニング</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold pb-4 mt-4 mb-6 border-b border-[var(--theme-color)]/30">
+                    英文法マスターアプリ
+                </h1>
+
+                <!-- 起動ボタン -->
+                <div class="mb-10" data-aos="zoom-in" data-aos-duration="600">
+                    <button onclick="window.open('https://neuravexlab.github.io/Tacit-Grammar/', '_blank')"
+                            class="launch-btn inline-flex items-center gap-3 text-white font-bold text-lg px-8 py-4 rounded-2xl shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        アプリを起動（別タブ）
+                    </button>
+                    <p class="mt-2 text-sm opacity-60">新しいタブで開きます</p>
+                </div>
+
+                <!-- アプリ概要 -->
+                <section class="prose prose-lg max-w-none mb-8" data-aos="fade-up">
+                    <h2 class="text-xl font-bold mb-3" style="color:var(--text-color)">アプリ概要</h2>
+                    <p style="color:var(--text-color)">
+                        英文法を「暗黙知（Tacit Knowledge）」として体得することを目指すリスニング型の学習アプリです。
+                        ルールを丸暗記するのではなく、音声を軸に4つのSTEPを踏むことで、英語を英語の語順のまま理解する力を養います。
+                        まず音だけを聴き、ゆっくり速度で音を確認し、スラッシュリーディングで塊ごとに意味をつかみ（帰り読みNG）、
+                        最後に書く・話すでアウトプット。ランダムクイズや英作文、PDF印刷にも対応しています。
+                    </p>
+                </section>
+
+                <!-- 情報テーブル -->
+                <section class="info-table mb-8 bg-white/70 rounded-xl overflow-hidden border border-[var(--theme-color)]/20" data-aos="fade-up" data-aos-delay="100">
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">対象</span>
+                        <span>英文法を英語の語順のまま身につけたい高校生・大学受験生</span>
+                    </div>
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">特徴</span>
+                        <span>音声 × スラッシュリーディングで、英文法を暗黙知として体得</span>
+                    </div>
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">形式</span>
+                        <span>Webアプリ（ブラウザのみで動作、インストール不要）</span>
+                    </div>
+                    <div class="flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">開発者</span>
+                        <span>藤井先生</span>
+                    </div>
+                </section>
+
+                <!-- 4つのSTEP -->
+                <section class="mb-8" data-aos="fade-up" data-aos-delay="150">
+                    <h2 class="text-xl font-bold mb-4" style="color:var(--text-color)">4つのSTEPで体得</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="method-card flex items-start gap-3">
+                            <span class="text-2xl">①</span>
+                            <div>
+                                <p class="font-bold text-sm" style="color:#0e7490">音だけ聴く</p>
+                                <p class="text-sm opacity-75">英文は見ずに、まずは音だけを聴いて全体の流れをつかむ</p>
+                            </div>
+                        </div>
+                        <div class="method-card flex items-start gap-3">
+                            <span class="text-2xl">②</span>
+                            <div>
+                                <p class="font-bold text-sm" style="color:#0e7490">音の確認</p>
+                                <p class="text-sm opacity-75">0.5xのゆっくり速度で、英文を見ながら一語一語の音を確認する</p>
+                            </div>
+                        </div>
+                        <div class="method-card flex items-start gap-3">
+                            <span class="text-2xl">③</span>
+                            <div>
+                                <p class="font-bold text-sm" style="color:#0e7490">意味を追う（スラッシュリーディング）</p>
+                                <p class="text-sm opacity-75">英語の語順のまま、塊ごとに意味をつかむ。帰り読みはしない</p>
+                            </div>
+                        </div>
+                        <div class="method-card flex items-start gap-3">
+                            <span class="text-2xl">④</span>
+                            <div>
+                                <p class="font-bold text-sm" style="color:#0e7490">書く / 話す</p>
+                                <p class="text-sm opacity-75">英作文・スピーキングで再現し、文法を使える知識として定着させる</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <footer class="text-left text-slate-400 mt-12">
+                <p>&copy; 2025 Aitarch. All Rights Reserved.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ once: true });
+
+        const script = document.createElement('script');
+        const timestamp = new Date().getTime();
+        script.src = `../../sidebar.js?v=${timestamp}`;
+        script.onload = function() {
+            generateSidebar('ai-agent', '/ai-agent/article/16.html');
+        };
+        document.body.appendChild(script);
+    </script>
+</body>
+</html>
