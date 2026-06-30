@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>システム英単語マスターアプリ - OIH_AIエージェント研究会</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="/common/theme.css">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+        .launch-btn {
+            background: linear-gradient(135deg, #0891b2, #0e7490);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .launch-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(8, 145, 178, 0.45);
+        }
+        .tag {
+            background-color: #ede9fe;
+            color: #5b21b6;
+            font-size: 0.75rem;
+            padding: 2px 10px;
+            border-radius: 9999px;
+        }
+        .info-row { border-bottom: 1px solid rgba(124,58,237,0.15); }
+        .info-table span { color: #1e0a40 !important; }
+        .method-card {
+            background: rgba(255,255,255,0.75);
+            border-radius: 12px;
+            padding: 14px 16px;
+            border: 1px solid rgba(124,58,237,0.15);
+            transition: box-shadow 0.2s;
+        }
+        .method-card:hover { box-shadow: 0 4px 16px rgba(8,145,178,0.15); }
+        .method-card span  { color: #1e0a40 !important; }
+        .method-card p     { color: #374151 !important; }
+        .method-card p.font-bold { color: #0e7490 !important; }
+    </style>
+</head>
+<body class="bg-[var(--bg-color)] overflow-x-hidden">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- 左サイドバー -->
+        <aside id="sidebar-container"
+               class="w-full md:w-1/3 lg:w-1/4 p-6 bg-white/60 backdrop-blur-sm border-r border-black/10"
+               data-aos="fade-right" data-aos-duration="900">
+        </aside>
+
+        <!-- メインコンテンツ -->
+        <main class="w-full md:w-2/3 lg:w-3/4 p-8 md:p-12"
+              data-aos="fade-left" data-aos-duration="900" data-aos-delay="200">
+            <div class="max-w-3xl text-[var(--text-color)]">
+
+                <!-- ヘッダー -->
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="tag">⚙️ アプリ</span>
+                    <span class="tag">🔤 英語</span>
+                    <span class="tag">英単語</span>
+                    <span class="tag">リスニング</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold pb-4 mt-4 mb-6 border-b border-[var(--theme-color)]/30">
+                    システム英単語マスターアプリ
+                </h1>
+
+                <!-- 起動ボタン -->
+                <div class="mb-10" data-aos="zoom-in" data-aos-duration="600">
+                    <button onclick="window.open('https://neuravexlab.github.io/systemenglishmaster/', '_blank')"
+                            class="launch-btn inline-flex items-center gap-3 text-white font-bold text-lg px-8 py-4 rounded-2xl shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        アプリを起動（別タブ）
+                    </button>
+                    <p class="mt-2 text-sm opacity-60">新しいタブで開きます</p>
+                </div>
+
+                <!-- アプリ概要 -->
+                <section class="prose prose-lg max-w-none mb-8" data-aos="fade-up">
+                    <h2 class="text-xl font-bold mb-3" style="color:var(--text-color)">アプリ概要</h2>
+                    <p style="color:var(--text-color)">
+                        「システム英単語（シス単）」のミニマルフレーズを使い、英単語を「耳から」定着させる
+                        リスニング学習アプリです。まずゆっくりとした速度で音を確認し、繰り返し聴き、意味を確認し、
+                        最終的にナチュラルスピードで瞬間的に意味がつかめる状態を目指します。単語を単体で暗記するのではなく、
+                        ミニマルフレーズの文脈ごと音声で覚えることで、入試で通用する「聴いて分かる」語彙力を養います。
+                    </p>
+                </section>
+
+                <!-- 情報テーブル -->
+                <section class="info-table mb-8 bg-white/70 rounded-xl overflow-hidden border border-[var(--theme-color)]/20" data-aos="fade-up" data-aos-delay="100">
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">対象</span>
+                        <span>システム英単語で語彙を固めたい高校生・大学受験生</span>
+                    </div>
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">特徴</span>
+                        <span>ミニマルフレーズ × リスニングで、文脈ごと耳から単語を定着</span>
+                    </div>
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">形式</span>
+                        <span>Webアプリ（ブラウザのみで動作、インストール不要）</span>
+                    </div>
+                    <div class="flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">開発者</span>
+                        <span>藤井先生</span>
+                    </div>
+                </section>
+
+                <!-- 5つのSTEP -->
+                <section class="mb-8" data-aos="fade-up" data-aos-delay="150">
+                    <h2 class="text-xl font-bold mb-4" style="color:var(--text-color)">5つのSTEPで定着</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="method-card flex items-start gap-3">
+                            <span class="text-2xl">①</span>
+                            <div>
+                                <p class="font-bold text-sm" style="color:#0e7490">まず聴く</p>
+                                <p class="text-sm opacity-75">意味を考えず、まずはゆっくりした速度で英語の「音」を確認する</p>
+                            </div>
+                        </div>
+                        <div class="method-card flex items-start gap-3">
+                            <span class="text-2xl">②</span>
+                            <div>
+                                <p class="font-bold text-sm" style="color:#0e7490">繰り返し聴く</p>
+                                <p class="text-sm opacity-75">速度を上げながら反復し、音の切れ目やリズムに耳を慣らす</p>
+                            </div>
+                        </div>
+                        <div class="method-card flex items-start gap-3">
+                            <span class="text-2xl">③</span>
+                            <div>
+                                <p class="font-bold text-sm" style="color:#0e7490">意味を確認</p>
+                                <p class="text-sm opacity-75">日本語訳でフレーズ・単語の意味をチェックし、文脈ごと理解する</p>
+                            </div>
+                        </div>
+                        <div class="method-card flex items-start gap-3">
+                            <span class="text-2xl">④</span>
+                            <div>
+                                <p class="font-bold text-sm" style="color:#0e7490">意味付きで聴く</p>
+                                <p class="text-sm opacity-75">意味を理解した状態でもう一度聴き、音と意味を結びつける</p>
+                            </div>
+                        </div>
+                        <div class="method-card flex items-start gap-3 sm:col-span-2">
+                            <span class="text-2xl">⑤</span>
+                            <div>
+                                <p class="font-bold text-sm" style="color:#0e7490">定着確認</p>
+                                <p class="text-sm opacity-75">ナチュラルスピードで聴き、意味が瞬間的につかめるかを確認して仕上げる</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <footer class="text-left text-slate-400 mt-12">
+                <p>&copy; 2025 Aitarch. All Rights Reserved.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ once: true });
+
+        const script = document.createElement('script');
+        const timestamp = new Date().getTime();
+        script.src = `../../sidebar.js?v=${timestamp}`;
+        script.onload = function() {
+            generateSidebar('ai-agent', '/ai-agent/article/15.html');
+        };
+        document.body.appendChild(script);
+    </script>
+</body>
+</html>

@@ -70,6 +70,7 @@ const allArticles = {
             { url: '/ai-agent/article/12.html', title: '三角関数マスター',              type: 'app',  subject: 'math'     },
             { url: '/ai-agent/article/13.html', title: 'このアクションが君を成長させる〜最強の勉強法', type: 'article', subject: 'other' },
             { url: '/ai-agent/article/14.html', title: 'LEAP英単語マスターアプリ', type: 'app', subject: 'english' },
+            { url: '/ai-agent/article/15.html', title: 'システム英単語マスターアプリ', type: 'app', subject: 'english' },
             // 新しいアプリはここに追加します
         ]
     }
