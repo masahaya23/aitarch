@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>議題・議事録作成アプリ - OIH_AIエージェント研究会</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="/common/theme.css">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+        .launch-btn {
+            background: linear-gradient(135deg, #0891b2, #0e7490);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .launch-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(8, 145, 178, 0.45);
+        }
+        .tag {
+            background-color: #ede9fe;
+            color: #5b21b6;
+            font-size: 0.75rem;
+            padding: 2px 10px;
+            border-radius: 9999px;
+        }
+        .info-row { border-bottom: 1px solid rgba(124,58,237,0.15); }
+        .info-table span { color: #1e0a40 !important; }
+        .method-card {
+            background: rgba(255,255,255,0.75);
+            border-radius: 12px;
+            padding: 14px 16px;
+            border: 1px solid rgba(124,58,237,0.15);
+            transition: box-shadow 0.2s;
+        }
+        .method-card:hover { box-shadow: 0 4px 16px rgba(8,145,178,0.15); }
+        .method-card span  { color: #1e0a40 !important; }
+        .method-card p     { color: #374151 !important; }
+        .method-card p.font-bold { color: #0e7490 !important; }
+        .api-notice {
+            background: #fffbeb;
+            border: 1px solid #f59e0b;
+            border-left: 5px solid #f59e0b;
+            border-radius: 12px;
+        }
+        .api-notice h2, .api-notice p, .api-notice li, .api-notice a { color: #7c2d12 !important; }
+        .api-notice a { text-decoration: underline; font-weight: 700; }
+    </style>
+</head>
+<body class="bg-[var(--bg-color)] overflow-x-hidden">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- 左サイドバー -->
+        <aside id="sidebar-container"
+               class="w-full md:w-1/3 lg:w-1/4 p-6 bg-white/60 backdrop-blur-sm border-r border-black/10"
+               data-aos="fade-right" data-aos-duration="900">
+        </aside>
+
+        <!-- メインコンテンツ -->
+        <main class="w-full md:w-2/3 lg:w-3/4 p-8 md:p-12"
+              data-aos="fade-left" data-aos-duration="900" data-aos-delay="200">
+            <div class="max-w-3xl text-[var(--text-color)]">
+
+                <!-- ヘッダー -->
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="tag">⚙️ アプリ</span>
+                    <span class="tag">💼 業務効率化</span>
+                    <span class="tag">会議</span>
+                    <span class="tag">Gemini API</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold pb-4 mt-4 mb-6 border-b border-[var(--theme-color)]/30">
+                    議題・議事録作成アプリ
+                </h1>
+
+                <!-- 起動ボタン -->
+                <div class="mb-10" data-aos="zoom-in" data-aos-duration="600">
+                    <button onclick="window.open('https://neuravexlab.github.io/MeetingAPP/', '_blank')"
+                            class="launch-btn inline-flex items-center gap-3 text-white font-bold text-lg px-8 py-4 rounded-2xl shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        アプリを起動（別タブ）
+                    </button>
+                    <p class="mt-2 text-sm opacity-60">新しいタブで開きます</p>
+                </div>
+
+                <!-- APIキーに関する重要なお知らせ -->
+                <section class="api-notice p-5 mb-10" data-aos="fade-up">
+                    <h2 class="text-lg font-bold mb-2">⚠️ ご利用には各自の Gemini API キーが必要です</h2>
+                    <p class="text-sm mb-3">
+                        本アプリは Google の <strong>Gemini API</strong> を利用します。共有のキーは用意されていません。
+                        <strong>利用者ご自身で API キーを取得し、アプリの設定画面に登録</strong>してからご利用ください。
+                    </p>
+                    <ul class="text-sm list-disc list-inside space-y-1 mb-3">
+                        <li><a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a> で無料の API キー（AIza… で始まる文字列）を取得します</li>
+                        <li>アプリの「⚙️ 設定」画面でキーを入力し、保存します</li>
+                        <li>キーはお使いの端末（ブラウザ）内にのみ保存され、サーバーには送信・共有されません</li>
+                        <li>キーは他人と共有せず、ご自身で管理してください</li>
+                    </ul>
+                    <p class="text-xs opacity-80">
+                        ※ API の利用料金・利用枠は Google の規約に従います。登録するキーは各ユーザーの責任で管理してください。
+                    </p>
+                </section>
+
+                <!-- アプリ概要 -->
+                <section class="prose prose-lg max-w-none mb-8" data-aos="fade-up">
+                    <h2 class="text-xl font-bold mb-3" style="color:var(--text-color)">アプリ概要</h2>
+                    <p style="color:var(--text-color)">
+                        会議の「準備」から「議事録作成」までを AI で支援する、学校・職場向けの業務効率化ツールです。
+                        議長は会議前に議題を整理してAIの改善提案や司会進行台本・タイムスケジュールを作成でき、
+                        議事録係は会議後に文字起こしを貼り付けるだけで、議事録・要約・アクションプランを自動生成できます。
+                        作成した内容は履歴として端末に保存され、いつでも見返せます。
+                    </p>
+                </section>
+
+                <!-- 情報テーブル -->
+                <section class="info-table mb-8 bg-white/70 rounded-xl overflow-hidden border border-[var(--theme-color)]/20" data-aos="fade-up" data-aos-delay="100">
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">対象</span>
+                        <span>会議の議題準備・議事録作成を効率化したい教職員・社会人</span>
+                    </div>
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">特徴</span>
+                        <span>議長モードと議事録係モードを搭載。文字起こしから議事録を自動生成</span>
+                    </div>
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">対応ファイル</span>
+                        <span>PDF・Word(.docx)・テキスト(.txt) の読み込みに対応</span>
+                    </div>
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">必要なもの</span>
+                        <span>各ユーザーが取得・登録する Gemini API キー（上記参照）</span>
+                    </div>
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">形式</span>
+                        <span>Webアプリ（ブラウザのみで動作、インストール不要）</span>
+                    </div>
+                    <div class="flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">開発者</span>
+                        <span>藤井先生</span>
+                    </div>
+                </section>
+
+                <!-- 2つのモード -->
+                <section class="mb-8" data-aos="fade-up" data-aos-delay="150">
+                    <h2 class="text-xl font-bold mb-4" style="color:var(--text-color)">2つのモード</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="method-card flex items-start gap-3">
+                            <span class="text-2xl">🎯</span>
+                            <div>
+                                <p class="font-bold text-sm" style="color:#0e7490">議長モード（議長・主任向け）</p>
+                                <p class="text-sm opacity-75">議題メモを入力すると、AIが議題を改善し、司会進行台本やタイムスケジュールを作成します</p>
+                            </div>
+                        </div>
+                        <div class="method-card flex items-start gap-3">
+                            <span class="text-2xl">📝</span>
+                            <div>
+                                <p class="font-bold text-sm" style="color:#0e7490">議事録係モード（議事録係向け）</p>
+                                <p class="text-sm opacity-75">文字起こしを貼り付けると、議事録・1分サマリー・アクションプランを自動生成します</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <footer class="text-left text-slate-400 mt-12">
+                <p>&copy; 2025 Aitarch. All Rights Reserved.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ once: true });
+
+        const script = document.createElement('script');
+        const timestamp = new Date().getTime();
+        script.src = `../../sidebar.js?v=${timestamp}`;
+        script.onload = function() {
+            generateSidebar('ai-agent', '/ai-agent/article/17.html');
+        };
+        document.body.appendChild(script);
+    </script>
+</body>
+</html>

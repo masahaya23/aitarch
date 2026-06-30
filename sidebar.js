@@ -72,6 +72,7 @@ const allArticles = {
             { url: '/ai-agent/article/14.html', title: 'LEAP英単語マスターアプリ', type: 'app', subject: 'english' },
             { url: '/ai-agent/article/15.html', title: 'システム英単語マスターアプリ', type: 'app', subject: 'english' },
             { url: '/ai-agent/article/16.html', title: '英文法マスターアプリ', type: 'app', subject: 'english' },
+            { url: '/ai-agent/article/17.html', title: '議題・議事録作成アプリ', type: 'app', subject: 'business' },
             // 新しいアプリはここに追加します
         ]
     }
