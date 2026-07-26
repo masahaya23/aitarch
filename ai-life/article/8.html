@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- タスクバーに表示するタイトル-->
+    <title>202607_AIエージェント入門講座（保護者向け）</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="/common/theme.css">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+        .pdf-btn {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .pdf-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.45);
+        }
+        .tag {
+            background-color: #dbeafe;
+            color: #1e40af;
+            font-size: 0.75rem;
+            padding: 2px 10px;
+            border-radius: 9999px;
+        }
+        .info-row { border-bottom: 1px solid rgba(37,99,235,0.15); }
+        .info-table span { color: #0b1f44 !important; }
+        .topic-card {
+            background: rgba(255,255,255,0.8);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(37,99,235,0.15);
+        }
+        .topic-card p.font-bold { color: #1e40af !important; }
+        .topic-card p { color: #374151 !important; }
+    </style>
+</head>
+<!-- bodyタグのクラスはJSで動的に付与されるため、空にしておく -->
+<body class="bg-[var(--bg-color)] overflow-x-hidden">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- 左サイドバー: 中身はJSで自動生成される -->
+        <aside id="sidebar-container" class="w-full md:w-1/3 lg:w-1/4 p-6 bg-white/60 backdrop-blur-sm border-r border-black/10" data-aos="fade-right" data-aos-duration="900">
+            <!-- ここにsidebar.jsから記事一覧が挿入されます -->
+        </aside>
+
+        <!--記事の本文をここに記述 -->
+        <main class="w-full md:w-2/3 lg:w-3/4 p-8 md:p-12" data-aos="fade-up" data-aos-duration="900" data-aos-delay="200">
+            <div class="max-w-4xl text-[var(--text-color)]">
+
+                <!-- ヘッダー -->
+                <div class="flex items-center gap-3 mb-2 flex-wrap">
+                    <span class="tag">👨‍👩‍👧 保護者向け</span>
+                    <span class="tag">🤖 AIエージェント</span>
+                    <span class="tag">入門講座</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold pb-4 mt-4 mb-2 border-b border-[var(--theme-color)]/30">
+                    保護者向け AIエージェント入門講習会
+                </h1>
+                <p class="text-lg mb-1 font-bold" style="color:var(--theme-color)">
+                    チャットボットから「AIエージェント」へ ― 次世代AIの全貌と実践活用
+                </p>
+                <p class="text-base mb-8 opacity-80">
+                    「オペレーター」から「ディレクター」へ進化する働き方。保護者の皆さまと一緒に、いま急速に広がる
+                    AIエージェントの基本と、家庭・学びでの向き合い方を学びます（OIH.OIU 主催）。
+                </p>
+
+                <!-- レジュメ（PDF）ボタン -->
+                <div class="mb-10" data-aos="zoom-in" data-aos-duration="600">
+                    <a href="202607_AIAgents_resume.pdf" target="_blank" rel="noopener"
+                       class="pdf-btn inline-flex items-center gap-3 text-white font-bold text-lg px-8 py-4 rounded-2xl shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        講習会レジュメ（PDF）を開く
+                    </a>
+                    <p class="mt-2 text-sm opacity-60">PDFが新しいタブで開きます</p>
+                </div>
+
+                <!-- 開催概要 -->
+                <section class="info-table mb-8 bg-white/70 rounded-xl overflow-hidden border border-[var(--theme-color)]/20" data-aos="fade-up" data-aos-delay="100">
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">開催日</span>
+                        <span>2026年7月25日（明後日）</span>
+                    </div>
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">対象</span>
+                        <span>保護者の皆さま</span>
+                    </div>
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">時間・会場</span>
+                        <span>当日のレジュメ（PDF）をご確認ください</span>
+                    </div>
+                    <div class="flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">配布資料</span>
+                        <span>講習会レジュメ（上記PDF）</span>
+                    </div>
+                </section>
+
+                <!-- この講座について -->
+                <section class="prose prose-lg max-w-none mb-8" data-aos="fade-up" data-aos-delay="150">
+                    <h2 class="text-xl font-bold mb-3" style="color:var(--text-color)">この講座について</h2>
+                    <p style="color:var(--text-color)">
+                        「AIエージェント」とは、指示に応じて自分で考え、調べ、作業を進めてくれる新しいタイプのAIです。
+                        本講座では、専門知識がなくても分かるように、AIエージェントの基本から、子どもたちの学びや家庭での活用、
+                        そして安全に使うために知っておきたい注意点までを、やさしく解説します。
+                        当日は、下記のレジュメ（PDF）に沿って進めます。
+                    </p>
+                </section>
+
+                <!-- 当日のポイント -->
+                <section class="mb-8" data-aos="fade-up" data-aos-delay="200">
+                    <h2 class="text-xl font-bold mb-4" style="color:var(--text-color)">当日ふれる主なテーマ</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="topic-card">
+                            <p class="font-bold text-sm mb-1">🤖 AIエージェントとは</p>
+                            <p class="text-sm opacity-80">従来のAIとの違い、できること・できないことをやさしく整理します</p>
+                        </div>
+                        <div class="topic-card">
+                            <p class="font-bold text-sm mb-1">📚 学び・家庭での活用</p>
+                            <p class="text-sm opacity-80">子どもの学習サポートや日常での使いどころを具体例で紹介します</p>
+                        </div>
+                        <div class="topic-card">
+                            <p class="font-bold text-sm mb-1">🛡️ 安全に使うために</p>
+                            <p class="text-sm opacity-80">個人情報や使い方のルールなど、家庭で気をつけたい点を解説します</p>
+                        </div>
+                        <div class="topic-card">
+                            <p class="font-bold text-sm mb-1">💬 質疑応答</p>
+                            <p class="text-sm opacity-80">保護者の皆さまの疑問・不安にその場でお答えします</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- レジュメ再掲 -->
+                <section class="bg-white/70 rounded-xl p-5 border border-[var(--theme-color)]/20 mb-4" data-aos="fade-up" data-aos-delay="250">
+                    <p class="text-sm mb-3" style="color:var(--text-color)">
+                        当日の詳しい内容・式次第は、講習会レジュメ（PDF）に記載しています。
+                    </p>
+                    <a href="202607_AIAgents_resume.pdf" target="_blank" rel="noopener"
+                       class="inline-flex items-center gap-2 text-[var(--theme-color)] font-bold hover:underline">
+                        📄 講習会レジュメ（PDF）を開く
+                    </a>
+                </section>
+
+            </div>
+
+            <footer class="text-left text-slate-400 mt-12">
+                <p>&copy; 2025 Aitarch. All Rights Reserved.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- 記事リストを生成するJSファイルを読み込む -->
+    <script src="../../sidebar.js"></script>
+    <script>
+        // AOSを初期化
+        AOS.init({ once: true });
+
+        //ここに記事のディレクトリを入れる
+        generateSidebar('ai-life', '/ai-life/article/8.html');
+    </script>
+</body>
+</html>

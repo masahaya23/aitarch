@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【実習】カスタム指示と定期購読</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="/common/theme.css">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+        .sec-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-color);
+            background: rgba(255,255,255,0.6);
+            border-left: 5px solid var(--theme-color);
+            border-radius: 8px;
+            padding: 10px 16px;
+            margin: 40px 0 20px;
+        }
+        .sec-title .sub { font-size: 0.8rem; font-weight: 500; opacity: 0.7; margin-left: 8px; }
+        .step {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            background: rgba(255,255,255,0.7);
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 14px;
+        }
+        .step-badge {
+            flex-shrink: 0;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: var(--theme-color);
+            color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.9rem;
+        }
+        .step-body { color: var(--text-color); }
+        .step-body .lead { font-weight: 700; }
+        .step-body .desc { font-size: 0.9rem; opacity: 0.8; margin-top: 2px; }
+        .prompt-box {
+            position: relative;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-left: 4px solid #2563eb;
+            border-radius: 10px;
+            padding: 14px 16px 14px;
+            margin: 6px 0 22px 42px;
+        }
+        .prompt-label { font-size: 0.72rem; font-weight: 700; color: #1d4ed8; letter-spacing: 0.05em; }
+        .prompt-box pre {
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: #0f172a;
+            margin-top: 8px;
+        }
+        .copy-btn {
+            position: absolute; top: 10px; right: 10px;
+            background: #2563eb; color: #fff;
+            font-size: 0.72rem; font-weight: 700;
+            border: none; border-radius: 6px;
+            padding: 4px 10px; cursor: pointer;
+        }
+        .copy-btn:hover { background: #1d4ed8; }
+        .tag {
+            background-color: #dbeafe; color: #1e40af;
+            font-size: 0.75rem; padding: 2px 10px; border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="bg-[var(--bg-color)] overflow-x-hidden">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <aside id="sidebar-container" class="w-full md:w-1/3 lg:w-1/4 p-6 bg-white/60 backdrop-blur-sm border-r border-black/10" data-aos="fade-right" data-aos-duration="900">
+        </aside>
+
+        <main class="w-full md:w-2/3 lg:w-3/4 p-8 md:p-12" data-aos="fade-up" data-aos-duration="900" data-aos-delay="200">
+            <div class="max-w-4xl text-[var(--text-color)]">
+
+                <div class="flex items-center gap-3 mb-2 flex-wrap">
+                    <span class="tag">🧪 実習01</span>
+                    <span class="tag">ChatGPT</span>
+                    <span class="tag">カスタム指示</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold pb-4 mt-4 mb-2 border-b border-[var(--theme-color)]/30">
+                    カスタム指示と定期購読
+                </h1>
+                <p class="text-base mb-8 opacity-80">
+                    AIを「自分専用」に育てる2つの実習です。<span class="font-bold">青いボックスの文章</span>はそのまま入力するプロンプト（右上の「コピー」で貼り付け）、<span class="font-bold">丸数字</span>は操作の流れです。
+                </p>
+
+                <!-- セクション1 -->
+                <div class="sec-title">🛠️ 1. パーソナライズ ⇒ カスタム指示<span class="sub">中学生向け</span></div>
+
+                <div class="step">
+                    <div class="step-badge">1</div>
+                    <div class="step-body">
+                        <p class="lead">ChatGPT の「カスタム指示」を開く</p>
+                        <p class="desc">設定 → パーソナライズ → カスタム指示。下のプロンプトを貼り付けて保存します。</p>
+                    </div>
+                </div>
+                <div class="prompt-box">
+                    <span class="prompt-label">📋 入力するプロンプト</span>
+                    <button class="copy-btn" onclick="copyPrompt(this)">コピー</button>
+                    <pre># 私が相談や質問をするとき
+全面的に肯定するだけでなく、必ず批判的な視点や異なる立場からの反論、
+多様な意見が存在することを提示してください。
+また、それらの指摘は冗長にならず、簡潔にわかりやすく、短い言葉で行ってください。
+
+# ChatGPT Live で英会話の練習をするとき
+私が I don't understand the meaning of the conversation.
+と言ったら，質問の意味を日本語で教えてください。
+さらに、どんな応答をすればいいか説明してください。
+私が I don't know what to say. Please tell me.
+と言ったら，解答例を教えてください。
+それを反復練習するので、少し待っていてください。</pre>
+                </div>
+
+                <!-- セクション2 -->
+                <div class="sec-title">📰 2. 定期的なニュース購読<span class="sub">どのエージェントサイトでも可能</span></div>
+
+                <div class="step">
+                    <div class="step-badge">1</div>
+                    <div class="step-body">
+                        <p class="lead">Google Finance（など）に定期配信を依頼する</p>
+                        <p class="desc">毎朝決まった時間に、指定テーマのニュースを自動で届けてもらう設定です。</p>
+                    </div>
+                </div>
+                <div class="prompt-box">
+                    <span class="prompt-label">📋 入力するプロンプト</span>
+                    <button class="copy-btn" onclick="copyPrompt(this)">コピー</button>
+                    <pre>毎朝7時に下記の内容のニュース（米国，ユーロ，中国など）を配信して
+
+【対象市場・テーマ】
+1. 米国主要指数（NASDAQ、S&P500）および日経平均の動向・材料
+2. AI・半導体・データセンター関連銘柄の最新トピック
+3. 農産物コモディティ，貴金属の市場動向・天候・需給ニュース
+4. マクロ経済指標（金利、インフレ、FOMC動向）</pre>
+                </div>
+
+            </div>
+
+            <footer class="text-left text-slate-400 mt-12">
+                <p>&copy; 2025 Aitarch. All Rights Reserved.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="../../sidebar.js"></script>
+    <script>
+        AOS.init({ once: true });
+        generateSidebar('ai-life', '/ai-life/article/9.html');
+
+        function copyPrompt(button) {
+            const pre = button.parentElement.querySelector('pre');
+            const textArea = document.createElement('textarea');
+            textArea.value = pre.innerText;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                button.innerText = 'コピー完了！';
+                setTimeout(() => { button.innerText = 'コピー'; }, 2000);
+            } catch (err) {
+                button.innerText = '失敗';
+            }
+            document.body.removeChild(textArea);
+        }
+    </script>
+</body>
+</html>

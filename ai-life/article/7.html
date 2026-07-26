@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- タスクバーに表示するタイトル-->
+    <title>2026_7 GoogleのAIサービス（Gemini除く）</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="/common/theme.css">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+
+        /* ─── Google AIサービス一覧（元コンテンツをサイト用にスコープ） ─── */
+        .gai {
+            --primary-color: #1a73e8;
+            --card-bg: #ffffff;
+            --gai-text: #202124;
+            --sub-text: #5f6368;
+            --border-color: #dadce0;
+            --accent-bg: #e8f0fe;
+            color: var(--gai-text);
+            line-height: 1.6;
+        }
+        .gai-wrap {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        .gai h2.gai-h1 {
+            color: var(--primary-color);
+            font-size: 26px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 12px;
+            margin-top: 0;
+        }
+        .gai p.desc {
+            color: var(--sub-text);
+            font-size: 15px;
+            margin-bottom: 24px;
+        }
+        .gai .notice-box {
+            background-color: #fef7e0;
+            border-left: 4px solid #f9ab00;
+            padding: 14px 18px;
+            border-radius: 4px;
+            margin-bottom: 28px;
+            font-size: 14px;
+            color: var(--gai-text);
+        }
+        .gai .notice-box h3 {
+            margin: 0 0 6px 0;
+            font-size: 15px;
+            color: #b06000;
+        }
+        .gai .section-title {
+            font-size: 19px;
+            color: var(--gai-text);
+            background-color: var(--accent-bg);
+            padding: 8px 14px;
+            border-radius: 6px;
+            margin-top: 32px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+        }
+        .gai table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+        .gai th, .gai td {
+            border: 1px solid var(--border-color);
+            padding: 12px 14px;
+            text-align: left;
+            vertical-align: top;
+            color: var(--gai-text);
+        }
+        .gai th {
+            background-color: #f1f3f4;
+            color: #3c4043;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .gai tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .gai a {
+            color: var(--primary-color);
+            text-decoration: none;
+            word-break: break-all;
+            font-weight: 500;
+        }
+        .gai a:hover {
+            text-decoration: underline;
+        }
+        .gai .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            background-color: #e6f4ea;
+            color: #137333;
+        }
+        .gai .tag-dev {
+            background-color: #feefc3;
+            color: #b06000;
+        }
+        .gai .footer-note {
+            margin-top: 32px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            font-size: 13px;
+            color: var(--sub-text);
+        }
+        .gai ul { padding-left: 1.4em; }
+        .gai li { margin-bottom: 4px; }
+    </style>
+</head>
+<!-- bodyタグのクラスはJSで動的に付与されるため、空にしておく -->
+<body class="bg-[var(--bg-color)] overflow-x-hidden">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- 左サイドバー: 中身はJSで自動生成される -->
+        <aside id="sidebar-container" class="w-full md:w-1/3 lg:w-1/4 p-6 bg-white/60 backdrop-blur-sm border-r border-black/10" data-aos="fade-right" data-aos-duration="900">
+            <!-- ここにsidebar.jsから記事一覧が挿入されます -->
+        </aside>
+
+        <!--記事の本文をここに記述 -->
+        <main class="w-full md:w-2/3 lg:w-3/4 p-8 md:p-12" data-aos="fade-up" data-aos-duration="900" data-aos-delay="200">
+            <div class="max-w-4xl text-[var(--text-color)]">
+
+                <!-- Title -->
+                <h1 class="text-3xl md:text-4xl font-bold pb-4 mb-2 border-b border-[var(--theme-color)]/30">GoogleのAIサービス一覧（Gemini除く）</h1>
+                <p class="text-base text-[var(--text-color)] opacity-70 mt-4 mb-8">公開日: 2026-07</p>
+
+                <!-- 本文（元コンテンツを収録） -->
+                <div class="gai" data-aos="fade-up">
+                <div class="gai-wrap">
+                    <h2 class="gai-h1">Google の AI サービス・学習・開発環境 一覧（Gemini 除く）</h2>
+                    <p class="desc">単体のAIアプリから学習プラットフォーム、開発基盤、最新AIの実験場（Labs）までを網羅した包括的な一覧表です。</p>
+
+                    <div class="notice-box">
+                        <h3>💡 サービス追加に関する検証と留意点</h3>
+                        <ul>
+                            <li><strong>概念の違い：</strong> 「AIツール単体（NotebookLM等）」と「開発プラットフォーム（Firebase等）」や「学習基盤（Skills Boost）」が混ざるため、カテゴリ別に整理しています。</li>
+                            <li><strong>API／クラウド前提：</strong> Speech-to-Textなどは一般ユーザー向け画面というよりAPI利用やクラウド契約が前提となります。</li>
+                            <li><strong>Labsプロダクトの変動：</strong> Google Labs掲載のサービスは実験段階のため、短期間で仕様変更や閉鎖になる場合があります。</li>
+                        </ul>
+                    </div>
+
+                    <div class="section-title">📚 1. 学習・教育・リサーチ系</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 20%;">サービス名</th>
+                                <th style="width: 25%;">公式リンク</th>
+                                <th style="width: 40%;">概要・主な特徴</th>
+                                <th style="width: 15%;">分類</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>NotebookLM</strong></td>
+                                <td><a href="https://notebooklm.google.com/" target="_blank">notebooklm.google.com</a></td>
+                                <td>手元の資料（PDFや文書）のみを根拠にして要約・質疑応答を行うAIアシスタント。ハルシネーションが少ない。</td>
+                                <td><span class="tag">AIリサーチ</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Google Cloud Skills Boost</strong></td>
+                                <td><a href="https://www.cloudskillsboost.google/" target="_blank">cloudskillsboost.google</a></td>
+                                <td>Google CloudやAI技術（生成AI、機械学習）を実践形式で学べる公式トレーニング・学習プラットフォーム。</td>
+                                <td><span class="tag">AIリスキリング</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Teachable Machine</strong></td>
+                                <td><a href="https://teachablemachine.withgoogle.com/" target="_blank">teachablemachine.withgoogle.com</a></td>
+                                <td>画像・音声・姿勢認識モデルをノーコードで簡単に構築・テストできる教育用ツール。</td>
+                                <td><span class="tag">AI教育体験</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Socratic by Google</strong></td>
+                                <td><a href="https://socratic.org/" target="_blank">socratic.org</a></td>
+                                <td>宿題の課題写真を撮ると、AIがステップごとの解説や学習動画を提示してくれる学習サポートアプリ。</td>
+                                <td><span class="tag">学生支援</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="section-title">🧪 2. 実験ポータル・音楽・クリエイティブ系</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 20%;">サービス名</th>
+                                <th style="width: 25%;">公式リンク</th>
+                                <th style="width: 40%;">概要・主な特徴</th>
+                                <th style="width: 15%;">分類</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Google Labs</strong></td>
+                                <td><a href="https://labs.google/" target="_blank">labs.google</a></td>
+                                <td>Googleの最新実験的AIプロジェクト（MusicFXや各種プロトタイプ）が集まる公式ポータル。</td>
+                                <td><span class="tag">実験ポータル</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>MusicFX (AI Test Kitchen)</strong></td>
+                                <td><a href="https://aitestkitchen.withgoogle.com/" target="_blank">aitestkitchen.withgoogle.com</a></td>
+                                <td>テキスト指示から高品質な音楽ループや効果音、BGMを自動生成・編集できる実験ツール。</td>
+                                <td><span class="tag">音楽生成</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>AutoDraw</strong></td>
+                                <td><a href="https://autodraw.com/" target="_blank">autodraw.com</a></td>
+                                <td>手書きの落書きをAIが認識し、プロが描いたような綺麗なイラストアイコンに自動修正するツール。</td>
+                                <td><span class="tag">画像補正</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Quick, Draw!</strong></td>
+                                <td><a href="https://quickdraw.withgoogle.com/" target="_blank">quickdraw.withgoogle.com</a></td>
+                                <td>20秒以内にお題の絵を描き、AIがそれを当てる機械学習体験ゲーム。</td>
+                                <td><span class="tag">画像認識体験</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="section-title">🛠️ 3. 開発者向けAPI・プラットフォーム系</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 20%;">サービス名</th>
+                                <th style="width: 25%;">公式リンク</th>
+                                <th style="width: 40%;">概要・主な特徴</th>
+                                <th style="width: 15%;">分類</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Speech-to-Text</strong></td>
+                                <td><a href="https://cloud.google.com/speech-to-text" target="_blank">cloud.google.com/speech-to-text</a></td>
+                                <td>高度なニューラルネットワークAIを活用し、120以上の言語の音声を正確にテキストへ変換するクラウドAPI。</td>
+                                <td><span class="tag tag-dev">音声API</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Firebase (Vertex AI for Firebase)</strong></td>
+                                <td><a href="https://firebase.google.com/" target="_blank">firebase.google.com</a></td>
+                                <td>アプリ開発プラットフォーム。近年はVertex AI SDKやGenkitを統合し、AI機能の組み込み基盤として進化。</td>
+                                <td><span class="tag tag-dev">開発基盤</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Google AI Studio</strong></td>
+                                <td><a href="https://aistudio.google.com/" target="_blank">aistudio.google.com</a></td>
+                                <td>プロンプト設計、パラメータ調整、APIキー取得をブラウザ上で完結できる開発者向けWEB環境。</td>
+                                <td><span class="tag tag-dev">プロトタイプ開発</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Vertex AI</strong></td>
+                                <td><a href="https://cloud.google.com/vertex-ai" target="_blank">cloud.google.com/vertex-ai</a></td>
+                                <td>機械学習モデルの訓練、チューニング、デプロイを一元管理できるエンタープライズ向けMLOps基盤。</td>
+                                <td><span class="tag tag-dev">MLOps基盤</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="footer-note">
+                        ※ 掲載情報は検証時点のものであり、Googleの製品アップデート等により変更・統合される場合があります。
+                    </div>
+                </div>
+                </div>
+
+            </div>
+
+            <footer class="text-left text-slate-400 mt-12">
+                <p>&copy; 2025 Aitarch. All Rights Reserved.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- 記事リストを生成するJSファイルを読み込む -->
+    <script src="../../sidebar.js"></script>
+    <script>
+        // AOSを初期化
+        AOS.init({ once: true });
+
+        //ここに記事のディレクトリを入れる
+        generateSidebar('ai-life', '/ai-life/article/7.html');
+    </script>
+</body>
+</html>

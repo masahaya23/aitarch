@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>202607_AIエージェント講座（教職員向け）</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="/common/theme.css">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+        .pdf-btn {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .pdf-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37, 99, 235, 0.45); }
+        .tag { background-color: #dbeafe; color: #1e40af; font-size: 0.75rem; padding: 2px 10px; border-radius: 9999px; }
+        .info-row { border-bottom: 1px solid rgba(37,99,235,0.15); }
+        .info-table span { color: #0b1f44 !important; }
+        .sec-title {
+            font-size: 1.25rem; font-weight: 700; color: var(--text-color);
+            background: rgba(255,255,255,0.6);
+            border-left: 5px solid var(--theme-color);
+            border-radius: 8px; padding: 10px 16px; margin: 40px 0 18px;
+        }
+        .card {
+            background: rgba(255,255,255,0.8);
+            border: 1px solid rgba(37,99,235,0.15);
+            border-radius: 12px; padding: 16px;
+        }
+        .card p.h { font-weight: 700; color: #1e40af; margin-bottom: 4px; }
+        .card p, .card li { color: #374151; }
+        .ftable { width: 100%; border-collapse: collapse; font-size: 0.88rem; background: #fff; border-radius: 10px; overflow: hidden; }
+        .ftable th { background: #1e3a8a; color: #fff; text-align: left; padding: 8px 12px; }
+        .ftable td { padding: 8px 12px; border-bottom: 1px solid #e5e7eb; color: #1f2937; vertical-align: top; }
+        .ftable tr:nth-child(even) td { background: #eff6ff; }
+        .goal-box { background:#eff6ff; border:1px solid #bfdbfe; border-radius:10px; padding:12px 16px; font-size:0.9rem; color:#1e3a8a; }
+    </style>
+</head>
+<body class="bg-[var(--bg-color)] overflow-x-hidden">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <aside id="sidebar-container" class="w-full md:w-1/3 lg:w-1/4 p-6 bg-white/60 backdrop-blur-sm border-r border-black/10" data-aos="fade-right" data-aos-duration="900">
+        </aside>
+
+        <main class="w-full md:w-2/3 lg:w-3/4 p-8 md:p-12" data-aos="fade-up" data-aos-duration="900" data-aos-delay="200">
+            <div class="max-w-4xl text-[var(--text-color)]">
+
+                <div class="flex items-center gap-3 mb-2 flex-wrap">
+                    <span class="tag">🧑‍🏫 教職員向け</span>
+                    <span class="tag">🤖 AIエージェント</span>
+                    <span class="tag">講習会</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold pb-4 mt-4 mb-2 border-b border-[var(--theme-color)]/30">
+                    AIエージェント入門講習会（教職員向け）
+                </h1>
+                <p class="text-lg mb-1 font-bold" style="color:var(--theme-color)">
+                    チャットボットから「AIエージェント」へ ― 次世代AIの全貌と実践活用
+                </p>
+                <p class="text-base mb-8 opacity-80">
+                    「オペレーター」から「ディレクター」へ進化する働き方。教職員の皆さまと、次世代AIの全体像と
+                    授業・校務での実践的な使い方を学びます（OIH.OIU 主催）。以下は当日プレゼン資料の要約です。
+                </p>
+
+                <!-- プレゼン資料（PDF）ボタン -->
+                <div class="mb-10" data-aos="zoom-in" data-aos-duration="600">
+                    <a href="The_AI_Flight_Manual.pdf" target="_blank" rel="noopener"
+                       class="pdf-btn inline-flex items-center gap-3 text-white font-bold text-lg px-8 py-4 rounded-2xl shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        プレゼン資料（PDF）を開く
+                    </a>
+                    <p class="mt-2 text-sm opacity-60">PDFが新しいタブで開きます</p>
+                </div>
+
+                <!-- 開催概要 -->
+                <section class="info-table mb-4 bg-white/70 rounded-xl overflow-hidden border border-[var(--theme-color)]/20" data-aos="fade-up" data-aos-delay="100">
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">開催日</span>
+                        <span>2026年7月27日</span>
+                    </div>
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">対象</span>
+                        <span>教職員の皆さま</span>
+                    </div>
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">主催</span>
+                        <span>OIH.OIU</span>
+                    </div>
+                    <div class="flex px-5 py-3 text-sm">
+                        <span class="w-32 font-bold opacity-70">配布資料</span>
+                        <span>プレゼン資料（上記PDF・全14ページ）</span>
+                    </div>
+                </section>
+
+                <!-- 要約 -->
+                <div class="sec-title">⚠️ AIの「4つの落とし穴」</div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" data-aos="fade-up">
+                    <div class="card"><p class="h">平気で嘘をつく</p><p class="text-sm">ハルシネーション。「分からない」と言えず、事実を捏造して回答する傾向。</p></div>
+                    <div class="card"><p class="h">単純な計算を間違える</p><p class="text-sm">従来のコンピュータ処理とは仕組みが異なり、論理的な数式処理でエラーを起こす。</p></div>
+                    <div class="card"><p class="h">途中で仕事をサボる</p><p class="text-sm">データセンター・GPU・電力の不足によるリソース制限で、処理を完遂しないことがある。</p></div>
+                    <div class="card"><p class="h">利用者を「裸の王様」にする</p><p class="text-sm">相談者に過剰に同調し、客観的な視点を奪うことで人々を分断させる危険性。</p></div>
+                </div>
+
+                <div class="sec-title">🧠 最も危険な相談相手：「チャッピー」現象</div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3" data-aos="fade-up">
+                    <div class="card"><p class="h">若年層の過度な依存</p><p class="text-sm">ChatGPTが中高生の「一番の相談者」となり、何でも肯定するとAIに精神的に依存する危険。</p></div>
+                    <div class="card"><p class="h">リテラシー教育の急務</p><p class="text-sm">教育現場・家庭でAIの限界を理解させる教育と、カスタム指示の適切な設定が不可欠。</p></div>
+                    <div class="card"><p class="h">自律型特有の脅威</p><p class="text-sm">想定外の挙動やプロンプトインジェクション（悪意ある指示による乗っ取り）への対策は発展途上。</p></div>
+                </div>
+
+                <div class="sec-title">🚕→🚗 チャットボットから「AIエージェント」へ</div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" data-aos="fade-up">
+                    <div class="card"><p class="h">チャットボット＝タクシーを呼ぶだけ</p><p class="text-sm">単発の相談に留まり、常に人間が方向を指示し続ける必要がある受け身のシステム。</p></div>
+                    <div class="card"><p class="h">AIエージェント＝自律的な自動運転</p><p class="text-sm">目的地を設定すれば自律的に完遂。優秀なAI部下に「しっかりした仕事」を任せる次世代のパラダイム。</p></div>
+                </div>
+
+                <div class="sec-title">🛠️ 成功のカギ：Prompt / Context / Harness / Loop</div>
+                <p class="text-sm opacity-80 mb-3">「ゴールを指示するだけ」ではダメ。AIを"育てて"豊かな出力を得るための4要素です。</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" data-aos="fade-up">
+                    <div class="card"><p class="h">Prompt（指示の出し方）</p><p class="text-sm">「あなたは広報担当です」「箇条書きで3つ」など、指示文を工夫して思い通りの回答を引き出す。</p></div>
+                    <div class="card"><p class="h">Context（渡す手元資料）</p><p class="text-sm">社内FAQ・参考デザイン・過去のやり取りなどを手元資料として読み込ませ、前提を理解させる。</p></div>
+                    <div class="card"><p class="h">Harness（安全策と道具箱）</p><p class="text-sm">使えるツールを限定し、危険な出力を検知・ブロック。プラグイン・SKILL.md・agent.md（claude.md）。</p></div>
+                    <div class="card"><p class="h">Loop（やり直し・自己検品）</p><p class="text-sm">「テスト→エラーなら自分で修正→再テスト」を合格まで繰り返し、人間のチェックなしで仕上げる。</p></div>
+                </div>
+                <p class="text-sm opacity-80 mt-3">→ 一度成功したプロセスは <strong>SKILL.md / agent.md</strong> に保存すれば、何度でも使える「再現可能なデジタル資産」になります。</p>
+
+                <div class="sec-title">🎤 AIへの指示は「キーボード」から「声と視覚」へ</div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" data-aos="fade-up">
+                    <div class="card"><p class="h">音声入力</p><p class="text-sm">マイクに向かってたっぷり話す。Windows 11 標準機能（Win+H）や TypeLess 等のAI音声入力ツールを活用。</p></div>
+                    <div class="card"><p class="h">視覚入力</p><p class="text-sm">モニターのスクリーンショットを直接貼り付け、視覚情報を共有して指示を補完する。</p></div>
+                </div>
+
+                <div class="sec-title">🌐 フロンティアAIモデル 最新ランドスケープ</div>
+                <div class="overflow-x-auto" data-aos="fade-up">
+                    <table class="ftable">
+                        <thead><tr><th>メーカー</th><th>主要モデル名</th><th>エージェント・機能の特長</th></tr></thead>
+                        <tbody>
+                            <tr><td>Anthropic</td><td>Claude Fable 5 / Mythos 5 / Opus 5 / Sonet 5</td><td>ブラウザやターミナルを自律操作するエージェント機能が大幅強化。極めて高い推論能力。</td></tr>
+                            <tr><td>OpenAI</td><td>GPT-5.6（Sol, Terra, Luna）/ GPT-Live</td><td>コーディング能力が劇的向上。人間の言葉を遮って自然に会話できるリアルタイム音声を搭載。</td></tr>
+                            <tr><td>Google</td><td>Gemini 3.5 Pro / Spark / gemini 3.6 Flash</td><td>最先端の知能と自律的行動の融合。24時間体制のエージェント「Spark」を提供開始。</td></tr>
+                            <tr><td>X (xAI)</td><td>Grok 4.5</td><td>Xのリアルタイムデータへ直接アクセス。コーディングや自律エージェントタスク向けに性能強化。</td></tr>
+                            <tr><td>Moonshot AI</td><td>Kimi K3</td><td>総パラメータ数2.8兆の超巨大規模。モデル本体の一般公開（オープンウェイト）を予定。</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="sec-title">💻 ブラウザから「デスクトップ」へ：エージェントの進化</div>
+                <div class="card" data-aos="fade-up">
+                    <p class="text-sm mb-2">クラウド基盤とローカルPCをつなぐ<strong>デスクトップ・エージェント</strong>（Claude Cowork / Claude Code / GPT Work / Codex / Antigravity 2.0）が登場。</p>
+                    <ul class="text-sm list-disc list-inside space-y-1">
+                        <li><strong>直接アクセス</strong>：ローカルPC内のファイルやフォルダを直接参照・編集できる</li>
+                        <li><strong>システム操作</strong>：ブラウザを超え、OS操作自体をある程度自律的に実行する</li>
+                        <li><strong>シームレスな統合</strong>：ローカルとクラウドを接続し、情報と成果物を自動配信</li>
+                    </ul>
+                </div>
+
+                <div class="sec-title">🧭 【統合】適材適所のAIツール・セレクション</div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" data-aos="fade-up">
+                    <div class="card"><p class="h">高推論なドキュメント作成・企画</p><p class="text-sm">Claude Cowork / Code、AntiGravity 2.0</p></div>
+                    <div class="card"><p class="h">自律的なPC操作・コーディング開発</p><p class="text-sm">GPT Work / Codex</p></div>
+                    <div class="card"><p class="h">学習サポート・概念理解</p><p class="text-sm">Google Notebook + Gemini、Manus（クラウド）</p></div>
+                    <div class="card"><p class="h">最新の経済・世界情勢のリサーチ</p><p class="text-sm">Perplexity、Google Finance</p></div>
+                </div>
+
+                <div class="sec-title">🚀 当日の実習（Let's Try）</div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" data-aos="fade-up">
+                    <div class="card"><p class="h">Gemini Notebook</p><p class="text-sm">問題プリントや解答をスキャン → ドライブ経由で読み込み → できなかった問題を徹底理解 → 類題演習で定着。</p></div>
+                    <div class="card"><p class="h">GPT Work & Codex</p><p class="text-sm">パーソナライズ設定 → プラグイン活用 → スケジュール管理 → Webサイト構築まで、自律的なタスクを体験。</p></div>
+                </div>
+
+                <div class="sec-title">🔗 リンク集（それぞれに個性・特徴があります）</div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4" data-aos="fade-up">
+                    <div class="card">
+                        <p class="h">無料でお役立ちサイト</p>
+                        <ul class="text-sm list-disc list-inside space-y-1">
+                            <li><a class="text-blue-700 underline" href="https://www.typeless.com/ja/downloads" target="_blank" rel="noopener">TypeLess</a>（AI音声入力）</li>
+                            <li><a class="text-blue-700 underline" href="https://www.perplexity.ai/" target="_blank" rel="noopener">Perplexity</a>（検索能力の高いAI）</li>
+                            <li><a class="text-blue-700 underline" href="https://manus.im/ja" target="_blank" rel="noopener">Manus</a>（実務系AIエージェント）</li>
+                            <li><a class="text-blue-700 underline" href="https://www.google.com/finance/beta/?hl=ja" target="_blank" rel="noopener">Google Finance β版</a></li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <p class="h">AIクラウドサイト</p>
+                        <ul class="text-sm list-disc list-inside space-y-1">
+                            <li><a class="text-blue-700 underline" href="https://gemini.google.com/app?hl=ja" target="_blank" rel="noopener">Gemini</a>（Google）</li>
+                            <li><a class="text-blue-700 underline" href="https://notebooklm.google.com/" target="_blank" rel="noopener">Gemini Notebook</a>（情報の集約に強い）</li>
+                            <li><a class="text-blue-700 underline" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT</a>（OpenAI）</li>
+                            <li><a class="text-blue-700 underline" href="https://claude.ai/" target="_blank" rel="noopener">Claude</a>（Anthropic）</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <p class="h">AIエージェントアプリ</p>
+                        <ul class="text-sm list-disc list-inside space-y-1">
+                            <li><a class="text-blue-700 underline" href="https://openai.com/chatgpt/download/" target="_blank" rel="noopener">ChatGPTアプリ</a>（Work, Codex 用）</li>
+                            <li><a class="text-blue-700 underline" href="https://claude.com/download" target="_blank" rel="noopener">Claudeアプリ</a>（Cowork, Code 用）</li>
+                            <li><a class="text-blue-700 underline" href="https://antigravity.google/download" target="_blank" rel="noopener">Antigravity 2.0アプリ</a>（Google）</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <p class="h">学習サイト</p>
+                        <ul class="text-sm list-disc list-inside space-y-1">
+                            <li><a class="text-blue-700 underline" href="https://manabiai.super.site/" target="_blank" rel="noopener">まなびあい</a>（東大・吉田塁先生のAI学習サイト）</li>
+                            <li><a class="text-blue-700 underline" href="https://weblab.t.u-tokyo.ac.jp/lecture/course-list/" target="_blank" rel="noopener">松尾・岩澤研究室</a>（東大AI講座 ※中高生も受講可能）</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="goal-box">📌 詳しい図解・全内容は、上部の「プレゼン資料（PDF）」をご覧ください。</div>
+
+            </div>
+
+            <footer class="text-left text-slate-400 mt-12">
+                <p>&copy; 2025 Aitarch. All Rights Reserved.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="../../sidebar.js"></script>
+    <script>
+        AOS.init({ once: true });
+        generateSidebar('ai-life', '/ai-life/article/12.html');
+    </script>
+</body>
+</html>
