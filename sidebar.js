@@ -37,9 +37,9 @@ const allArticles = {
              { url: '/ai-invest/article/1.html', title: 'すごいぞ Google Finance' },
              { url: '/ai-invest/article/2.html', title: 'これからはロボティクス' },
              { url: '/ai-invest/article/3.html', title: 'この先には量子コンピュータ' },
-             { url: '/ai-invest/article/4.html', title: '2026年8月 穀物市場レポート' },
-             { url: '/ai-invest/article/5.html', title: '週間米国市場レポート（8/25〜29）' },
-             { url: '/ai-invest/article/6.html', title: '米国市場レポート（2026/9/1）' },
+             { url: '/ai-invest/article/4.html', title: '202608_穀物レポート' },
+             { url: '/ai-invest/article/5.html', title: '週刊米国レポート（8/25〜8/29）' },
+             { url: '/ai-invest/article/6.html', title: '米国市場レポート（9月1日）' },
         ]
     },
     // カテゴリID: 'info-test'
