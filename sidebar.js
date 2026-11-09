@@ -84,6 +84,9 @@ const allArticles = {
             { url: '/ai-agent/article/16.html', title: '英文法マスターアプリ', type: 'app', subject: 'english' },
             { url: '/ai-agent/article/17.html', title: '議題・議事録作成アプリ', type: 'app', subject: 'business' },
             { url: '/ai-agent/article/18.html', title: '正しい思考の手順（数学勉強法）', type: 'article', subject: 'math' },
+            { url: '/ai-agent/article/19.html', title: '指数法則クイズ', type: 'game', subject: 'math' },
+            { url: '/ai-agent/article/20.html', title: '高校物理_確認テスト', type: 'app', subject: 'physics' },
+            { url: '/ai-agent/article/21.html', title: '高校物理口頭試問テスト', type: 'app', subject: 'physics' },
             // 新しいアプリはここに追加します
         ]
     }

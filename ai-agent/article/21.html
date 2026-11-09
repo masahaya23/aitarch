@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高校物理口頭試問テスト - OIH_AIエージェント研究会</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="/common/theme.css">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+        .launch-btn {
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .launch-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(124, 58, 237, 0.45);
+        }
+        .tag {
+            background-color: #ede9fe;
+            color: #5b21b6;
+            font-size: 0.75rem;
+            padding: 2px 10px;
+            border-radius: 9999px;
+        }
+        .info-row { border-bottom: 1px solid rgba(124,58,237,0.15); }
+        .info-table span { color: #1e0a40 !important; }
+        .method-card {
+            background: rgba(255,255,255,0.75);
+            border-radius: 12px;
+            padding: 14px 16px;
+            border: 1px solid rgba(124,58,237,0.15);
+        }
+        .method-card p { color: #374151 !important; }
+        .method-card p.font-bold { color: #5b21b6 !important; }
+    </style>
+</head>
+<body class="theme-ai-agent overflow-x-hidden">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <aside id="sidebar-container"
+               class="w-full md:w-1/3 lg:w-1/4 p-6 bg-white/60 backdrop-blur-sm border-r border-black/10"
+               data-aos="fade-right" data-aos-duration="900">
+        </aside>
+
+        <main class="w-full md:w-2/3 lg:w-3/4 p-8 md:p-12"
+              data-aos="fade-left" data-aos-duration="900" data-aos-delay="200">
+            <div class="max-w-3xl text-[var(--text-color)]">
+
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="tag">⚙️ アプリ</span>
+                    <span class="tag">⚛️ 物理</span>
+                    <span class="tag">口頭試問対策</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold pb-4 mt-4 mb-6 border-b border-[var(--theme-color)]/30">
+                    高校物理口頭試問テスト
+                </h1>
+
+                <div class="mb-10" data-aos="zoom-in" data-aos-duration="600">
+                    <button onclick="window.open('/ai-agent/app/PhysicsOralExamination.html', '_blank')"
+                            class="launch-btn inline-flex items-center gap-3 text-white font-bold text-lg px-8 py-4 rounded-2xl shadow-lg">
+                        <i class="fa-solid fa-circle-play text-xl"></i>
+                        アプリを起動（別タブ）
+                    </button>
+                    <p class="mt-2 text-sm opacity-60">新しいタブで開きます</p>
+                </div>
+
+                <section class="mb-8" data-aos="fade-up">
+                    <h2 class="text-xl font-bold mb-3">アプリ概要</h2>
+                    <p>
+                        推薦入試や総合型入試の、物理分野の口頭試問対策アプリです。
+                        問題を見たら20〜30秒ほど声に出して答え、模範解答と追加質問で理解を深めながら、「説明できた」「もう一度練習」を自己評価して進めます。
+                    </p>
+                </section>
+
+                <section class="info-table mb-8 bg-white/70 rounded-xl overflow-hidden border border-[var(--theme-color)]/20" data-aos="fade-up" data-aos-delay="100">
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 shrink-0 font-bold opacity-70">対象</span>
+                        <span>推薦入試・総合型入試で物理の口頭試問を受ける高校生</span>
+                    </div>
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 shrink-0 font-bold opacity-70">問題数</span>
+                        <span>全64題</span>
+                    </div>
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 shrink-0 font-bold opacity-70">分野</span>
+                        <span>電気・磁気・電子機器（21題）／波動・光・通信（16題）／熱力学・エネルギー（15題）／力学・機械・センサー（12題）</span>
+                    </div>
+                    <div class="info-row flex px-5 py-3 text-sm">
+                        <span class="w-32 shrink-0 font-bold opacity-70">形式</span>
+                        <span>Webアプリ（ブラウザのみで動作、インストール不要）</span>
+                    </div>
+                    <div class="flex px-5 py-3 text-sm">
+                        <span class="w-32 shrink-0 font-bold opacity-70">開発者</span>
+                        <span>長田先生</span>
+                    </div>
+                </section>
+
+                <section class="mb-8" data-aos="fade-up" data-aos-delay="150">
+                    <h2 class="text-xl font-bold mb-4">主な機能</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="method-card">
+                            <p class="font-bold text-sm mb-1">模範解答と追加質問</p>
+                            <p class="text-sm">答えたあとに模範解答を確認し、本番を想定した追加質問にも挑戦できます</p>
+                        </div>
+                        <div class="method-card">
+                            <p class="font-bold text-sm mb-1">分野・学習状況で絞り込み</p>
+                            <p class="text-sm">分野ごと、または未実施・要復習の問題だけを練習できます</p>
+                        </div>
+                        <div class="method-card">
+                            <p class="font-bold text-sm mb-1">ランダム出題と問題一覧</p>
+                            <p class="text-sm">ランダムに解くことも、一覧から問題を選ぶこともできます</p>
+                        </div>
+                        <div class="method-card">
+                            <p class="font-bold text-sm mb-1">学習記録を自動保存</p>
+                            <p class="text-sm">記録は使っているブラウザ内に保存されます。端末を変えると引き継がれません</p>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <footer class="text-left text-slate-400 mt-12">
+                <p>&copy; 2025 Aitarch. All Rights Reserved.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ once: true });
+
+        const script = document.createElement('script');
+        script.src = `../../sidebar.js?v=${new Date().getTime()}`;
+        script.onload = function() {
+            generateSidebar('ai-agent', '/ai-agent/article/21.html');
+        };
+        document.body.appendChild(script);
+    </script>
+</body>
+</html>
